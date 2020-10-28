@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>788957977133-fhj5s4eh23il1gg42ulmk5qtigiueuv9.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.788957977133-fhj5s4eh23il1gg42ulmk5qtigiueuv9</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBnoMGcCzQmoO4ZVNFABmVpxKLWOP-xAFk</string>
+	<key>GCM_SENDER_ID</key>
+	<string>788957977133</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.team3.LetsHang</string>
+	<key>PROJECT_ID</key>
+	<string>letshang-97241</string>
+	<key>STORAGE_BUCKET</key>
+	<string>letshang-97241.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:788957977133:ios:85a077930640beed4136a4</string>
+	<key>DATABASE_URL</key>
+	<string>https://letshang-97241.firebaseio.com</string>
+</dict>
+</plist>

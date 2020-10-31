@@ -8,9 +8,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:788957977133:android:604bd5d20f757e374136a4",
+        "mobilesdk_app_id": "1:788957977133:android:291e4957b840b33f4136a4",
         "android_client_info": {
-          "package_name": "com.team3.LetsHang"
+          "package_name": "com.letshang"
         }
       },
       "oauth_client": [
@@ -32,10 +32,10 @@
               "client_type": 3
             },
             {
-              "client_id": "788957977133-fhj5s4eh23il1gg42ulmk5qtigiueuv9.apps.googleusercontent.com",
+              "client_id": "788957977133-r63ojqmvic9vvldeehvo9mrsii196ke0.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.team3.LetsHang"
+                "bundle_id": "com.team3.letshang"
               }
             }
           ]

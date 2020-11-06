@@ -11,8 +11,8 @@ import React, { Component } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
-import Signin from './components/signin';
-import Setting from './components/setting';
+import Signin from './components/signin/signin';
+import Profile from './components/profile/profile';
 
 const Stack = createStackNavigator();
 
@@ -25,8 +25,8 @@ function MyStack() {
         options={{ title: 'Welcome' }}
       />  
       <Stack.Screen 
-        name="Setting" 
-        component={Setting} 
+        name="Profile" 
+        component={Profile} 
       />      
     </Stack.Navigator>
   );

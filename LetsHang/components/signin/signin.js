@@ -37,6 +37,7 @@ import {
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import styles from './styles';
 
 GoogleSignin.configure({
   scopes: ['email'],
@@ -106,7 +107,7 @@ export default class Signin extends Component<Props>{
   render() {
     return (
       <View style={styles.container}>
-        <Text style={flattenStyle}>Let's Hang</Text>
+        <Text style={styles.title}>Let's Hang</Text>
         <LoginApp />
         
         {!firebase.apps.length && (
@@ -119,7 +120,7 @@ export default class Signin extends Component<Props>{
           style={{width: 192, height: 48}}
           size={GoogleSigninButton.Size.Wide}
           color={GoogleSigninButton.Color.Dark}
-          onPress={() => this.onGoogleButtonPress().then(() => this.props.navigation.navigate('Setting'))}
+          onPress={() => this.onGoogleButtonPress().then(() => this.props.navigation.navigate('Profile'))}
         />
         
         <Button
@@ -131,36 +132,4 @@ export default class Signin extends Component<Props>{
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
-});
-const typography = StyleSheet.create({
-  header: {
-    color: "#000000",
-    fontSize: 30,
-    marginBottom: 36
-  }
-});
-
-
-const flattenStyle = StyleSheet.flatten([
-  styles.text,
-  typography.header
-]);
 

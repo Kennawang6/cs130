@@ -26,6 +26,79 @@ exports.appHelloWorld = functions.https.onCall((data, context) => {
     response.send("Hello, app");
 });
 
+
+exports.addUserData = functions.https.onCall(async (data, context) => {
+    //data parameters: 
+    // None
+    if (!context.auth) {
+        functions.logger.info("Unauthenticated user");
+        return {text: "Unauthenticated user"};
+    } else {
+        try {
+            functions.logger.info("Hello to " + context.auth.uid);
+            const friendRecord = await admin.auth().getUserByEmail(data.friend_email);
+            // See the UserRecord reference doc for the contents of userRecord.
+            console.log('Successfully fetched friend data:', friendRecord.toJSON());
+
+            const getUserInfo = await admin.firestore().collection('users').doc(context.auth.uid).get();
+
+            if(!getUserInfo.exists){
+                await admin.firestore().collection('users').doc(context.auth.uid)
+                        .set({
+                            name: "",
+                            timeZone: 0, //This could encode hours relative to GMT
+                            schedule: {},
+                            events: [],
+                            eventNotifications: [], 
+                            friendsToAdd: [],
+                            friends: []
+                        });
+
+                console.log("User data added");
+                return {text: "User data added"};
+            }
+
+            console.log("User data already exists");
+            return {text: "User data already exists"};
+        } catch (error) {
+            console.log('Error fetching user data:', error);
+            return  {text: "Firebase error while adding friend"};
+        }
+    }
+});
+
+exports.getUserData = functions.https.onCall(async (data, context) => {
+    //data parameters: 
+    // None
+    if (!context.auth) {
+        functions.logger.info("Unauthenticated user");
+        return {text: "Unauthenticated user"};
+    } else {
+        try {
+            functions.logger.info("Hello to " + context.auth.uid);
+            const friendRecord = await admin.auth().getUserByEmail(data.friend_email);
+            // See the UserRecord reference doc for the contents of userRecord.
+            console.log('Successfully fetched friend data:', friendRecord.toJSON());
+
+            const getUserInfo = await admin.firestore().collection('users').doc(context.auth.uid).get();
+
+            if(!getUserInfo.exists){
+                console.log("User data does not exist");
+                return {text: "User data does not exist"};
+            }
+
+            console.log("User data found");
+            return {
+                text: "User data found",
+                data: getUserInfo.data()
+            };
+        } catch (error) {
+            console.log('Error fetching user data:', error);
+            return  {text: "Firebase error while adding friend"};
+        }
+    }
+});
+
 exports.addFriend = functions.https.onCall(async (data, context) => {
     //data parameters: 
     //  friend_email: friend's email

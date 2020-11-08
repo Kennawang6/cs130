@@ -2,6 +2,7 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 admin.initializeApp();
 const db = admin.firestore();
+const schedule = require("./schedule.js");
 
 exports.helloWorld = functions.https.onRequest((request, response) => {
     // call with HTTP
@@ -40,3 +41,6 @@ exports.httpGet = functions.https.onRequest((request, response) => {
         functions.logger.info("database get error " + error);
     });
 });
+
+exports.addSchedule = schedule.addSchedule;
+exports.getSchedule = schedule.getSchedule;

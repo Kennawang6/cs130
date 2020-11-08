@@ -36,9 +36,6 @@ exports.addUserData = functions.https.onCall(async (data, context) => {
     } else {
         try {
             functions.logger.info("Hello to " + context.auth.uid);
-            const friendRecord = await admin.auth().getUserByEmail(data.friend_email);
-            // See the UserRecord reference doc for the contents of userRecord.
-            console.log('Successfully fetched friend data:', friendRecord.toJSON());
 
             const getUserInfo = await admin.firestore().collection('users').doc(context.auth.uid).get();
 
@@ -61,8 +58,8 @@ exports.addUserData = functions.https.onCall(async (data, context) => {
             console.log("User data already exists");
             return {text: "User data already exists"};
         } catch (error) {
-            console.log('Error fetching user data:', error);
-            return  {text: "Firebase error while adding friend"};
+            console.log('Error adding user data:', error);
+            return  {text: "Firebase error while adding user"};
         }
     }
 });
@@ -76,9 +73,6 @@ exports.getUserData = functions.https.onCall(async (data, context) => {
     } else {
         try {
             functions.logger.info("Hello to " + context.auth.uid);
-            const friendRecord = await admin.auth().getUserByEmail(data.friend_email);
-            // See the UserRecord reference doc for the contents of userRecord.
-            console.log('Successfully fetched friend data:', friendRecord.toJSON());
 
             const getUserInfo = await admin.firestore().collection('users').doc(context.auth.uid).get();
 
@@ -93,8 +87,47 @@ exports.getUserData = functions.https.onCall(async (data, context) => {
                 data: getUserInfo.data()
             };
         } catch (error) {
-            console.log('Error fetching user data:', error);
-            return  {text: "Firebase error while adding friend"};
+            console.log("Error getting user data");
+            return  {text: "Error getting user data"};
+        }
+    }
+});
+
+
+exports.updateUserData = functions.https.onCall(async (data, context) => {
+    //data parameters: 
+    // userData: a JSON object which contains some or all of the fields of the user class, which are
+    /*{
+        name: ,  
+        timeZone: , 
+        schedule: ,
+        events: ,
+        eventNotifications: , 
+        friendsToAdd: ,
+        friends: 
+    }*/
+    if (!context.auth) {
+        functions.logger.info("Unauthenticated user");
+        return {text: "Unauthenticated user"};
+    } else {
+        try {
+            functions.logger.info("Hello to " + context.auth.uid);
+
+            const getUserInfo = await admin.firestore().collection('users').doc(context.auth.uid).get();
+
+            if(!getUserInfo.exists){
+                console.log("User data does not exist");
+                return {text: "User data does not exist"};
+            }
+
+            await admin.firestore().collection('users').doc(context.auth.uid)
+                .update(data.userData);
+
+            console.log("User data found");
+            return {text: "User data updated"};
+        } catch (error) {
+            console.log(("Error getting user data");
+            return  {text: "Error getting user data"};
         }
     }
 });

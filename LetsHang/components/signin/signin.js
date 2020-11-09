@@ -27,6 +27,7 @@ import {
 } from 'react-native/Libraries/NewAppScreen';
 
 import firebase from '@react-native-firebase/app';
+import functions from '@react-native-firebase/functions';
 import { Button } from 'react-native';
 
 import {
@@ -94,7 +95,7 @@ export default class Signin extends Component<Props>{
     // Create a Google credential with the token
     const googleCredential = auth.GoogleAuthProvider.credential(idToken);
 
-    const addUserDataRes = await firebase.functions().httpsCallable('addUserData')({});
+    const addUserDataRes = await functions().httpsCallable('addUserData')({});
     console.log("Added user data")
 
     // Sign-in the user with the credential

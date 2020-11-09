@@ -94,6 +94,9 @@ export default class Signin extends Component<Props>{
     // Create a Google credential with the token
     const googleCredential = auth.GoogleAuthProvider.credential(idToken);
 
+    const addUserDataRes = await firebase.functions().httpsCallable('addUserData')({});
+    console.log("Added user data")
+
     // Sign-in the user with the credential
     return auth().signInWithCredential(googleCredential);  
   }

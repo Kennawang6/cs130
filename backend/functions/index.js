@@ -126,7 +126,7 @@ exports.updateUserData = functions.https.onCall(async (data, context) => {
             console.log("User data found");
             return {text: "User data updated"};
         } catch (error) {
-            console.log(("Error getting user data");
+            console.log("Error getting user data");
             return  {text: "Error getting user data"};
         }
     }
@@ -276,7 +276,7 @@ exports.getFriendsList = functions.https.onCall(async (data, context) => {
             console.log('Error fetching user data:', error);
             return  {text: "Firebase error while adding friend"};
         }
-    }
+    }});
 exports.httpGet = functions.https.onRequest((request, response) => {
   // need to add to local db emulator
     db.collection('demo').doc('doc').get().then((doc) => {

@@ -2,28 +2,6 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const db = admin.firestore();
 
-exports.ifFirstTimeUser = functions.https.onCall(async (data, context) => {
-	if (!context.auth) {
-        functions.logger.info("Unauthenticated user");
-        return {text: "Unauthenticated user"};
-    } else {
-        try {
-            functions.logger.info("Hello to " + context.auth.uid);
-            const getUserInfo = await admin.firestore().collection('users').doc(context.auth.uid).get();
-            if(!getUserInfo.exists){
-            	return false;
-            }
-            else{
-            	return true;
-            }
-        }
-        catch (error) {
-            console.log('Error checking if first time user', error);
-            return  {text: "Firebase error while checking if first time user"};
-        }
-    }
-});
-
 exports.addUserData = functions.https.onCall(async (data, context) => {
     //data parameters: 
     // None

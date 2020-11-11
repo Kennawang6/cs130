@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Text, Button } from 'react-native';
+import { StyleSheet, View, Text, Button, TextInput, TouchableOpacity, Keyboard } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import firebase from '@react-native-firebase/app';
 import styles from './styles';
@@ -25,18 +25,18 @@ export default class Setting extends Component {
         console.log(this.state.userTimeZone);
     });
   }
-
-  setName = async() => {
-    console.log("Hi, I am trying to set name");
-    /*const data = await functions().httpsCallable('updateUserData')({
-
-    });*/
-
-    /*this.setState({userName: data.data.data.name, userTimeZone: data.data.data.timeZone}, () => {                              
+  handleUserName = (newName) => {
+    this.setState({userName: newName}, () => {                              
         console.log(this.state.userName);
-        console.log(this.state.userTimeZone);
-    });*/
-
+    });
+  }
+  setUserName = async(newName) => {
+    const data = await functions().httpsCallable('updateUserData')({
+      userData: {
+        name: newName
+      }
+    });
+    console.log("Name is set");
   }
   
   componentDidMount() {
@@ -58,10 +58,19 @@ export default class Setting extends Component {
           photoURL: {user.photoURL} {"\n"}{"\n"}
           timeZone: {curTimeZone==100?' ': curTimeZone} {"\n"}{"\n"}
         </Text>
-        <Button
-          title="Edit"
-          onPress={() => this.setName()}
-        />
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.textInput}
+            placeholder={this.state.userName}
+            maxLength={20}
+            onBlur={Keyboard.dismiss}
+            value={this.state.userName}
+            onChangeText={this.handleUserName}
+          />
+        </View>
+        <TouchableOpacity onPress = {() => this.setUserName(this.state.userName)}>
+          <Text> Submit </Text>
+        </TouchableOpacity>
         <Button
           title="Log Off"
           onPress={()=>this.logoff().then(() => this.props.navigation.navigate('Signin'))}

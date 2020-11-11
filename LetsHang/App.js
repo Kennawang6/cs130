@@ -13,6 +13,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 import Signin from './components/signin/signin';
 import Profile from './components/profile/profile';
+import Schedule from './components/profile/schedule';
 
 const Stack = createStackNavigator();
 
@@ -27,7 +28,11 @@ function MyStack() {
       <Stack.Screen 
         name="Profile" 
         component={Profile} 
-      />      
+      />
+      <Stack.Screen
+              name="Schedule"
+              component={Schedule}
+            />
     </Stack.Navigator>
   );
 }

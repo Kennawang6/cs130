@@ -124,7 +124,9 @@ export default class Signin extends Component<Props>{
           style={{width: 192, height: 48}}
           size={GoogleSigninButton.Size.Wide}
           color={GoogleSigninButton.Color.Dark}
-          onPress={() => this.onGoogleButtonPress().then(() => this.props.navigation.navigate('Profile'))}
+
+          //If want to test out my page
+          onPress={() => this.onGoogleButtonPress().then(() => this.props.navigation.navigate('Schedule'))}
         />
         
         <Button

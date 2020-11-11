@@ -21,6 +21,23 @@ var scheduleConverter = {
 }
 
 exports.addSchedule = functions.https.onCall((data, context) => {
+  // data parameters:
+  // timeslots: JSON list of timeslots representing busy times
+  //{
+  //  timeslots: [
+  //    {
+  //      start: 1/1/21 12:00 AM,
+  //      end: 1/1/21 12:00 PM
+  //    },
+  //    {
+  //      start: 1/1/21 1:00 PM,
+  //      end: 1/1/21 2:00 PM
+  //    }
+  //  ]
+  //}
+  // returns:
+  // ok/not ok status
+  // an error message if not ok status
   if (!context.auth) {
     functions.logger.info("Unauthenticated user");
     return {status: "not ok", text: "Unauthenticated user"};
@@ -39,6 +56,12 @@ exports.addSchedule = functions.https.onCall((data, context) => {
 });
 
 exports.getSchedule = functions.https.onCall((data, context) => {
+  // data parameters:
+  // none
+  // returns:
+  // ok/not ok status
+  // if successful, the schedule object with ok status
+  // otherwise an error message and not ok status
   if (!context.auth) {
     functions.logger.info("Unauthenticated user");
     return {status: "not ok", text: "Unauthenticated user"};

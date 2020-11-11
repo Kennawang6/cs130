@@ -83,8 +83,6 @@ function LoginApp() {
   }
   
 }
-//onPress={() => this.onGoogleButtonPress().then(() => console.log('Signed in with Google!'))}
-//          onPress={() => this.onGoogleButtonPress().then(() => this.props.navigation.navigate('Setting'))}
 
 export default class Signin extends Component<Props>{
 
@@ -101,13 +99,6 @@ export default class Signin extends Component<Props>{
     // Sign-in the user with the credential
     return auth().signInWithCredential(googleCredential);  
   }
-
-  logoff = async() => {
-    auth()
-    .signOut()
-    .then(() => console.log('User signed out!'));
-  }
-
   render() {
     return (
       <View style={styles.container}>
@@ -125,11 +116,6 @@ export default class Signin extends Component<Props>{
           size={GoogleSigninButton.Size.Wide}
           color={GoogleSigninButton.Color.Dark}
           onPress={() => this.onGoogleButtonPress().then(() => this.props.navigation.navigate('Profile'))}
-        />
-        
-        <Button
-          title="Log Off"
-          onPress={this.logoff}
         />
       </View>
 

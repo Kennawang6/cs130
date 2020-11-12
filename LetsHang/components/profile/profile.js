@@ -115,7 +115,7 @@ class Profile extends Component {
         />
         <Button
           title="Log Off"
-          onPress={()=>this.logoff().then(() => this.props.navigation.navigate('Signin'))}
+          onPress={()=>this.logoff()}
         />
       </View>
     );

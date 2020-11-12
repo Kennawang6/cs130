@@ -94,7 +94,8 @@ export default class Signin extends Component<Props>{
     const googleCredential = auth.GoogleAuthProvider.credential(idToken);
 
     const addUserDataRes = await functions().httpsCallable('addUserData')({});
-    console.log("Added user data")
+    console.log("User Added message: ");
+    console.log(addUserDataRes);
 
     // Sign-in the user with the credential
     return auth().signInWithCredential(googleCredential);  

@@ -4,17 +4,17 @@ import auth from '@react-native-firebase/auth';
 import firebase from '@react-native-firebase/app';
 import styles from './styles';
 import functions from '@react-native-firebase/functions';
-import { ListItem, Avatar } from 'react-native-elements'
+import { ListItem, Avatar, Icon } from 'react-native-elements'
 
 
 import { connect } from 'react-redux';
-import { saveUserName } from '../../actions/saveUserName';
+import { saveUserInfo } from '../../actions/saveUserInfo';
 
 //export default 
 class Profile extends Component {
   constructor(props) {
     super(props);
-    this.state = { userName: "", userTimeZone: 100, photoURL: "", email: ""};
+    //this.state = { userName: "", userTimeZone: 100, photoURL: "", email: ""};
     //this.getUserData = this.getUserData.bind(this);
   }
 
@@ -33,20 +33,31 @@ class Profile extends Component {
 
     }
   }*/
+/*
 
+<ListItem
+          title="Name"
+          subtitle= {this.props.userInfo.uName}
+          rightAvatar={{ title: '>', onPress: ()=>this.props.navigation.navigate('EditName')}}
+        />
+*/
   getUserData = async() => {
     const data = await functions().httpsCallable('getUserData')({});
     console.log("Data is fetched");
     console.log(data);
-    this.setState({userName: data.data.data.name, 
+    /*this.setState({userName: data.data.data.name, 
                    userTimeZone: data.data.data.timeZone,
                    photoURL: data.data.data.photoURL,
                    email: data.data.data.email}, () => {                              
         console.log(this.state.userName);
         console.log(this.state.userTimeZone);
-    });
-    this.props.reduxSaveUserName(this.state.userName);
-    console.log(this.props.uName);
+    });*/
+    var name = data.data.data.name;
+    var timeZone = data.data.data.timeZone;
+    var photo = data.data.data.photoURL;
+    var email = data.data.data.email;
+    this.props.reduxSaveUserInfo({uName: name, uTimeZone: timeZone, uPhoto: photo, uEmail: email});
+    console.log(this.props.userInfo);
   }
   
   logoff = async() => {
@@ -56,15 +67,48 @@ class Profile extends Component {
   }
 
   render() {
-    var curTimeZone = this.state.userTimeZone;
-    var curUserName = this.props.uName;
+    const list = [
+    {
+      title: 'Name',
+      icon: 'av-timer',
+      subtitle: this.props.userInfo.uName
+    },
+    {
+      title: 'Email',
+      icon: 'flight-takeoff',
+      subtitle: this.props.userInfo.uEmail
+    },
+    {
+      title: 'Time Zone',
+      icon: 'av-timer',
+      subtitle: this.props.userInfo.uTimeZone
+    }];
+
     return (
 
-      <View style={styles.container}>
-        <Text style = {styles.textStyle}>
-          name: {curUserName==""?' ': curUserName} {"\n"}{"\n"}
-          timeZone: {curTimeZone==100?' ': curTimeZone} {"\n"}{"\n"}
-        </Text>
+      <View>
+        <Avatar
+          size="large"
+          rounded
+          source={{
+          uri: this.props.userInfo.uPhoto
+          }}
+        />
+
+        <View>
+        {
+          list.map((l, i) => (
+          <ListItem key={i} bottomDivider>
+          <Avatar source={{uri: l.avatar_url}} />
+          <ListItem.Content>
+          <ListItem.Title>{l.title}</ListItem.Title>
+          <ListItem.Subtitle>{l.subtitle}</ListItem.Subtitle>
+          </ListItem.Content>
+          </ListItem>
+          ))
+         }
+        </View>
+
         <Button
           title = "editName"
           onPress = {()=>this.props.navigation.navigate('EditName')}
@@ -78,11 +122,11 @@ class Profile extends Component {
   }
 }
 
-const mapStateToProps = (state) => {return {uName: state.userNameReducer.uName}}
+const mapStateToProps = (state) => {return {userInfo: state.userReducer.userInfo}}
 
 const mapDispatchToProps = (dispatch) => {
   return{
-    reduxSaveUserName:(uName) => dispatch(saveUserName(uName))
+    reduxSaveUserInfo:(userInfo) => dispatch(saveUserInfo(userInfo))
 }}
 
 export default connect(mapStateToProps, mapDispatchToProps)(Profile);

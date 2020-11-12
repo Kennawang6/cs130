@@ -1,1 +1,1 @@
-export const EDIT_NAME = 'EDIT_NAME';
+export const EDIT_USER = 'EDIT_USER';

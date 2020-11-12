@@ -9,7 +9,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { Button } from 'react-native-elements';
 
 import { connect } from 'react-redux';
-import { saveUserName } from '../../actions/saveUserName';
+import { saveUserInfo } from '../../actions/saveUserInfo';
 
 class EditName extends Component {
   constructor(props) {
@@ -22,6 +22,10 @@ class EditName extends Component {
     });
   }
   setUserName = async(newName) => {
+    var timeZone = this.props.userInfo.uTimeZone;
+    var photo = this.props.userInfo.uPhoto;
+    var email = this.props.userInfo.uEmail;
+    this.props.reduxSaveUserInfo({uName: this.state.userName, uTimeZone: timeZone, uPhoto: photo, uEmail: email});
     const data = await functions().httpsCallable('updateUserData')({
       userData: {
         name: newName
@@ -36,7 +40,7 @@ class EditName extends Component {
         <View style={styles.editName}>
           <Input
             style={styles.textInput}
-            placeholder={this.props.uName}
+            placeholder={this.props.userInfo.uName}
             maxLength={20}
             onBlur={Keyboard.dismiss}
             value={this.state.userName}
@@ -47,7 +51,6 @@ class EditName extends Component {
           onPress = {() => 
           {
             this.setUserName(this.state.userName);
-            this.props.reduxSaveUserName(this.state.userName);
             this.props.navigation.navigate('Profile');}}
          />
       </View>
@@ -55,11 +58,11 @@ class EditName extends Component {
   }
 }
 
-const mapStateToProps = (state) => {return {uName: state.userNameReducer.uName}}
+const mapStateToProps = (state) => {return {userInfo: state.userReducer.userInfo}}
 
 const mapDispatchToProps = (dispatch) => {
   return{
-    reduxSaveUserName:(uName) => dispatch(saveUserName(uName))
+    reduxSaveUserInfo:(userInfo) => dispatch(saveUserInfo(userInfo))
 }}
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditName);

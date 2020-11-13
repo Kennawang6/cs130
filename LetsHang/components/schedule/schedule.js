@@ -1,16 +1,17 @@
 import React, {useState, Component } from 'react';
+//import React, { Component } from 'react';
 import {View, TouchableOpacity, Text} from 'react-native';
 import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
 //import {Card, Avatar} from 'react-native-paper';
-//import { Card} from 'react-native-elements';
+import { Card} from 'react-native-elements';
 
 //import { connect } from 'react-redux';
-/*
+
 const timeToString = (time) => {
   const date = new Date(time);
   return date.toISOString().split('T')[0];
 };
-*/
+
 export default class Schedule extends Component{
     /*
     constructor(props) {

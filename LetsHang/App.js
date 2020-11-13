@@ -60,21 +60,22 @@ function LoginApp() {
   else {
     return (
       <Stack.Navigator>
-      /*
-        <Stack.Screen 
-          name="Profile" 
-          component={Profile} 
-        />      
-        <Stack.Screen 
-          name="EditName" 
-          component={EditName} 
-          options={{ title: 'User Name' }}
-        />*/
         <Stack.Screen
-          name="Schedule"
-          component={Schedule}
-        />
+           name="Schedule"
+           component={Schedule}
+          />
+          <Stack.Screen
+            name="Profile"
+            component={Profile}
+          />
+          <Stack.Screen
+            name="EditName"
+            component={EditName}
+            options={{ title: 'User Name' }}
+          />
       </Stack.Navigator>
+
+      //</Stack.Navigator>
     );
   }
   

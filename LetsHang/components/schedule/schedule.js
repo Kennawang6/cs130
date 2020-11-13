@@ -4,14 +4,14 @@ import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
 //import {Card, Avatar} from 'react-native-paper';
 import { Card} from 'react-native-elements';
 
-import { connect } from 'react-redux';
+//import { connect } from 'react-redux';
 
 const timeToString = (time) => {
   const date = new Date(time);
   return date.toISOString().split('T')[0];
 };
 
-class Schedule extends Component {
+export default class Schedule extends Component<Props> {
     constructor(props) {
         super(props);
         const [items, setItems] = useState({});
@@ -124,10 +124,3 @@ const Schedule: React.FC = () => {
     </View>
   );
 };*/
-const mapStateToProps = (state) => {return {userInfo: state.userReducer.userInfo}}
-const mapDispatchToProps = (dispatch) => {
-    return{
-        reduxSaveUserInfo:(userInfo) => dispatch(saveUserInfo(userInfo))
-    }
-}
-export default connect(mapStateToProps, mapDispatchToProps)(Schedule);

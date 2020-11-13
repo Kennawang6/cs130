@@ -5,7 +5,7 @@ import firebase from '@react-native-firebase/app';
 import styles from './styles';
 import functions from '@react-native-firebase/functions';
 import { ListItem, Avatar, Icon } from 'react-native-elements'
-
+import ImagePicker from 'react-native-image-picker';
 
 import { connect } from 'react-redux';
 import { saveUserInfo } from '../../actions/saveUserInfo';

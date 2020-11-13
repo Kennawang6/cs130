@@ -26,7 +26,7 @@ const store = configureStore();
 import Signin from './components/signin/signin';
 import Profile from './components/profile/profile';
 import EditName from './components/profile/editName';
-
+import Schedule from './components/schedule/schedule';
 const Stack = createStackNavigator();
 
 function LoginApp() {
@@ -60,6 +60,7 @@ function LoginApp() {
   else {
     return (
       <Stack.Navigator>
+      /*
         <Stack.Screen 
           name="Profile" 
           component={Profile} 
@@ -68,7 +69,11 @@ function LoginApp() {
           name="EditName" 
           component={EditName} 
           options={{ title: 'User Name' }}
-        />    
+        />*/
+        <Stack.Screen
+          name="Schedule"
+          component={Schedule}
+        />
       </Stack.Navigator>
     );
   }

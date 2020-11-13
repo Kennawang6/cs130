@@ -1,22 +1,23 @@
 import React, {useState, Component } from 'react';
-import {View, TouchableOpacity} from 'react-native';
+import {View, TouchableOpacity, Text} from 'react-native';
 import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
 //import {Card, Avatar} from 'react-native-paper';
-import { Card} from 'react-native-elements';
+//import { Card} from 'react-native-elements';
 
 //import { connect } from 'react-redux';
-
+/*
 const timeToString = (time) => {
   const date = new Date(time);
   return date.toISOString().split('T')[0];
 };
-
-export default class Schedule extends Component<Props> {
+*/
+export default class Schedule extends Component{
+    /*
     constructor(props) {
         super(props);
         const [items, setItems] = useState({});
-    }
-
+    }*/
+/*
     loadItems = (day) => {
         setTimeout(() => {
             for (let i = -15; i < 85; i++) {
@@ -55,8 +56,9 @@ export default class Schedule extends Component<Props> {
                 </Card>
             </TouchableOpacity>
         );
-    };
+    };*/
     render() {
+    /*
         return (
             <View>
                 <Agenda
@@ -65,6 +67,12 @@ export default class Schedule extends Component<Props> {
                     selected={'2017-05-16'}
                     renderItem={renderItem}
                 />
+            </View>
+        );
+        */
+        return (
+            <View>
+                <Text>Hello World!</Text>
             </View>
         );
     }

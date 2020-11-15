@@ -13,4 +13,5 @@ export default StyleSheet.create({
     fontSize: 15,
     marginBottom: 20
   }
+  
 });

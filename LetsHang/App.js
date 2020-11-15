@@ -28,13 +28,44 @@ import Profile from './components/profile/profile';
 import EditName from './components/profile/editName';
 import Schedule from './components/schedule/schedule';
 
-/*
+import {LocaleConfig} from 'react-native-calendars';
 
-        <Stack.Screen 
-          name="Schedule" 
-          component={Schedule} 
-        />   
-*/
+LocaleConfig.locales['en'] = {
+  formatAccessibilityLabel: 'dddd d \'of\' MMMM \'of\' yyyy',
+  monthNames: [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December'
+  ],
+  monthNamesShort: [
+    'jan',
+    'feb',
+    'mar',
+    'apr',
+    'may',
+    'jun',
+    'jul',
+    'aug',
+    'sep',
+    'oct',
+    'nov',
+    'dec'
+  ],
+  dayNames: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+  dayNamesShort: ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+};
+
+LocaleConfig.defaultLocale = 'en';
+
 const Stack = createStackNavigator();
 
 function LoginApp() {
@@ -70,6 +101,10 @@ function LoginApp() {
   else {
     return (
       <Stack.Navigator>
+        <Stack.Screen
+          name="Schedule"
+          component={Schedule}
+        />
         <Stack.Screen 
           name="Profile" 
           component={Profile} 

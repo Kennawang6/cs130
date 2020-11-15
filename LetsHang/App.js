@@ -27,6 +27,14 @@ import Signin from './components/signin/signin';
 import Profile from './components/profile/profile';
 import EditName from './components/profile/editName';
 import Schedule from './components/schedule/schedule';
+
+/*
+
+        <Stack.Screen 
+          name="Schedule" 
+          component={Schedule} 
+        />   
+*/
 const Stack = createStackNavigator();
 
 function LoginApp() {
@@ -37,7 +45,9 @@ function LoginApp() {
   // Handle user state changes
   function onAuthStateChanged(user) {
     setUser(user);
-    if (initializing) setInitializing(false);
+    if (initializing) {
+      setInitializing(false);
+    }
   }
 
   useEffect(() => {
@@ -60,22 +70,16 @@ function LoginApp() {
   else {
     return (
       <Stack.Navigator>
-        <Stack.Screen
-           name="Schedule"
-           component={Schedule}
-          />
-          <Stack.Screen
-            name="Profile"
-            component={Profile}
-          />
-          <Stack.Screen
-            name="EditName"
-            component={EditName}
-            options={{ title: 'User Name' }}
-          />
+        <Stack.Screen 
+          name="Profile" 
+          component={Profile} 
+        />      
+        <Stack.Screen 
+          name="EditName" 
+          component={EditName} 
+          options={{ title: 'User Name' }}
+        />    
       </Stack.Navigator>
-
-      //</Stack.Navigator>
     );
   }
   

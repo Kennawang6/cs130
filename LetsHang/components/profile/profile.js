@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Text, Button, TextInput, TouchableOpacity, Keyboard } from 'react-native';
+import { StyleSheet, View, Text, Button, TextInput, TouchableOpacity, Keyboard, Image } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import firebase from '@react-native-firebase/app';
 import styles from './styles';
@@ -9,6 +9,7 @@ import ImagePicker from 'react-native-image-picker';
 
 import { connect } from 'react-redux';
 import { saveUserInfo } from '../../actions/saveUserInfo';
+
 
 //export default 
 class Profile extends Component {
@@ -66,6 +67,49 @@ class Profile extends Component {
     .then(() => console.log('User signed out!'));
   }
 
+  setPhoto = async(uri) => {
+    const data = await functions().httpsCallable('updateUserData')({
+      userData: {
+        photoURL: uri
+      }
+    });
+    console.log("photo is updated");
+  }
+
+  selectFile = async() => {
+    
+
+    var options = {
+      title: 'Select Image',
+      storageOptions: {
+        skipBackup: true,
+        path: 'images',
+        privateDirectory: true
+      },
+    };
+
+    ImagePicker.showImagePicker(options, res => {
+      console.log('Response = ', res);
+
+      if (res.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (res.error) {
+        console.log('ImagePicker Error: ', res.error);
+      } else {
+        console.log("The new photo is :");
+        let source = res;
+        console.log(source);
+        var name = this.props.userInfo.uName;
+        var timeZone = this.props.userInfo.uTimeZone;
+        var email = this.props.userInfo.uEmail;
+        this.props.reduxSaveUserInfo({uName: name, uTimeZone: timeZone, uPhoto: source.uri, uEmail: email});
+        this.setPhoto(this.props.userInfo.uPhoto);
+      }
+    
+    });
+
+  };
+
   render() {
     const list = [
     {
@@ -117,6 +161,11 @@ class Profile extends Component {
           title="Log Off"
           onPress={()=>this.logoff()}
         />
+        <TouchableOpacity onPress={()=>{
+            this.selectFile();
+            }}>
+              <Text style={styles.buttonText}>Select File</Text>
+          </TouchableOpacity>
       </View>
     );
   }

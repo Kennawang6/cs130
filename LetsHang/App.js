@@ -29,16 +29,11 @@ import EditName from './components/profile/editName';
 import Schedule from './components/schedule/schedule';
 
 /*
-        <Stack.Screen 
-          name="Profile" 
-          component={Profile} 
-        />      
-        <Stack.Screen 
-          name="EditName" 
-          component={EditName} 
-          options={{ title: 'User Name' }}
-        />    
 
+        <Stack.Screen 
+          name="Schedule" 
+          component={Schedule} 
+        />   
 */
 const Stack = createStackNavigator();
 
@@ -76,10 +71,14 @@ function LoginApp() {
     return (
       <Stack.Navigator>
         <Stack.Screen 
-          name="Schedule" 
-          component={Schedule} 
+          name="Profile" 
+          component={Profile} 
+        />      
+        <Stack.Screen 
+          name="EditName" 
+          component={EditName} 
+          options={{ title: 'User Name' }}
         />    
-
       </Stack.Navigator>
     );
   }

@@ -7,7 +7,7 @@
  */
 
 import React, { Component } from 'react';
-import { useState, useEffect } from 'react';
+//import { useState, useEffect } from 'react';
 import auth from '@react-native-firebase/auth';
 import {
   SafeAreaView,
@@ -50,7 +50,7 @@ GoogleSignin.configure({
 type Props = {};
 
 
-function LoginApp() {
+/*function LoginApp() {
   // Set an initializing state whilst Firebase connects
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState();
@@ -82,7 +82,7 @@ function LoginApp() {
     );
   }
   
-}
+}*/
 
 export default class Signin extends Component<Props>{
 
@@ -92,18 +92,18 @@ export default class Signin extends Component<Props>{
     const { idToken } = await GoogleSignin.signIn();
     // Create a Google credential with the token
     const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-
-    const addUserDataRes = await functions().httpsCallable('addUserData')({});
-    console.log("Added user data")
-
     // Sign-in the user with the credential
     return auth().signInWithCredential(googleCredential);  
+  }
+  addUserData = async() => {
+    const addUserDataRes = await functions().httpsCallable('addUserData')({});
+    console.log("User Added message: ");
+    console.log(addUserDataRes);
   }
   render() {
     return (
       <View style={styles.container}>
         <Text style={styles.title}>Let's Hang</Text>
-        <LoginApp />
         
         {!firebase.apps.length && (
           <Text style={styles.instructions}>
@@ -115,11 +115,10 @@ export default class Signin extends Component<Props>{
           style={{width: 192, height: 48}}
           size={GoogleSigninButton.Size.Wide}
           color={GoogleSigninButton.Color.Dark}
-          onPress={() => this.onGoogleButtonPress().then(() => this.props.navigation.navigate('Profile'))}
+          onPress={() => this.onGoogleButtonPress().then(()=>this.addUserData())}
         />
       </View>
 
     );
   }
 }
-

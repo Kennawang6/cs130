@@ -29,14 +29,43 @@ import Profile from './components/profile/profile';
 import EditName from './components/profile/editName';
 import Schedule from './components/schedule/schedule';
 
-/*
 
-        <Stack.Screen 
-          name="Schedule" 
-          component={Schedule} 
-        />   
-*/
+// For signIn
 const Stack = createStackNavigator();
+// For tab
+const Tab = createBottomTabNavigator();
+
+// Schedule
+const ScheduleStack = createStackNavigator();
+function ScheduleStackScreen(){
+  return (
+    <ScheduleStack.Navigator>
+      <ScheduleStack.Screen 
+        name="Schedule" 
+        component={Schedule} 
+      />
+    </ScheduleStack.Navigator>
+  );
+}
+
+// Profile
+const ProfileStack = createStackNavigator();
+function ProfileStackScreen(){
+  return (
+    <ProfileStack.Navigator>
+      <ProfileStack.Screen 
+        name="Profile" 
+        component={Profile} 
+      />
+      <ProfileStack.Screen 
+        name="EditName" 
+        component={EditName} 
+        options={{ title: 'Name' }}
+      />
+    </ProfileStack.Navigator>
+  );
+}
+
 
 function LoginApp() {
   // Set an initializing state whilst Firebase connects
@@ -70,17 +99,10 @@ function LoginApp() {
   }
   else {
     return (
-      <Stack.Navigator>
-        <Stack.Screen 
-          name="Profile" 
-          component={Profile} 
-        />      
-        <Stack.Screen 
-          name="EditName" 
-          component={EditName} 
-          options={{ title: 'User Name' }}
-        />    
-      </Stack.Navigator>
+      <Tab.Navigator>
+        <Tab.Screen name="Schedule" component={ScheduleStackScreen} />
+        <Tab.Screen name="Profile" component={ProfileStackScreen} />
+      </Tab.Navigator>
     );
   }
   

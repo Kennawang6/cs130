@@ -92,13 +92,13 @@ export default class Signin extends Component<Props>{
     const { idToken } = await GoogleSignin.signIn();
     // Create a Google credential with the token
     const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-
+    // Sign-in the user with the credential
+    return auth().signInWithCredential(googleCredential);  
+  }
+  addUserData = async() => {
     const addUserDataRes = await functions().httpsCallable('addUserData')({});
     console.log("User Added message: ");
     console.log(addUserDataRes);
-
-    // Sign-in the user with the credential
-    return auth().signInWithCredential(googleCredential);  
   }
   render() {
     return (
@@ -115,7 +115,7 @@ export default class Signin extends Component<Props>{
           style={{width: 192, height: 48}}
           size={GoogleSigninButton.Size.Wide}
           color={GoogleSigninButton.Color.Dark}
-          onPress={() => this.onGoogleButtonPress()}
+          onPress={() => this.onGoogleButtonPress().then(()=>this.addUserData())}
         />
       </View>
 

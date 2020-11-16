@@ -19,6 +19,7 @@
     "@react-navigation/stack": "^5.12.3",
     "react": "16.13.1",
     "react-native": "0.63.3",
+    "react-native-calendars": "^1.403.0",
     "react-native-elements": "^3.0.0-alpha.1",
     "react-native-gesture-handler": "^1.8.0",
     "react-native-image-picker": "^2.3.4",

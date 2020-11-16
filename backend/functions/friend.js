@@ -24,7 +24,7 @@ exports.addFriend = functions.https.onCall(async (data, context) => {
 
             const userData = getUserInfo.data();
 
-            if(friendsToAdd in userData){
+            if('friendsToAdd' in userData){
                 if(userData.friendsToAdd.includes(friendRecord.uid)){
                     await admin.firestore().collection('users').doc(context.auth.uid)
                         .update({
@@ -79,7 +79,7 @@ exports.removeFriend = functions.https.onCall(async (data, context) => {
 
             const userData = getUserInfo.data();
 
-            if(friendsToAdd in userData){
+            if('friendsToAdd' in userData){
                 if(userData.friendsToAdd.includes(friendRecord.uid)){
                     await admin.firestore().collection('users').doc(context.auth.uid)
                         .update({
@@ -110,6 +110,8 @@ exports.removeFriend = functions.https.onCall(async (data, context) => {
     }
 });
 
+
+
 exports.getFriendsList = functions.https.onCall(async (data, context) => {
     //data parameters: 
     //  None
@@ -132,7 +134,7 @@ exports.getFriendsList = functions.https.onCall(async (data, context) => {
 
             const userData = getUserInfo.data();
 
-            if((friendsToAdd in userData) && (friends in userData)){
+            if(('friendsToAdd' in userData) && ('friends' in userData)){
                 console.log("Successfully got friends list");
                 return {
                     text: "Successfully got friends list",
@@ -146,4 +148,5 @@ exports.getFriendsList = functions.https.onCall(async (data, context) => {
             console.log('Error fetching user data:', error);
             return  {text: "Firebase error while adding friend"};
         }
-    }});
+    }
+});

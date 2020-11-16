@@ -4,12 +4,11 @@ import auth from '@react-native-firebase/auth';
 import firebase from '@react-native-firebase/app';
 import styles from './styles';
 import functions from '@react-native-firebase/functions';
-import { ListItem, Avatar, Icon } from 'react-native-elements'
+import { ListItem, Avatar, Icon, Accessory } from 'react-native-elements'
 import ImagePicker from 'react-native-image-picker';
 
 import { connect } from 'react-redux';
 import { saveUserInfo } from '../../actions/saveUserInfo';
-
 
 //export default 
 class Profile extends Component {
@@ -41,6 +40,7 @@ class Profile extends Component {
           subtitle= {this.props.userInfo.uName}
           rightAvatar={{ title: '>', onPress: ()=>this.props.navigation.navigate('EditName')}}
         />
+        <Icon1 name="angle-right" size={24} color="#C8C7CC" />
 */
   getUserData = async() => {
     const data = await functions().httpsCallable('getUserData')({});
@@ -112,60 +112,60 @@ class Profile extends Component {
 
   render() {
     const list = [
-    {
-      title: 'Name',
-      icon: 'av-timer',
-      subtitle: this.props.userInfo.uName
-    },
+    
     {
       title: 'Email',
-      icon: 'flight-takeoff',
+      icon: 'email',
       subtitle: this.props.userInfo.uEmail
     },
     {
       title: 'Time Zone',
-      icon: 'av-timer',
+      icon: 'schedule',
       subtitle: this.props.userInfo.uTimeZone
     }];
 
     return (
 
       <View>
+        <View style={{marginTop: 20, marginLeft: 10}}>
         <Avatar
           size="large"
           rounded
           source={{
           uri: this.props.userInfo.uPhoto
           }}
-        />
-
-        <View>
-        {
-          list.map((l, i) => (
-          <ListItem key={i} bottomDivider>
-          <Avatar source={{uri: l.avatar_url}} />
+          onPress={()=>this.selectFile()}
+        >
+        <Accessory size={22} onPress={()=>this.selectFile()}/>
+        </Avatar>
+        </View>
+        <View style ={{marginTop:10}}>
+        <ListItem bottomDivider onPress={()=>this.props.navigation.navigate('EditName')}>
+          <Icon name='user' type='font-awesome'/>
           <ListItem.Content>
-          <ListItem.Title>{l.title}</ListItem.Title>
-          <ListItem.Subtitle>{l.subtitle}</ListItem.Subtitle>
+            <ListItem.Title>Name</ListItem.Title>
+            <ListItem.Subtitle>{this.props.userInfo.uName}</ListItem.Subtitle>
           </ListItem.Content>
-          </ListItem>
+          <ListItem.Chevron size={30} color="#808080"/>
+        </ListItem>
+        {
+          list.map((item, i) => (
+            <ListItem key={i} bottomDivider>
+            <Icon name={item.icon} />
+            <ListItem.Content>
+              <ListItem.Title>{item.title}</ListItem.Title>
+              <ListItem.Subtitle>{item.subtitle}</ListItem.Subtitle>
+            </ListItem.Content>
+            </ListItem>
           ))
          }
         </View>
-
-        <Button
-          title = "editName"
-          onPress = {()=>this.props.navigation.navigate('EditName')}
-        />
+        <View>
         <Button
           title="Log Off"
           onPress={()=>this.logoff()}
         />
-        <TouchableOpacity onPress={()=>{
-            this.selectFile();
-            }}>
-              <Text style={styles.buttonText}>Select File</Text>
-          </TouchableOpacity>
+        </View>
       </View>
     );
   }

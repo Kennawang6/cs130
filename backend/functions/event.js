@@ -131,6 +131,70 @@ exports.updateEvent = functions.https.onCall(async (data, context) => {
     }
 });
 
+
+exports.getUsersInEvent = functions.https.onCall(async (data, context) => {
+    //data parameters (all required): 
+    // event_id: event's id
+    if (!context.auth) {
+        functions.logger.info("Unauthenticated user");
+        return {text: "Unauthenticated user"};
+    } else {
+        try {
+            functions.logger.info("Hello to " + context.auth.uid);
+
+            const getEventInfo = await admin.firestore().collection('events').doc(data.event_id).get();
+
+            if(!getEventInfo.exists){
+                console.log("event document does not exist");
+                return {text: "Event document does not exist"};
+            }
+
+            const eventData = getEventInfo.data();
+
+            if(!(('invitees' in eventData) && ('members' in eventData))){
+                console.log("Users in event not found");
+                return {text: "Users in event not found"};
+            }
+
+            var inviteeInfo = [];
+            var memberInfo = [];
+
+            for (invitee in eventData.invitees){
+                const getUserInfo = await admin.firestore().collection('users').doc(invitee).get();
+
+                if(!getUserInfo.exists){
+                    console.log("Invitee data in event not found");
+                    return {text: "Invitee data in event not found"};
+                }
+                const userData = getUserInfo.data();
+                inviteeInfo.push(userData);
+            }
+
+            for (member in eventData.members){
+                const getUserInfo = await admin.firestore().collection('users').doc(member).get();
+
+                if(!getUserInfo.exists){
+                    console.log("Member data in event not found");
+                    return {text: "Member data in event not found"};
+                }
+                const userData = getUserInfo.data();
+                memberInfo.push(userData);
+            }
+
+            
+            console.log("Get event users successful");
+            return {
+                text: "Get event successful, check inviteesInfo and membersInfo object lists", 
+                inviteesInfo: inviteeInfo, // These two are lists of User objects for all of the invitees and members of each list
+                membersInfo: memberInfo, 
+            };
+        } catch (error) {
+            console.log('Error:', error);
+            return  {text: "Firebase error"};
+        }
+    }
+});
+
 exports.setEventTime = functions.https.onCall(async (data, context) => {
     //data parameters (all required): 
     // event_id: event's id

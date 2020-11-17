@@ -5,7 +5,7 @@ const db = admin.firestore();
 const user = require("./user.js");
 const friend = require("./friend.js");
 
-exports.helloWorld = functions.https.onRequest((request, response) => {
+/*exports.helloWorld = functions.https.onRequest((request, response) => {
     // call with HTTP
   functions.logger.info("Hello logs!", {structuredData: true});
   response.send("Hello, world!");
@@ -26,7 +26,7 @@ exports.appHelloWorld = functions.https.onCall((data, context) => {
     // called from inside the app (no auth needed)
     functions.logger.info("Hello to app");
     response.send("Hello, app");
-});
+});*/
 
 exports.httpGet = functions.https.onRequest((request, response) => {
   // need to add to local db emulator

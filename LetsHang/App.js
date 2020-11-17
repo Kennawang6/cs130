@@ -10,6 +10,7 @@ import React, { Component } from 'react';
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import { useState, useEffect } from 'react';
 import auth from '@react-native-firebase/auth';
@@ -26,8 +27,45 @@ const store = configureStore();
 import Signin from './components/signin/signin';
 import Profile from './components/profile/profile';
 import EditName from './components/profile/editName';
+import Schedule from './components/schedule/schedule';
 
+
+// For signIn
 const Stack = createStackNavigator();
+// For tab
+const Tab = createBottomTabNavigator();
+
+// Schedule
+const ScheduleStack = createStackNavigator();
+function ScheduleStackScreen(){
+  return (
+    <ScheduleStack.Navigator>
+      <ScheduleStack.Screen 
+        name="Schedule" 
+        component={Schedule} 
+      />
+    </ScheduleStack.Navigator>
+  );
+}
+
+// Profile
+const ProfileStack = createStackNavigator();
+function ProfileStackScreen(){
+  return (
+    <ProfileStack.Navigator>
+      <ProfileStack.Screen 
+        name="Profile" 
+        component={Profile} 
+      />
+      <ProfileStack.Screen 
+        name="EditName" 
+        component={EditName} 
+        options={{ title: 'Name' }}
+      />
+    </ProfileStack.Navigator>
+  );
+}
+
 
 function LoginApp() {
   // Set an initializing state whilst Firebase connects
@@ -37,7 +75,9 @@ function LoginApp() {
   // Handle user state changes
   function onAuthStateChanged(user) {
     setUser(user);
-    if (initializing) setInitializing(false);
+    if (initializing) {
+      setInitializing(false);
+    }
   }
 
   useEffect(() => {
@@ -59,17 +99,10 @@ function LoginApp() {
   }
   else {
     return (
-      <Stack.Navigator>
-        <Stack.Screen 
-          name="Profile" 
-          component={Profile} 
-        />      
-        <Stack.Screen 
-          name="EditName" 
-          component={EditName} 
-          options={{ title: 'User Name' }}
-        />    
-      </Stack.Navigator>
+      <Tab.Navigator>
+        <Tab.Screen name="Schedule" component={ScheduleStackScreen} />
+        <Tab.Screen name="Profile" component={ProfileStackScreen} />
+      </Tab.Navigator>
     );
   }
   

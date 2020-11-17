@@ -121,9 +121,6 @@ exports.getFriendsList = functions.https.onCall(async (data, context) => {
     } else {
         try {
             functions.logger.info("Hello to " + context.auth.uid);
-            const friendRecord = await admin.auth().getUserByEmail(data.friend_email);
-            // See the UserRecord reference doc for the contents of userRecord.
-            console.log('Successfully fetched friend data:', friendRecord.toJSON());
 
             const getUserInfo = await admin.firestore().collection('users').doc(context.auth.uid).get();
 

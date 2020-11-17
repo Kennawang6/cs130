@@ -28,6 +28,7 @@ import Signin from './components/signin/signin';
 import Profile from './components/profile/profile';
 import EditName from './components/profile/editName';
 import Schedule from './components/schedule/schedule';
+import FriendsList from './components/friendsList/friendsList';
 
 
 // For signIn
@@ -66,6 +67,18 @@ function ProfileStackScreen(){
   );
 }
 
+// Friend's List
+const FriendsListStack = createStackNavigator();
+function FriendsListStackScreen(){
+  return (
+    <FriendsListStack.Navigator>
+      <FriendsListStack.Screen
+        name="Friend's List"
+        component={FriendsList}
+      />
+    </FriendsListStack.Navigator>
+  );
+}
 
 function LoginApp() {
   // Set an initializing state whilst Firebase connects
@@ -102,6 +115,7 @@ function LoginApp() {
       <Tab.Navigator>
         <Tab.Screen name="Schedule" component={ScheduleStackScreen} />
         <Tab.Screen name="Profile" component={ProfileStackScreen} />
+        <Tab.Screen name="Friend's List" component={FriendsListStackScreen} />
       </Tab.Navigator>
     );
   }

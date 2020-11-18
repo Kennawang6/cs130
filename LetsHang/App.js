@@ -29,6 +29,7 @@ import Profile from './components/profile/profile';
 import EditName from './components/profile/editName';
 import Schedule from './components/schedule/schedule';
 import FriendsList from './components/friendsList/friendsList';
+import AddFriend from './components/friendsList/addFriend';
 
 
 // For signIn
@@ -75,6 +76,10 @@ function FriendsListStackScreen(){
       <FriendsListStack.Screen
         name="Friend's List"
         component={FriendsList}
+      />
+      <FriendsListStack.Screen
+        name="Add Friend"
+        component={AddFriend}
       />
     </FriendsListStack.Navigator>
   );

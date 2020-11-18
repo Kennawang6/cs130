@@ -1,6 +1,6 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-const db = admin.firestore();
+const schedules = admin.firestore().collection('schedules');
 
 class Schedule {
   constructor (timeslots) {
@@ -20,7 +20,7 @@ var scheduleConverter = {
   }
 }
 
-exports.addSchedule = functions.https.onCall((data, context) => {
+exports.addSchedule = functions.https.onCall(async (data, context) => {
   // data parameters:
   // timeslots: JSON list of timeslots representing busy times
   //{
@@ -38,46 +38,55 @@ exports.addSchedule = functions.https.onCall((data, context) => {
   // returns:
   // ok/not ok status
   // an error message if not ok status
-  if (!context.auth) {
-    functions.logger.info("Unauthenticated user");
+  if (!context.auth || !context.auth.uid) {
+    functions.logger.info("Unauthenticated user\n");
     return {status: "not ok", text: "Unauthenticated user"};
   } else {
     const id = context.auth.uid;
     functions.logger.info("saving schedule of user with id " + id + "\n");
 
-    db.collection('schedules').doc(id).withConverter(scheduleConverter).set(new Schedule(data)).then(() => {
+    if (!data || !data.timeslots) {
+      functions.logger.info("User did not provide schedule for addSchedule\n");
+      return {status: "not ok", text: "addSchedule called without schedule data"};
+    }
+
+    try {
+      await schedules.doc(id).withConverter(scheduleConverter).set(new Schedule(data));
       functions.logger.info("Saved schedule for user " + id + "\n");
       return {status: "ok"};
-    }).catch((error) => {
-      functions.logger.info("could not save schedule of user with id " + id + ", error: " + error);
-      return {status: "not ok", text: error};
-    });
+    } catch (error) {
+      functions.logger.error("could not save schedule of user with id " + id + ", error: " + error.message + "\n");
+      return {status: "not ok", text: error.message};
+    }
   }
 });
 
-exports.getSchedule = functions.https.onCall((data, context) => {
+exports.getSchedule = functions.https.onCall(async (data, context) => {
   // data parameters:
   // none
   // returns:
   // ok/not ok status
   // if successful, the schedule object with ok status
   // otherwise an error message and not ok status
-  if (!context.auth) {
-    functions.logger.info("Unauthenticated user");
+  if (!context.auth || !context.auth.uid) {
+    functions.logger.info("Unauthenticated user\n");
     return {status: "not ok", text: "Unauthenticated user"};
   } else {
-    const id = context.auth.uid
+    const id = context.auth.uid;
     functions.logger.info("Getting schedule for user with id " + id + "\n");
 
-    db.collection('schedules').doc(id).withConverter(scheduleConverter).get().then((doc) => {
-      if (doc.exists) {
-        return {status: "ok", schedule: doc.data()};
+    try {
+
+      const schedule = await schedules.doc(id).withConverter(scheduleConverter).get();
+
+      if (schedule.exists) {
+        return {status: "ok", schedule: schedule.data()};
       } else {
         return {status: "not ok", text: "No schedule found for user"}
       }
-    }).catch((error) => {
-      functions.logger.info("Could not get schedule for user with id " + id + ", error: " + error + "\n");
-      return {status: "not ok", text: error};
-    });
+    } catch (error) {
+      functions.logger.error("Could not get schedule for user with id " + id + ", error: " + error.message + "\n");
+      return {status: "not ok", text: error.message};
+    }
   }
 });

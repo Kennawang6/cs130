@@ -36,7 +36,7 @@ exports.createEvent = functions.https.onCall(async (data, context) => {
                     events: admin.firestore.FieldValue.arrayUnion(eventRes.id)
                 });
 
-            for (invitee in data.invitees){
+            for (const invitee of data.invitees){
                 await admin.firestore().collection('users').doc(invitee)
                     .update({
                         eventNotifications: admin.firestore.FieldValue.arrayUnion(eventRes.id) // send friend an invite
@@ -124,6 +124,70 @@ exports.updateEvent = functions.https.onCall(async (data, context) => {
 
             console.log("Modified event");
             return {text: "Modified event"};
+        } catch (error) {
+            console.log('Error:', error);
+            return  {text: "Firebase error"};
+        }
+    }
+});
+
+
+exports.getUsersInEvent = functions.https.onCall(async (data, context) => {
+    //data parameters (all required): 
+    // event_id: event's id
+    if (!context.auth) {
+        functions.logger.info("Unauthenticated user");
+        return {text: "Unauthenticated user"};
+    } else {
+        try {
+            functions.logger.info("Hello to " + context.auth.uid);
+
+            const getEventInfo = await admin.firestore().collection('events').doc(data.event_id).get();
+
+            if(!getEventInfo.exists){
+                console.log("event document does not exist");
+                return {text: "Event document does not exist"};
+            }
+
+            const eventData = getEventInfo.data();
+
+            if(!(('invitees' in eventData) && ('members' in eventData))){
+                console.log("Users in event not found");
+                return {text: "Users in event not found"};
+            }
+
+            var inviteeInfo = [];
+            var memberInfo = [];
+
+            for (const invitee of eventData.invitees){
+                const getUserInfo = await admin.firestore().collection('users').doc(invitee).get();
+
+                if(!getUserInfo.exists){
+                    console.log("Invitee data in event not found");
+                    return {text: "Invitee data in event not found"};
+                }
+                const userData = getUserInfo.data();
+                inviteeInfo.push(userData);
+            }
+
+            for (const member of eventData.members){
+                const getUserInfo = await admin.firestore().collection('users').doc(member).get();
+
+                if(!getUserInfo.exists){
+                    console.log("Member data in event not found");
+                    return {text: "Member data in event not found"};
+                }
+                const userData = getUserInfo.data();
+                memberInfo.push(userData);
+            }
+
+            
+            console.log("Get event users successful");
+            return {
+                text: "Get event successful, check inviteesInfo and membersInfo object lists", 
+                inviteesInfo: inviteeInfo, // These two are lists of User objects for all of the invitees and members of each list
+                membersInfo: memberInfo, 
+            };
         } catch (error) {
             console.log('Error:', error);
             return  {text: "Firebase error"};
@@ -240,7 +304,7 @@ exports.inviteToEvent = functions.https.onCall(async (data, context) => {
                     invitees: admin.firestore.FieldValue.arrayUnion(...data.invitees),
                 });
 
-            for (invitee in data.invitees){
+            for (const invitee of data.invitees){
                 await admin.firestore().collection('users').doc(invitee)
                     .update({
                         eventNotifications: admin.firestore.FieldValue.arrayUnion(data.event_id)
@@ -375,7 +439,7 @@ exports.removeFromEvent = functions.https.onCall(async (data, context) => {
                     invitees: admin.firestore.FieldValue.arrayRemove(...data.invitees),
                 });
 
-            for (invitee in data.invitees){
+            for (const invitee of data.invitees){
                 await admin.firestore().collection('users').doc(invitee)
                     .update({
                         events: admin.firestore.FieldValue.arrayRemove(data.event_id),

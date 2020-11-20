@@ -17,9 +17,9 @@ class AddFriend extends Component{
         const data = await functions().httpsCallable('addFriend')({friend_email: this.state.friendsEmail});
         console.log("addFriend function has been called");
         console.log(data);
-        this.setState({text: data.data.text,
-                        friendsEmail: ""}, () => {
+        this.setState({text: data.data.text}, () => {
             console.log(data.data.text);
+            this.notifyUser(this.state.text);
         });
     }
 
@@ -41,7 +41,6 @@ class AddFriend extends Component{
         console.log("Button was pressed");
         console.log(this.state.friendsEmail);
         this.sendFriendRequest();
-        this.notifyUser(this.state.text);
     }
 
     notifyUser = (text) => {

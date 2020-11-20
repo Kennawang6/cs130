@@ -4,11 +4,19 @@ export default StyleSheet.create({
   container: {
     flex: 1,
     display: "flex",
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 35,
+    justifyContent: 'space-around',
+    //alignItems: 'center',
+    //padding: 35,
     backgroundColor: '#fff'
   },
+    noFriendsContainer: {
+      flex: 1,
+      display: "flex",
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: 35,
+      backgroundColor: '#fff'
+    },
   addFriendContainer: {
     padding: 23,
   },
@@ -27,6 +35,13 @@ export default StyleSheet.create({
      padding: 10,
      margin: 15,
      height: 40,
+  },
+  deleteButtonStyle: {
+     backgroundColor: '#D12222',
+     padding: 10,
+     //margin: 15,
+     height: 40,
+     alignItems: 'center',
   },
   submitButtonText:{
      color: 'white'

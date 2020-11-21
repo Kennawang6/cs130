@@ -36,7 +36,7 @@ exports.createEvent = functions.https.onCall(async (data, context) => {
                     events: admin.firestore.FieldValue.arrayUnion(eventRes.id)
                 });
 
-            for (invitee in data.invitees){
+            for (const invitee of data.invitees){
                 await admin.firestore().collection('users').doc(invitee)
                     .update({
                         eventNotifications: admin.firestore.FieldValue.arrayUnion(eventRes.id) // send friend an invite
@@ -159,7 +159,7 @@ exports.getUsersInEvent = functions.https.onCall(async (data, context) => {
             var inviteeInfo = [];
             var memberInfo = [];
 
-            for (invitee in eventData.invitees){
+            for (const invitee of eventData.invitees){
                 const getUserInfo = await admin.firestore().collection('users').doc(invitee).get();
 
                 if(!getUserInfo.exists){
@@ -170,7 +170,7 @@ exports.getUsersInEvent = functions.https.onCall(async (data, context) => {
                 inviteeInfo.push(userData);
             }
 
-            for (member in eventData.members){
+            for (const member of eventData.members){
                 const getUserInfo = await admin.firestore().collection('users').doc(member).get();
 
                 if(!getUserInfo.exists){
@@ -304,7 +304,7 @@ exports.inviteToEvent = functions.https.onCall(async (data, context) => {
                     invitees: admin.firestore.FieldValue.arrayUnion(...data.invitees),
                 });
 
-            for (invitee in data.invitees){
+            for (const invitee of data.invitees){
                 await admin.firestore().collection('users').doc(invitee)
                     .update({
                         eventNotifications: admin.firestore.FieldValue.arrayUnion(data.event_id)
@@ -439,7 +439,7 @@ exports.removeFromEvent = functions.https.onCall(async (data, context) => {
                     invitees: admin.firestore.FieldValue.arrayRemove(...data.invitees),
                 });
 
-            for (invitee in data.invitees){
+            for (const invitee of data.invitees){
                 await admin.firestore().collection('users').doc(invitee)
                     .update({
                         events: admin.firestore.FieldValue.arrayRemove(data.event_id),

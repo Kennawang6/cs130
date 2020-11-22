@@ -19,7 +19,7 @@ exports.createEvent = functions.https.onCall(async (data, context) => {
             const eventRes = await admin.firestore().collection('events')
                 .add({
                     name: data.event_name,
-                    description: "",
+                    description: data.description,
                     hostID: context.auth.uid,
                     invitees: data.invitees,
                     members: [context.auth.uid], //host + friends who have accepted the invite

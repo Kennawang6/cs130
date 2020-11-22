@@ -87,10 +87,10 @@ export default class Schedule extends Component{
             renderDay={(eventViews, weekdayToAdd, i) => (
               <View key={i.toString()} style={styles.day}>
                 <View style={styles.dayLabel}>
-                  <Text style={[styles.monthDateText, { color: 'pink' }]}>{weekdayToAdd.format('M/D').toString()}</Text>
-                  <Text style={[styles.dayText, { color: 'pink' }]}>{weekdayToAdd.format('ddd').toString()}</Text>
+                  <Text style={[styles.monthDateText, { color: 'mediumaquamarine' }]}>{weekdayToAdd.format('M/D').toString()}</Text>
+                  <Text style={[styles.dayText, { color: 'mediumaquamarine' }]}>{weekdayToAdd.format('ddd').toString()}</Text>
                 </View>
-                <View style={[styles.allEvents, eventViews.length === 0 ? { width: '100%', backgroundColor: 'pink' } : {}]}>
+                <View style={[styles.allEvents, eventViews.length === 0 ? { width: '100%', backgroundColor: 'whitesmoke' } : {}]}>
                   {eventViews}
                 </View>
               </View>
@@ -98,10 +98,10 @@ export default class Schedule extends Component{
             onDayPress={(weekday, i) => {
               console.log(weekday.format('ddd') + ' is selected! And it is day ' + (i+1) + ' of the week!')
             }}
-            themeColor='pink'
+            themeColor='mediumaquamarine'
             style={{ height: 400 }}
-            titleStyle={{ color: 'blue' }}
-            dayLabelStyle={{ color: 'green' }}
+            titleStyle={{ color: 'black' }}
+            dayLabelStyle={{ color: 'black' }}
           />
         </View>
       );

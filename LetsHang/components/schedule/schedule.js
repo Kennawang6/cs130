@@ -1,10 +1,9 @@
 import React, {Component} from 'react';
 import {Alert, StyleSheet, Text, View, TouchableOpacity, Button, Dimensions} from 'react-native';
-import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
-import ApiCalendar from 'react-google-calendar-api';
 import WeeklyCalendar from 'react-native-weekly-calendar';
-const windowHeight = Dimensions.get('window').height;
 
+
+const windowHeight = Dimensions.get('window').height;
 const sampleEvents = [
     { 'start': '2020-11-15 09:00:00', 'duration': '00:20:00', 'note': 'Walk my dog' },
     { 'start': '2020-11-16 14:00:00', 'duration': '01:00:00', 'note': 'Doctor\'s appointment' },
@@ -22,24 +21,7 @@ export default class Schedule extends Component{
 
     constructor(props) {
         super(props);
-        this.handleItemClick = this.handleItemClick.bind(this);
-        this.state = {
-          items: {}
-        };
      }
-
-    handleItemClick(name: string): void {
-        if (name === 'sign-in') {
-          if (ApiCalendar.sign)
-              ApiCalendar.listUpcomingEvents(10)
-                .then(({result}: any) => {
-                  console.log(result.items);
-           });
-
-        } else if (name === 'sign-out') {
-          ApiCalendar.handleSignoutClick();
-        }
-      }
 
     render() {
       return (

@@ -48,14 +48,6 @@ function ScheduleStackScreen(){
       <ScheduleStack.Screen 
         name="Schedule" 
         component={Schedule}
-        options={{
-                  headerRight: () => (
-                    <Button
-                      onPress={() => navigate(AddSchedule)}
-                      title="Add"
-                    />
-                  ),
-                }}
       />
       <ScheduleStack.Screen
         name="AddSchedule"

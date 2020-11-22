@@ -40,8 +40,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import styles from './styles';
 
-import ApiCalendar from 'react-google-calendar-api';
-
 GoogleSignin.configure({
   scopes: ['email'],
   webClientId: '788957977133-11kf53kgqlla41v5r5sgagj09pn4u9vd.apps.googleusercontent.com',

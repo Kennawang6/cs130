@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
 import {Alert, StyleSheet, Text, View, TouchableOpacity, Button, Dimensions} from 'react-native';
 import WeeklyCalendar from 'react-native-weekly-calendar';
-
+import moment from 'moment/min/moment-with-locales';
+import styles from './styles';
 
 const windowHeight = Dimensions.get('window').height;
 const sampleEvents = [
@@ -25,14 +26,89 @@ export default class Schedule extends Component{
 
     render() {
       return (
-        <View style={styles.container}>
-          <WeeklyCalendar events={sampleEvents} style={{ height: windowHeight*0.83 }} />
+        <View>
+          <WeeklyCalendar
+            events={sampleEvents}
+            renderEvent={(event, j) => {
+              let startTime = moment(event.start).format('LT').toString()
+              let duration = event.duration.split(':')
+              let seconds = parseInt(duration[0]) * 3600 + parseInt(duration[1]) * 60 + parseInt(duration[2])
+              let endTime = moment(event.start).add(seconds, 'seconds').format('LT').toString()
+              return (
+                <View key={j}>
+                  <View style={styles.event}>
+                    <View style={styles.eventDuration}>
+                      <View style={styles.durationContainer}>
+                        <View style={styles.durationDot} />
+                        <Text style={styles.durationText}>{startTime}</Text>
+                      </View>
+                      <View style={{ paddingTop: 10 }} />
+                      <View style={styles.durationContainer}>
+                        <View style={styles.durationDot} />
+                        <Text style={styles.durationText}>{endTime}</Text>
+                      </View>
+                      <View style={styles.durationDotConnector} />
+                    </View>
+                    <View style={styles.eventNote}>
+                      <Text style={styles.eventText}>{event.note}</Text>
+                    </View>
+                  </View>
+                  <View style={styles.lineSeparator} />
+                </View>
+              )
+            }}
+            renderLastEvent={(event, j) => {
+              let startTime = moment(event.start).format('LT').toString()
+              let duration = event.duration.split(':')
+              let seconds = parseInt(duration[0]) * 3600 + parseInt(duration[1]) * 60 + parseInt(duration[2])
+              let endTime = moment(event.start).add(seconds, 'seconds').format('LT').toString()
+              return (
+                <View key={j}>
+                  <View style={styles.event}>
+                    <View style={styles.eventDuration}>
+                      <View style={styles.durationContainer}>
+                        <View style={styles.durationDot} />
+                        <Text style={styles.durationText}>{startTime}</Text>
+                      </View>
+                      <View style={{ paddingTop: 10 }} />
+                      <View style={styles.durationContainer}>
+                        <View style={styles.durationDot} />
+                        <Text style={styles.durationText}>{endTime}</Text>
+                      </View>
+                      <View style={styles.durationDotConnector} />
+                    </View>
+                    <View style={styles.eventNote}>
+                      <Text style={styles.eventText}>{event.note}</Text>
+                    </View>
+                  </View>
+                </View>
+              )
+            }}
+            renderDay={(eventViews, weekdayToAdd, i) => (
+              <View key={i.toString()} style={styles.day}>
+                <View style={styles.dayLabel}>
+                  <Text style={[styles.monthDateText, { color: 'pink' }]}>{weekdayToAdd.format('M/D').toString()}</Text>
+                  <Text style={[styles.dayText, { color: 'pink' }]}>{weekdayToAdd.format('ddd').toString()}</Text>
+                </View>
+                <View style={[styles.allEvents, eventViews.length === 0 ? { width: '100%', backgroundColor: 'pink' } : {}]}>
+                  {eventViews}
+                </View>
+              </View>
+            )}
+            onDayPress={(weekday, i) => {
+              console.log(weekday.format('ddd') + ' is selected! And it is day ' + (i+1) + ' of the week!')
+            }}
+            themeColor='pink'
+            style={{ height: 400 }}
+            titleStyle={{ color: 'blue' }}
+            dayLabelStyle={{ color: 'green' }}
+          />
         </View>
       );
     }
 
 }
-
+/*
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -40,4 +116,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   }
-});
+});*/

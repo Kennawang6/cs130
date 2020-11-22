@@ -55,6 +55,7 @@ class CreateEvent extends Component{
 				
 				<Button
   				  title="Invite Friends"
+            onPress={()=>this.props.navigation.navigate('InviteFriend')}
 				/>
 				<Button
   				  title="Create Event"

@@ -34,6 +34,7 @@ import FriendInfo from './components/friendsList/friendInfo';
 import EventList from './components/event/eventList';
 import CreateEvent from './components/event/createEvent';
 import EventDetail from './components/event/eventDetail';
+import InviteFriend from './components/event/inviteFriend';
 
 
 // For signIn
@@ -112,6 +113,11 @@ function EventStackScreen(){
         name="EventDetail"
         component={EventDetail}
         options={{ title: 'Event Detail' }}
+      />
+      <EventStack.Screen
+        name="InviteFriend"
+        component={InviteFriend}
+        options={{ title: 'Invite Friends' }}
       />
     </EventStack.Navigator>
   );

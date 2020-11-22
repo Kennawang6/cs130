@@ -45,13 +45,13 @@ const ScheduleStack = createStackNavigator();
 function ScheduleStackScreen(){
   return (
     <ScheduleStack.Navigator>
+      <ScheduleStack.Screen
+          name="AddSchedule"
+          component={AddSchedule}
+      />
       <ScheduleStack.Screen 
         name="Schedule" 
         component={Schedule}
-      />
-      <ScheduleStack.Screen
-        name="AddSchedule"
-        component={AddSchedule}
       />
     </ScheduleStack.Navigator>
   );

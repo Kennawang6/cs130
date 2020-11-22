@@ -9,8 +9,8 @@ class addSchedule extends Component {
 
   render() {
     return (
-        <View>
-          <Text>Hello</Text>
+      <View>
+        <Text>Hello</Text>
       </View>
     );
   }

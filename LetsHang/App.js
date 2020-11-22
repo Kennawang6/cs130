@@ -17,13 +17,12 @@ import auth from '@react-native-firebase/auth';
 import firebase from '@react-native-firebase/app';
 import functions from '@react-native-firebase/functions';
 
-import {Button} from 'react-native'
+import { Icon } from 'react-native-elements'
 
 import {Provider} from 'react-redux';
 import configureStore from './store';
 
 const store = configureStore();
-
 
 import Signin from './components/signin/signin';
 import Profile from './components/profile/profile';
@@ -46,12 +45,20 @@ function ScheduleStackScreen(){
   return (
     <ScheduleStack.Navigator>
       <ScheduleStack.Screen
+        name="Schedule"
+        component={Schedule}
+        options={({ navigation }) => ({
+          headerRight: () => (
+            <Icon
+              name='add'
+              onPress={() => navigation.navigate('AddSchedule') }
+            />
+          )
+        })}
+      />
+      <ScheduleStack.Screen
           name="AddSchedule"
           component={AddSchedule}
-      />
-      <ScheduleStack.Screen 
-        name="Schedule" 
-        component={Schedule}
       />
     </ScheduleStack.Navigator>
   );

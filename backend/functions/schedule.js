@@ -90,3 +90,119 @@ exports.getSchedule = functions.https.onCall(async (data, context) => {
     }
   }
 });
+
+
+exports.addTimeslotToSchedule = functions.https.onCall(async (data, context) => {
+    //data parameters (all required): 
+    //  timeslot: {
+    //      start: <start time in format YYYY-MM-DDTHH:MM:SS.000+HH:00 where the final +HH:00 or -HH:00 is for the timezone relative to GMT. For example "2011-10-10T14:48:00.000+09:00">,
+    //      end: <end time in same format>
+    //  }
+    if (!context.auth) {
+        functions.logger.info("Unauthenticated user");
+        return {text: "Unauthenticated user"};
+    } else {
+        try {
+            functions.logger.info("Hello to " + context.auth.uid);
+
+            const getScheduleInfo = await admin.firestore().collection('schedules').doc(context.auth.uid).get();
+            
+            if(!getScheduleInfo.exists){
+                console.log("User schedule does not exist");
+                return {text: "User schedule does not exist"};
+            }
+
+            const scheduleData = getScheduleInfo.data();
+
+            const startTime = Date.parse(data.timeslot.start);
+            const endTime = Date.parse(data.timeslot.end);
+
+            if(isNan(startTime) || isNan(endTime)){
+                console.log("Time format incorrect, check endpoint specification for details");
+                return {text: "Time format incorrect, check endpoint specification for details"};
+            }
+
+            if(startTime > endTime){
+                console.log("Error, start time later than end time");
+                return {text: "Error, start time later than end time"};
+            }
+            
+            var finalTimeslots = [];
+            var newTimeslot = {};
+            var newTimeslotStarted = false;
+            var newTimeslotEnded = false;
+
+            for(const scheduleTimeslot of scheduleData.timeslots){
+              const scheduleTimeslotStartTime = Date.parse(scheduleTimeslot.start);
+              const scheduleTimeslotEndTime = Date.parse(scheduleTimeslot.end);
+
+              if(!newTimeslotStarted){
+                if(startTime <= scheduleTimeslotEndTime){
+                  const newTimeslotStart = "";
+                  if(startTime < scheduleTimeslotStartTime){
+                    newTimeslotStart = data.timeslot.start;
+                  } else {
+                    newTimeslotStart = scheduleTimeslot.start;
+                  }
+
+                  if(endTime < scheduleTimeslotStartTime){
+                      newTimeslot = {
+                        start: newTimeslotStart,
+                        end: data.timeslot.end,
+                      }
+                      finalTimeslots.push(newTimeslot);
+                      finalTimeslots.push(scheduleTimeslot);
+                      newTimeslotStarted = true;
+                      newTimeslotEnded = true;
+                  } else if(endTime <= scheduleTimeslotEndTime){
+                      newTimeslot = {
+                        start: newTimeslotStart,
+                        end: scheduleTimeslot.end,
+                      }
+                      finalTimeslots.push(newTimeslot);
+                      newTimeslotStarted = true;
+                      newTimeslotEnded = true;
+                  } else if(endTime > scheduleTimeslotEndTime){
+                      newTimeslot.start = newTimeslotStart;
+                      newTimeslotStarted = true;
+                  }
+                } else {
+                  finalTimeslots.push(scheduleTimeslot);
+                }
+              } else if(!newTimeslotEnded){
+                if(endTime < scheduleTimeslotStartTime){
+                  newTimeslot.end = data.timeslot.end;
+                  finalTimeslots.push(newTimeslot);
+                  finalTimeslots.push(scheduleTimeslot);
+                  newTimeslotEnded = true;
+                } else if (endTime <= scheduleTimeslotEndTime){
+                  newTimeslot.end = scheduleTimeslot.end;
+                  finalTimeslots.push(newTimeslot);
+                  finalTimeslots.push(scheduleTimeslot);
+                  newTimeslotEnded = true;
+                } else {
+                  //do nothing
+                }
+              } else {
+                finalTimeslots.push(scheduleTimeslot);
+              }
+            }
+
+            if(!newTimeslotEnded){
+              newTimeslot.end = data.timeslot.end;
+              finalTimeslots.push(newTimeslot);
+              newTimeslotEnded = true;
+            }
+
+            await admin.firestore().collection('schedules').doc(context.auth.uid).update({
+              timeslots: finalTimeslots,
+            });
+
+            console.log("Successfully updated schedule with new timeslot");
+            return {text: "Successfully updated schedule with new timeslot"};
+        } catch (error) {
+            console.log('Error:', error);
+            return  {text: "Firebase error"};
+        }
+    }
+});

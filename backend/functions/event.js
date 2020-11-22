@@ -455,3 +455,50 @@ exports.removeFromEvent = functions.https.onCall(async (data, context) => {
         }
     }
 });
+
+
+exports.addTimeslotToSchedule = functions.https.onCall(async (data, context) => {
+    //data parameters (all required): 
+    //  timeslot: {
+    //      start: <start time in format YYYY-MM-DDTHH:MM:SS.000+HH:00 where the final +HH:00 or -HH:00 is for the timezone relative to GMT. For example "2011-10-10T14:48:00.000+09:00">,
+    //      end: <end time in same format>
+    //  }
+    if (!context.auth) {
+        functions.logger.info("Unauthenticated user");
+        return {text: "Unauthenticated user"};
+    } else {
+        try {
+            functions.logger.info("Hello to " + context.auth.uid);
+
+            const getScheduleInfo = await admin.firestore().collection('schedules').doc(context.auth.uid).get();
+            
+            if(!getScheduleInfo.exists){
+                console.log("User schedule does not exist");
+                return {text: "User schedule does not exist"};
+            }
+
+            const scheduleData = getScheduleInfo.data();
+
+            const startTime = Date.parse(data.timeslot.start);
+            const endTime = Date.parse(data.timeslot.end);
+
+            if(isNan(startTime) || isNan(endTime)){
+                console.log("Time format incorrect, check endpoint specification for details");
+                return {text: "Time format incorrect, check endpoint specification for details"};
+            }
+
+            if(startTime > endTime){
+                console.log("Error, start time later than end time");
+                return {text: "Error, start time later than end time"};
+            }
+
+            for(const timeslot of scheduleData.timeslots){
+                
+            }
+        } catch (error) {
+            console.log('Error:', error);
+            return  {text: "Firebase error"};
+        }
+    }
+});
+

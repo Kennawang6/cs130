@@ -121,6 +121,9 @@ exports.getFriendsList = functions.https.onCall(async (data, context) => {
     } else {
         try {
             functions.logger.info("Hello to " + context.auth.uid);
+            const friendRecord = await admin.auth().getUserByEmail(data.friend_email);
+            // See the UserRecord reference doc for the contents of userRecord.
+            console.log('Successfully fetched friend data:', friendRecord.toJSON());
 
             const getUserInfo = await admin.firestore().collection('users').doc(context.auth.uid).get();
 
@@ -131,43 +134,16 @@ exports.getFriendsList = functions.https.onCall(async (data, context) => {
 
             const userData = getUserInfo.data();
 
-            if(!(('friendsToAdd' in userData) && ('friends' in userData))){
-                console.log("Friends lists not found");
-                return {text: "Friends lists not found"};
+            if(('friendsToAdd' in userData) && ('friends' in userData)){
+                console.log("Successfully got friends list");
+                return {
+                    text: "Successfully got friends list",
+                    friendsToAdd: userData.friendsToAdd,
+                    friends: userData.friends
+                };
             }
 
-
-            var friendToAddInfo = [];
-            var friendInfo = [];
-
-            for (friendToAdd in userData.friendsToAdd){
-                const getFriendInfo = await admin.firestore().collection('users').doc(friendToAdd).get();
-
-                if(!getFriendInfo.exists){
-                    console.log("Friend data not found");
-                    return {text: "Friend data not found"};
-                }
-                const friendData = getFriendInfo.data();
-                friendToAddInfo.push(friendData);
-            }
-
-            for (friend in userData.friends){
-                const getFriendInfo = await admin.firestore().collection('users').doc(friend).get();
-
-                if(!getFriendInfo.exists){
-                    console.log("Friend data not found");
-                    return {text: "Friend data not found"};
-                }
-                const friendData = getFriendInfo.data();
-                friendInfo.push(friendData);
-            }
-
-            console.log("Successfully got friends list");
-            return {
-                text: "Successfully got friends list",
-                friendsToAdd: friendToAddInfo,
-                friends: friendInfo,
-            };
+            return {text: "Friends lists not found"};
         } catch (error) {
             console.log('Error fetching user data:', error);
             return  {text: "Firebase error while adding friend"};

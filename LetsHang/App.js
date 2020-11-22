@@ -110,14 +110,14 @@ function EventStackScreen(){
         options={{ title: 'Create Event' }}
       />
       <EventStack.Screen
-        name="EventDetail"
-        component={EventDetail}
-        options={{ title: 'Event Detail' }}
-      />
-      <EventStack.Screen
         name="InviteFriend"
         component={InviteFriend}
         options={{ title: 'Invite Friends' }}
+      />
+      <EventStack.Screen
+        name="EventDetail"
+        component={EventDetail}
+        options={{ title: 'Event Detail' }}
       />
     </EventStack.Navigator>
   );

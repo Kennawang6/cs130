@@ -15,6 +15,6 @@ export const removeEvent = (eventID) =>(
 export const editCurEvent = (event) =>(
 {
 	type:"CUR_EVENT",
-	eventInfo: event.eventInfo
+	curEvent: event.curEvent
 });
 

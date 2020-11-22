@@ -7,8 +7,8 @@ import { Input } from 'react-native-elements';
 import { Icon } from 'react-native-elements'
 import { Button, ListItem } from 'react-native-elements';
 
-import { connect } from 'react-redux';
-import { addEvent, removeEvent, editCurEvent} from '../../actions/editEvent';
+//import { connect } from 'react-redux';
+//import { addEvent, removeEvent, editCurEvent} from '../../actions/editEvent';
 
 
 class NoEvent extends Component{
@@ -71,7 +71,7 @@ class HaveEvents extends Component{
     }
 }
 
-class EventList extends Component{
+export default class EventList extends Component{
 	constructor(props) {
     super(props);
     this.state = {eventPair:[]};
@@ -114,7 +114,7 @@ class EventList extends Component{
     }
 	}
 }
-
+/*
 const mapStateToProps = (state) => {return {curEvent:state.eventReducer.curEvent, eventList: state.eventReducer.eventList}}
 
 const mapDispatchToProps = (dispatch) => {
@@ -124,4 +124,4 @@ const mapDispatchToProps = (dispatch) => {
     reduxEditCurEvent: (event) => dispatch(editEvent(event)),
 }}
 
-export default connect(mapStateToProps, mapDispatchToProps)(EventList);
+export default connect(mapStateToProps, mapDispatchToProps)(EventList);*/

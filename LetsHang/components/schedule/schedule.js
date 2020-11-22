@@ -36,7 +36,7 @@ export default class Schedule extends Component{
               let endTime = moment(event.start).add(seconds, 'seconds').format('LT').toString()
               return (
                 <View key={j}>
-                  <View style={styles.event}>
+                  <TouchableOpacity style={styles.event} onPress={()=>console.log("event is pressed")}>
                     <View style={styles.eventDuration}>
                       <View style={styles.durationContainer}>
                         <View style={styles.durationDot} />
@@ -52,7 +52,7 @@ export default class Schedule extends Component{
                     <View style={styles.eventNote}>
                       <Text style={styles.eventText}>{event.note}</Text>
                     </View>
-                  </View>
+                  </TouchableOpacity>
                   <View style={styles.lineSeparator} />
                 </View>
               )
@@ -64,7 +64,7 @@ export default class Schedule extends Component{
               let endTime = moment(event.start).add(seconds, 'seconds').format('LT').toString()
               return (
                 <View key={j}>
-                  <View style={styles.event}>
+                  <TouchableOpacity style={styles.event} onPress={()=>console.log("event is pressed")}>
                     <View style={styles.eventDuration}>
                       <View style={styles.durationContainer}>
                         <View style={styles.durationDot} />
@@ -80,7 +80,7 @@ export default class Schedule extends Component{
                     <View style={styles.eventNote}>
                       <Text style={styles.eventText}>{event.note}</Text>
                     </View>
-                  </View>
+                  </TouchableOpacity>
                 </View>
               )
             }}

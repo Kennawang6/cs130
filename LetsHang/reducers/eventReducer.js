@@ -1,6 +1,6 @@
 import {ADD_EVENT, REMOVE_EVENT, CUR_EVENT} from '../actions/types'
 const initialState = {
-  curEvent: [],
+  curEvent: {friendInvited: []},
   eventList: [],
 };
 const eventReducer = (state = initialState, action) => {
@@ -25,7 +25,7 @@ const eventReducer = (state = initialState, action) => {
 	case "CUR_EVENT" :{
 	return{
 	  ...state,
-	  curEvent: action.eventInfo,
+	  curEvent: action.curEvent,
 	  eventList: state.eventList,
 	  }
 	}

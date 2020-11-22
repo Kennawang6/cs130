@@ -7,10 +7,9 @@ import { Input } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Button } from 'react-native-elements';
 
-import { connect } from 'react-redux';
-import { addEvent, removeEvent, editCurEvent} from '../../actions/editEvent';
 
-class EventDetail extends Component{
+
+export default class EventDetail extends Component{
 	constructor(props) {
         super(props);
         this.state = {
@@ -32,7 +31,7 @@ class EventDetail extends Component{
 	}
 }
 
-
+/*
 const mapStateToProps = (state) => {return {curEvent:state.eventReducer.curEvent, eventList: state.eventReducer.eventList}}
 
 const mapDispatchToProps = (dispatch) => {
@@ -42,4 +41,4 @@ const mapDispatchToProps = (dispatch) => {
     reduxEditCurEvent: (event) => dispatch(editEvent(event)),
 }}
 
-export default connect(mapStateToProps, mapDispatchToProps)(EventDetail);
+export default connect(mapStateToProps, mapDispatchToProps)(EventDetail);*/

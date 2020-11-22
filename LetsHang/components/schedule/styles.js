@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         width: 30,
-        height: 30,
+        height: 40,
         borderRadius: 30/2,
     },
     weekDayNumberTextToday : {

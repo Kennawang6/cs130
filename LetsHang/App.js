@@ -17,6 +17,7 @@ import auth from '@react-native-firebase/auth';
 import firebase from '@react-native-firebase/app';
 import functions from '@react-native-firebase/functions';
 
+import {Button} from 'react-native'
 
 import {Provider} from 'react-redux';
 import configureStore from './store';
@@ -28,6 +29,7 @@ import Signin from './components/signin/signin';
 import Profile from './components/profile/profile';
 import EditName from './components/profile/editName';
 import Schedule from './components/schedule/schedule';
+import AddSchedule from './components/schedule/addSchedule';
 import FriendsList from './components/friendsList/friendsList';
 import AddFriend from './components/friendsList/addFriend';
 import FriendInfo from './components/friendsList/friendInfo';
@@ -45,7 +47,19 @@ function ScheduleStackScreen(){
     <ScheduleStack.Navigator>
       <ScheduleStack.Screen 
         name="Schedule" 
-        component={Schedule} 
+        component={Schedule}
+        options={{
+                  headerRight: () => (
+                    <Button
+                      onPress={() => navigate(AddSchedule)}
+                      title="Add"
+                    />
+                  ),
+                }}
+      />
+      <ScheduleStack.Screen
+        name="AddSchedule"
+        component={AddSchedule}
       />
     </ScheduleStack.Navigator>
   );

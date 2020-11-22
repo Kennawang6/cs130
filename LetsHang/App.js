@@ -31,6 +31,9 @@ import Schedule from './components/schedule/schedule';
 import FriendsList from './components/friendsList/friendsList';
 import AddFriend from './components/friendsList/addFriend';
 import FriendInfo from './components/friendsList/friendInfo';
+import EventList from './components/event/eventList';
+import CreateEvent from './components/event/createEvent';
+import EventDetail from './components/event/eventDetail';
 
 
 // For signIn
@@ -90,6 +93,30 @@ function FriendsListStackScreen(){
   );
 }
 
+// Event
+const EventStack = createStackNavigator();
+function EventStackScreen(){
+  return (
+    <EventStack.Navigator>
+      <EventStack.Screen
+        name="EventList"
+        component={EventList}
+        options={{ title: 'Event' }}
+      />
+      <EventStack.Screen
+        name="CreateEvent"
+        component={CreateEvent}
+        options={{ title: 'Create Event' }}
+      />
+      <EventStack.Screen
+        name="EventDetail"
+        component={EventDetail}
+        options={{ title: 'Event Detail' }}
+      />
+    </EventStack.Navigator>
+  );
+}
+
 function LoginApp() {
   // Set an initializing state whilst Firebase connects
   const [initializing, setInitializing] = useState(true);
@@ -126,6 +153,7 @@ function LoginApp() {
         <Tab.Screen name="Schedule" component={ScheduleStackScreen} />
         <Tab.Screen name="Profile" component={ProfileStackScreen} />
         <Tab.Screen name="Friend's List" component={FriendsListStackScreen} />
+        <Tab.Screen name="Event" component={EventStackScreen} />
       </Tab.Navigator>
     );
   }

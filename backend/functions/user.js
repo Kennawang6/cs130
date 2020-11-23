@@ -20,7 +20,7 @@ exports.addUserData = functions.https.onCall(async (data, context) => {
                             name: context.auth.token.name,
                             email: context.auth.token.email,
                             photoURL: context.auth.token.picture,
-                            timeZone: 0, //This could encode hours relative to GMT
+                            timeZone: 20, //This could encode hours relative to GMT
                             schedule: {},
                             events: [],
                             eventNotifications: [], 

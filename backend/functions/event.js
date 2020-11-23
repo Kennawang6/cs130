@@ -44,7 +44,10 @@ exports.createEvent = functions.https.onCall(async (data, context) => {
             }
 
             console.log("Event added");
-            return {text: "Event added"};
+            return {
+                text: "Event added, check event_id field",
+                event_id: eventRes.id,
+            };
         } catch (error) {
             console.log('Error:', error);
             return  {text: "Firebase error"};

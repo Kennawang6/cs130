@@ -83,7 +83,9 @@ class EventList extends Component{
               type='Content'
               color='#517fa4'
               size={65}
-              onPress={()=>this.props.navigation.navigate('CreateEvent')}
+              onPress={()=>{
+                this.props.reduxEditCurEvent({curEvent: {friendInvited: []}});
+                this.props.navigation.navigate('CreateEvent');}}
              />
           </View>
         </View>
@@ -103,7 +105,9 @@ class EventList extends Component{
               type='Content'
               color='#517fa4'
               size={65}
-              onPress={()=>this.props.navigation.navigate('CreateEvent')}
+              onPress={()=>{
+                this.props.reduxEditCurEvent({curEvent: {friendInvited: []}});
+                this.props.navigation.navigate('CreateEvent');}}
             />
           </View>
         </View>

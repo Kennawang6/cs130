@@ -40,6 +40,7 @@ class Schedule extends Component{
         console.log("Try redux");
         console.log(this.props.schedule);
     }
+
     componentDidMount() {
             this.getScheduleData();
             this.test();

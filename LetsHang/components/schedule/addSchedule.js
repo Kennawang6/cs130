@@ -42,11 +42,10 @@ const addSchedule = props => {
 
   const sendScheduleEvent = async() => {
       const data = await functions().httpsCallable('addSchedule')(
-        {timeslots: [{
+        [{
           description: description,
           start: start.date.getTime(),
           end: end.date.getTime()}]
-        }
       );
       console.log("addSchedule function has been called");
       console.log(data);

@@ -25,9 +25,9 @@ class Schedule extends Component{
 
     constructor(props) {
         super(props);
-        this.state = {
+        /*this.state = {
           schedule: []
-        };
+        };*/
     }
 
     getScheduleData = async() => {
@@ -35,10 +35,15 @@ class Schedule extends Component{
         console.log("Schedule is fetched");
         console.log(data);
     }
-    componentDidMount() {
-        this.getScheduleData();
+
+    test = () =>{
         console.log("Try redux");
-        console.log(this.props.scheduledEvents);
+        console.log(this.props.schedule);
+    }
+
+    componentDidMount() {
+            this.getScheduleData();
+            this.test();
     }
 
     render() {
@@ -136,7 +141,8 @@ const styles = StyleSheet.create({
 });*/
 
 const mapStateToProps = (state) => {
-  return { scheduledEvents: state.scheduleReducer.scheduledEvents }
+  const { schedule } = state
+  return { schedule }
 };
 
 export default connect(mapStateToProps)(Schedule);

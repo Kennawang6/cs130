@@ -110,8 +110,6 @@ exports.removeFriend = functions.https.onCall(async (data, context) => {
     }
 });
 
-
-
 exports.getFriendsList = functions.https.onCall(async (data, context) => {
     //data parameters: 
     //  None
@@ -147,7 +145,8 @@ exports.getFriendsList = functions.https.onCall(async (data, context) => {
                     console.log("Friend data not found", friendToAdd);
                     continue;
                 }
-                const friendData = getFriendInfo.data();
+                var friendData = getFriendInfo.data();
+                friendData.uid = friendToAdd;
                 friendToAddInfo.push(friendData);
             }
 
@@ -158,7 +157,8 @@ exports.getFriendsList = functions.https.onCall(async (data, context) => {
                     console.log("Friend data not found", friend);
                     continue;
                 }
-                const friendData = getFriendInfo.data();
+                var friendData = getFriendInfo.data();
+                friendData.uid = friend;
                 friendInfo.push(friendData);
             }
 

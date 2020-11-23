@@ -172,6 +172,21 @@ const styles = StyleSheet.create({
         borderRadius: 4/2,
         position: 'absolute',
         bottom: '10%'
+    },
+    input: {
+        margin: 15,
+        height: 40,
+        borderColor: '#1f44f4',
+        borderWidth: 1
+    },
+    buttonStyle: {
+         backgroundColor: '#1f44f4',
+         padding: 10,
+         margin: 15,
+         height: 40,
+      },
+    submitButtonText:{
+         color: 'white'
     }
 });
 

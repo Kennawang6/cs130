@@ -9,7 +9,8 @@ export const setEvent = (eventPair) =>(
 export const addEvent = (eventPair) =>(
 {
 	type:"ADD_EVENT",
-	eventPair: eventPair,
+	eventID: eventPair.eventID,
+	eventInfo: eventPair.eventInfo,
 });
 
 export const removeEvent = (eventID) =>(

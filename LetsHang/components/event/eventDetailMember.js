@@ -10,36 +10,19 @@ import { Button } from 'react-native-elements';
 import { connect } from 'react-redux';
 import { setEvent, addEvent, removeEvent, editCurEvent} from '../../actions/editEvent';
 
-class EventDetail extends Component{
+class EventDetailHost extends Component{
 	constructor(props) {
         super(props);
         this.state = {
         	eventID: this.props.route.params.eventID,
-            eventInfo: this.props.route.params.eventInfo,
         };
     }
     
     render() {
-        const list = [
-        {
-          title: 'Event Name',
-          subtitle: this.state.eventInfo.name
-        },
-        {
-          title: 'Event Description',
-          subtitle: this.state.eventInfo.description
-        }];
+        
         return (
             <View>
-                {
-                  list.map((item, i) => (
-                    <ListItem key={i} bottomDivider>
-                      <ListItem.Content>
-                      <ListItem.Title>{item.title}</ListItem.Title>
-                      <ListItem.Subtitle>{item.subtitle}</ListItem.Subtitle>
-                      </ListItem.Content>
-                    </ListItem>))
-                 }
+                <Text>Member</Text>
             </View>
             
         );
@@ -56,4 +39,4 @@ const mapDispatchToProps = (dispatch) => {
     reduxEditCurEvent: (event) => dispatch(editCurEvent(event)),
 }};
 
-export default connect(mapStateToProps, mapDispatchToProps)(EventDetail);
+export default connect(mapStateToProps, mapDispatchToProps)(EventDetailHost);

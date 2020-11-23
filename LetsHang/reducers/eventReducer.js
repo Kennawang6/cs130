@@ -17,7 +17,8 @@ const eventReducer = (state = initialState, action) => {
 	  curEvent: {friendInvited: []},
 	  eventList: state.eventList.concat({
 	  	eventID: action.eventID,
-	  	eventInfo: action.eventInfo
+	  	eventInfo: action.eventInfo,
+	  	ifUser: true,
 	  })}
 
 	}

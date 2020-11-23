@@ -25,6 +25,7 @@ class EventList extends Component{
 		console.log("Data is fetched(eventID)");
 		var eventIDs = data.data.data.events;
     console.log(eventIDs);
+    const userID = firebase.auth().currentUser.uid;
     //var eventList=[];
     //eventPair is a map: where the key will be the eventID, and the value will be the eventInfo
     var eventPair=[];
@@ -34,7 +35,13 @@ class EventList extends Component{
         var eventInfo = await functions().httpsCallable('getEvent')({event_id: eventIDs[i]});
         //get event details
         //eventList.push(eventInfo.data.event_data);
-        eventPair.push({eventID: eventIDs[i], eventInfo: eventInfo.data.event_data});
+        if(eventInfo.data.event_data.hostID == userID){
+          eventPair.push({eventID: eventIDs[i], eventInfo: eventInfo.data.event_data, ifUser: true});
+        }
+        else{
+          eventPair.push({eventID: eventIDs[i], eventInfo: eventInfo.data.event_data, ifUser: false});
+        }
+        
       }
       this.setState({eventPair:eventPair}, () => {                              
         console.log(this.state.eventPair);
@@ -55,10 +62,17 @@ class EventList extends Component{
         {this.props.eventList.map(i =>
           <View>
             <ListItem key={i.eventID} bottomDivider onPress=
-              {()=>this.props.navigation.navigate('EventDetail', {eventID: i.eventID, eventInfo: i.eventInfo})}>
+              {()=>{
+                if(i.ifUser){
+                  this.props.navigation.navigate('EventDetailHost', {eventID: i.eventID});
+                }
+                else{
+                  this.props.navigation.navigate('EventDetailMember', {eventID: i.eventID});
+                }
+                }}>
               <ListItem.Content>
                 <ListItem.Title>{i.eventInfo.name}</ListItem.Title>
-                <ListItem.Subtitle>{i.eventID}</ListItem.Subtitle>
+                <ListItem.Subtitle>{i.ifUser?"Host":"Member"}</ListItem.Subtitle>
               </ListItem.Content>
               <ListItem.Chevron size={30} color="#808080"/>
             </ListItem>

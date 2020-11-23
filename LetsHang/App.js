@@ -58,7 +58,7 @@ function ScheduleStackScreen(){
           headerRight: () => (
             <Icon
               name='add'
-              onPress={() => navigation.navigate('AddSchedule') }
+              onPress={() => navigation.navigate('AddSchedule')}
             />
           )
         })}

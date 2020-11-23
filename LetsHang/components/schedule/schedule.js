@@ -18,7 +18,8 @@ const sampleEvents = [
     { 'start': '2020-11-20 11:00:00', 'duration': '02:00:00', 'note': 'Schedule 2' },
     { 'start': '2020-11-20 15:00:00', 'duration': '01:30:00', 'note': 'Schedule 3' },
     { 'start': '2020-11-21 18:00:00', 'duration': '02:00:00', 'note': 'Schedule 4' },
-    { 'start': '2020-03-26 22:00:00', 'duration': '01:00:00', 'note': 'Schedule 5' }
+    { 'start': '2020-11-26 22:00:00', 'duration': '02:00:00', 'note': 'Schedule 5' },
+    { 'start': '2020-11-27 00:00:00', 'duration': '02:00:00', 'note': 'Schedule 5' }
   ]
 
 class Schedule extends Component{

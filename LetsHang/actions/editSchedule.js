@@ -1,5 +1,5 @@
 import {ADD_SCHEDULE, EDIT_SCHEDULE, REMOVE_SCHEDULE} from './types'
-export const addSchedule = (eventPair) =>(
+export const addScheduleEvent = (eventPair) =>(
 {
 	type: ADD_SCHEDULE,
 	eventID: eventPair.eventID,
@@ -14,7 +14,7 @@ export const addSchedule = (eventPair) =>(
 });
 */
 
-export const removeSchedule = (eventID) =>(
+export const removeScheduleEvent = (eventID) =>(
 {
 	type: REMOVE_SCHEDULE,
 	eventID: eventID,

@@ -29,19 +29,17 @@ class Schedule extends Component{
           schedule: []
         };
     }
-/*
+
     getScheduleData = async() => {
         const data = await functions().httpsCallable('getSchedule')({});
         console.log("Schedule is fetched");
         console.log(data);
-        for (timeslot in data) {
-          let event = new Map()
-
-        }
     }
     componentDidMount() {
-            this.getScheduleData();
-    }*/
+        this.getScheduleData();
+        console.log("Try redux");
+        console.log(this.props.scheduledEvents);
+    }
 
     render() {
       return (
@@ -138,8 +136,7 @@ const styles = StyleSheet.create({
 });*/
 
 const mapStateToProps = (state) => {
-  const { schedule } = state
-  return { schedule }
+  return { scheduledEvents: state.scheduleReducer.scheduledEvents }
 };
 
 export default connect(mapStateToProps)(Schedule);

@@ -2,11 +2,18 @@ import React, { Component, useState, useEffect } from 'react';
 import { Button, View, Platform, Text, TextInput, TouchableOpacity} from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import functions from '@react-native-firebase/functions';
-import { connect } from 'react-redux';
-import {addEvent, removeEvent, editEvent} from '../../actions/editSchedule'
+import { useSelector, useDispatch } from 'react-redux';
+import { addScheduleEvent } from '../../actions/editSchedule'
+import { ADD_SCHEDULE } from '../../actions/types'
 import styles from './styles';
 
+const SECOND_IN_MILLISECONDS = 1000;
+const MINUTE_IN_MILLISECONDS = 60 * SECOND_IN_MILLISECONDS;
+const HOUR_IN_MILLISECONDS = 60 * MINUTE_IN_MILLISECONDS;
+
 const addSchedule = props => {
+  const schedule = useSelector(state => state);
+  const dispatch = useDispatch();
   const [description, setDescription] = useState('');
 
   function useInput() {
@@ -42,20 +49,39 @@ const addSchedule = props => {
 
   const sendScheduleEvent = async() => {
       const data = await functions().httpsCallable('addSchedule')(
-        {timeslots: [{
-          description: description,
+        [{
+          //description: description,
           start: start.date.getTime(),
           end: end.date.getTime()}]
-        }
       );
       console.log("addSchedule function has been called");
       console.log(data);
       alert('Event added to schedule.');
   }
 
+  calculateDuration = (start, end) => {
+    total = start - end;
+    return (total / HOUR_IN_MILLISECONDS >> 0).toString() + ":"
+            + ((total % HOUR_IN_MILLISECONDS) / MINUTE_IN_MILLISECONDS >> 0).toString() + ":"
+            + (((total % HOUR_IN_MILLISECONDS) % MINUTE_IN_MILLISECONDS) / SECOND_IN_MILLISECONDS >> 0).toString();
+  }
+
   handlePress = () => {
       console.log("Button was pressed");
       console.log(description);
+      dispatch({
+        type: ADD_SCHEDULE,
+        eventID: start.date.getTime(),
+        eventInfo: {
+            start: start.date.toISOString(),
+            end: end.date.toISOString(),
+            duration: calculateDuration(start.date.getTime(), end.date.getTime()),
+            description: description,
+            // TODO: change after splitEvent function implementation
+            associatedId: null,
+        },
+      });
+      console.log("Dispatched to store");
       sendScheduleEvent();
   }
 

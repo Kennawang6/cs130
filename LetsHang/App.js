@@ -30,6 +30,7 @@ import EditName from './components/profile/editName';
 import Schedule from './components/schedule/schedule';
 import FriendsList from './components/friendsList/friendsList';
 import AddFriend from './components/friendsList/addFriend';
+import FriendRequests from './components/friendsList/friendRequests';
 import FriendInfo from './components/friendsList/friendInfo';
 import EventList from './components/event/eventList';
 import CreateEvent from './components/event/createEvent';
@@ -85,6 +86,10 @@ function FriendsListStackScreen(){
       <FriendsListStack.Screen
         name="Add Friend"
         component={AddFriend}
+      />
+      <FriendsListStack.Screen
+        name="Friend Requests"
+        component={FriendRequests}
       />
       <FriendsListStack.Screen
         name="Friend Info"

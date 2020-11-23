@@ -1,7 +1,7 @@
 import React, {useState, Component} from 'react';
-import {View, Text, Button, Alert} from 'react-native';
+import {View, Text, Button, TouchableOpacity, Alert, ScrollView} from 'react-native';
 import functions from '@react-native-firebase/functions';
-import { Avatar, ListItem } from 'react-native-elements';
+import { Avatar, ListItem, Icon, Divider } from 'react-native-elements';
 import styles from './styles';
 
 class NoFriends extends Component{
@@ -11,13 +11,13 @@ class NoFriends extends Component{
 
     render() {
         return (
-        <View style = {styles.noFriendsContainer}>
+        <View>
             <Text>{console.log("friends list is not undefined")}</Text>
-            <Text style = {styles.textStyle}>No friends have been added.</Text>
-            <Button style={styles.buttonStyle}
-                title="Add Friend"
-                onPress={()=>this.props.navigation.navigate('Add Friend')}
-            />
+            <Divider style={{ margin: 15, }} />
+            <Text style={{fontSize: 16, textAlign:'center', textAlignVertical:'center',
+                            backgroundColor:'white', height: 60}}>
+                No friends have been added.
+            </Text>
         </View>
         );
     }
@@ -26,10 +26,10 @@ class NoFriends extends Component{
 class HaveFriends extends Component{
     constructor(props) {
         super(props);
-        this.onPressed = this.onPressed.bind(this);
+        this.getFriendInfo = this.getFriendInfo.bind(this);
     }
 
-    onPressed(person){
+    getFriendInfo(person){
         this.props.navigation.navigate( 'Friend Info', {
            photo: person.photoURL,
            name: person.name,
@@ -40,8 +40,8 @@ class HaveFriends extends Component{
 
     render() {
         const friends = this.props.friends.map(i =>
-            <View>
-              <ListItem key={i.email} bottomDivider onPress={() => this.onPressed(i)}>
+            <View key={i.uid} bottomDivider style = {{padding: 1,}}>
+              <ListItem onPress={() => this.getFriendInfo(i)}>
                 <Avatar
                   size="medium"
                   rounded
@@ -55,11 +55,12 @@ class HaveFriends extends Component{
          );
         return (
         <View>
-            <Button style={styles.buttonStyle}
-                title="Add Friend"
-                onPress={()=>this.props.navigation.navigate('Add Friend')}
-            />
-            {friends}
+        <ScrollView>
+            <Divider style={{ margin: 15, }} />
+            <View>
+                {friends}
+            </View>
+        </ScrollView>
         </View>
         );
     }
@@ -73,8 +74,15 @@ class FriendsList extends Component{
           friendsToAdd: [],
           friends: []
         };
+        this.addOrSeeRequests = this.addOrSeeRequests.bind(this);
     }
 
+     addOrSeeRequests(location){
+        this.props.navigation.navigate(location, {
+            friendsToAdd: this.state.friendsToAdd,
+            navigation: this.props.navigation
+        });
+     }
 
     getFriendData = async() => {
         const data = await functions().httpsCallable('getFriendsList')({});
@@ -93,25 +101,47 @@ class FriendsList extends Component{
         this.getFriendData();
     }
 
-
     render() {
-        if (Array.isArray(this.state.friends) && this.state.friends.length < 1){
-            return (
-                <NoFriends navigation={this.props.navigation}/>
-            );
-        }
-        else if (Array.isArray(this.state.friends)) {
-            return (
-                <HaveFriends friends={this.state.friends} navigation={this.props.navigation}/>
-            );
-        }
-        else {
-            return (
+        const list = [
+          {
+            title: 'Add Friend',
+            icon: 'person-add-alt-1',
+          },
+          {
+            title: 'Friend Requests',
+            icon: 'notifications',
+        }];
+
+        return (
+        <View>
+            <View>
+              {
+                list.map((item, i) => (
+                  <ListItem key={i} bottomDivider onPress={() => this.addOrSeeRequests(item.title)}>
+                    <Icon name={item.icon} />
+                    <ListItem.Content>
+                      <ListItem.Title>{item.title}</ListItem.Title>
+                    </ListItem.Content>
+                    <ListItem.Chevron size={30} color="#808080"/>
+                  </ListItem>
+                ))
+              }
+            </View>
+            {(Array.isArray(this.state.friends) && this.state.friends.length < 1) &&
+                <NoFriends />
+            }
+            {(Array.isArray(this.state.friends)) &&
+                <HaveFriends friends={this.state.friends}
+                             friendsToAdd={this.state.friendsToAdd}
+                             navigation={this.props.navigation}/>
+            }
+            {(Array.isArray(this.state.friends) == false) &&
                 <View>
                     <Text>{console.log("friends list is undefined")} {this.state.text}</Text>
                 </View>
-            );
-        }
+            }
+        </View>
+        );
     }
 }
 

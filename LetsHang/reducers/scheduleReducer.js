@@ -6,13 +6,15 @@ const initialState = {
 const scheduleReducer = (state = initialState, action) => {
     switch(action.type) {
         case ADD_SCHEDULE: {
-            return {
+            console.log("ADD_SCHEDULE called");
+            console.log(JSON.stringify(action));
+            return Object.assign({}, state, {
                 ...state,
                 scheduledEvents: {
                     ...state.scheduledEvents,
                     [action.eventID]: action.eventInfo,
-                },
-            }
+                }
+            });
         }
         case REMOVE_SCHEDULE: {
             if (!(action.eventID in state.scheduledEvents)) {

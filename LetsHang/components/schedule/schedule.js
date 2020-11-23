@@ -38,7 +38,7 @@ class Schedule extends Component{
 
     test = () =>{
         console.log("Try redux");
-        console.log(this.props.schedule);
+        console.log(this.props.scheduledEvents);
     }
 
     componentDidMount() {
@@ -141,8 +141,7 @@ const styles = StyleSheet.create({
 });*/
 
 const mapStateToProps = (state) => {
-  const { schedule } = state
-  return { schedule }
+  return { scheduledEvents: state.scheduleReducer.scheduledEvents }
 };
 
 export default connect(mapStateToProps)(Schedule);

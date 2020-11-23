@@ -59,11 +59,19 @@ const addSchedule = props => {
       alert('Event added to schedule.');
   }
 
+    toDoubleDigit = (num) => {
+        if ((num / 10 >> 0 ) > 0) {
+            return num.toString();
+        } else {
+            return  "0" + num.toString();
+        }
+    }
+
   calculateDuration = (start, end) => {
-    total = start - end;
-    return (total / HOUR_IN_MILLISECONDS >> 0).toString() + ":"
-            + ((total % HOUR_IN_MILLISECONDS) / MINUTE_IN_MILLISECONDS >> 0).toString() + ":"
-            + (((total % HOUR_IN_MILLISECONDS) % MINUTE_IN_MILLISECONDS) / SECOND_IN_MILLISECONDS >> 0).toString();
+    total = end - start;
+    return toDoubleDigit(total / HOUR_IN_MILLISECONDS >> 0) + ":"
+            + toDoubleDigit((total % HOUR_IN_MILLISECONDS) / MINUTE_IN_MILLISECONDS >> 0) + ":"
+            + toDoubleDigit(((total % HOUR_IN_MILLISECONDS) % MINUTE_IN_MILLISECONDS) / SECOND_IN_MILLISECONDS >> 0);
   }
 
   handlePress = () => {
@@ -81,7 +89,7 @@ const addSchedule = props => {
             associatedId: null,
         },
       });
-      console.log("Dispatched to store");
+      console.log("Dispatched to store: " + JSON.stringify(schedule));
       sendScheduleEvent();
   }
 

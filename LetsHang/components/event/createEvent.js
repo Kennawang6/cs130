@@ -7,25 +7,64 @@ import Icon from 'react-native-elements';
 import { Button } from 'react-native-elements';
 
 import { connect } from 'react-redux';
-import { addEvent, removeEvent, editCurEvent} from '../../actions/editEvent';
+import { setEvent, addEvent, removeEvent, editCurEvent} from '../../actions/editEvent';
 
 class CreateEvent extends Component{
   constructor(props) {
       super(props);
-      this.state = { eventName: "", eventDescription: "", invitees: [], startDate: null, endDate:null};
+      this.state = { eventName: "", eventDescription: "", startDate: null, endDate:null, timeZoneString:""};
   }
   componentDidMount(){
-    //this.setFriendInvited();
+    this.getUserTimeZone();
   }
-  /*setFriendInvited=()=>{
-    this.setState({friendInvited: this.props.curEvent.friendInvited}, ()=>{});
-  }*/
+  
+  getUserTimeZone = async() => {
+    const data = await functions().httpsCallable('getUserData')({});
+    var timeZone = data.data.data.timeZone;
+    if(timeZone<-12||timeZone>12){
+      timeZone = 0;
+    }
+    var timeZoneString = timeZone.toString();
+    console.log(timeZoneString);
+    this.setState({timeZoneString: timeZoneString});
+  }
 
+  handleTimeZone = (newTimeString) => {
+    this.setState({timeZoneString: newTimeString}, () => {                       
+        console.log(this.state.timeZoneString);
+    });
+  }
+
+  setTimeZone = async(newTime) =>{
+    const data = await functions().httpsCallable('updateUserData')({
+      userData: {
+        timeZone: newTime
+      }
+    });
+    console.log("Time Zone is set");
+  }
+
+  createEvent = async() =>{
+      var eventName = this.state.eventName;
+      var eventDescription = this.state.eventDescription;
+      var invitees = [];
+      var startDate = this.state.startDate;
+      var endDate = this.state.endDate;
+      var friendInvited = this.props.curEvent.friendInvited;
+      for (var i = friendInvited.length - 1; i >= 0; i--) {
+        invitees.push(friendInvited[i].uid);
+      }
+      
+      const data = await functions().httpsCallable('createEvent')({
+          event_name: eventName,
+          description: eventDescription,
+          invitees: invitees,
+          start_date: startDate,
+          end_date: endDate
+      });
+      console.log("Event is created");
+  }
   render() {
-    //console.log(this.props.curEvent.friendInvited);
-    var curEvent = this.props.curEvent;
-    console.log(curEvent);
-    console.log(curEvent.friendInvited);
     return (
       <View>
         <View>
@@ -41,7 +80,9 @@ class CreateEvent extends Component{
         />
         <Text>Your Time Zone</Text>
           <Input
-            placeholder='Time Zone'
+            placeholder={this.state.timeZoneString}
+            value={this.state.timeZoneString}
+            onChangeText={this.handleTimeZone}
         />
         </View>
         <View>
@@ -62,6 +103,24 @@ class CreateEvent extends Component{
         <Button
             title="Invite Friends"
             onPress={()=>this.props.navigation.navigate('InviteFriend')}
+        />
+        </View>
+        <Text></Text>
+        <View>
+        <Button
+            title="Create Event"
+            onPress={()=>{
+              var timeZone = parseInt(this.state.timeZoneString, 10);
+              if(timeZone >= -12 && timeZone<=12){
+                this.setTimeZone(timeZone);
+                this.createEvent();
+                this.props.navigation.navigate('EventList');
+              }
+              else{
+                alert("Invalid Input: Time zone should range from -12 to 12");
+              }
+              
+            }}
         />
         </View>
       </View>

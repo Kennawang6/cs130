@@ -27,15 +27,18 @@ const store = configureStore();
 import Signin from './components/signin/signin';
 import Profile from './components/profile/profile';
 import EditName from './components/profile/editName';
+import EditTimeZone from './components/profile/editTimeZone';
 import Schedule from './components/schedule/schedule';
 import FriendsList from './components/friendsList/friendsList';
 import AddFriend from './components/friendsList/addFriend';
 import FriendInfo from './components/friendsList/friendInfo';
 import EventList from './components/event/eventList';
 import CreateEvent from './components/event/createEvent';
-import EventDetail from './components/event/eventDetail';
+import EventDetailHost from './components/event/eventDetailHost';
+import EventDetailMember from './components/event/eventDetailMember';
 import InviteFriend from './components/event/inviteFriend';
-
+import EditEventName from './components/event/editEventName';
+import EditEventDescription from './components/event/editEventDescription';
 
 // For signIn
 const Stack = createStackNavigator();
@@ -68,6 +71,11 @@ function ProfileStackScreen(){
         name="EditName" 
         component={EditName} 
         options={{ title: 'Name' }}
+      />
+      <ProfileStack.Screen 
+        name="EditTimeZone" 
+        component={EditTimeZone} 
+        options={{ title: 'Time Zone' }}
       />
     </ProfileStack.Navigator>
   );
@@ -102,7 +110,7 @@ function EventStackScreen(){
       <EventStack.Screen
         name="EventList"
         component={EventList}
-        options={{ title: 'Event' }}
+        options={{ title: 'Events' }}
       />
       <EventStack.Screen
         name="CreateEvent"
@@ -115,9 +123,24 @@ function EventStackScreen(){
         options={{ title: 'Invite Friends' }}
       />
       <EventStack.Screen
-        name="EventDetail"
-        component={EventDetail}
+        name="EventDetailHost"
+        component={EventDetailHost}
         options={{ title: 'Event Detail' }}
+      />
+      <EventStack.Screen
+        name="EventDetailMember"
+        component={EventDetailMember}
+        options={{ title: 'Event Detail' }}
+      />
+      <EventStack.Screen
+        name="EditEventName"
+        component={EditEventName}
+        options={{ title: 'Event Name' }}
+      />
+      <EventStack.Screen
+        name="EditEventDescription"
+        component={EditEventDescription}
+        options={{ title: 'Event Description' }}
       />
     </EventStack.Navigator>
   );

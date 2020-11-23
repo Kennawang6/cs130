@@ -7,71 +7,10 @@ import { Input } from 'react-native-elements';
 import { Icon } from 'react-native-elements'
 import { Button, ListItem } from 'react-native-elements';
 
-//import { connect } from 'react-redux';
-//import { addEvent, removeEvent, editCurEvent} from '../../actions/editEvent';
+import { connect } from 'react-redux';
+import { setEvent, addEvent, removeEvent, editCurEvent} from '../../actions/editEvent';
 
-
-class NoEvent extends Component{
-    constructor(props) {
-        super(props);
-    }
-
-    render() {
-        return (
-        <View>
-          <View>
-            <Text>{console.log("Event list is not empty")}</Text>
-          </View>
-
-        <View style = {{left: 140}}>
-          <Icon
-              name='add'
-              type='Content'
-              color='#517fa4'
-              size={65}
-              onPress={()=>this.props.navigation.navigate('CreateEvent')}
-            />
-          </View>
-        </View>
-       );
-    }
-}
-class HaveEvents extends Component{
-    constructor(props) {
-      super(props);
-
-    }
-
-    render() {
-        const eventPair = this.props.eventPair.map(i =>
-          <View>
-            <ListItem key={i.eventID} bottomDivider onPress=
-              {()=>this.props.navigation.navigate('EventDetail', {eventID: i.eventID, eventInfo: i.eventInfo})}>
-              <ListItem.Content>
-                <ListItem.Title>{i.eventInfo.name}</ListItem.Title>
-                <ListItem.Subtitle>{i.eventID}</ListItem.Subtitle>
-              </ListItem.Content>
-              <ListItem.Chevron size={30} color="#808080"/>
-            </ListItem>
-          </View>);
-        return (
-        <View>
-          {eventPair}
-          <View style = {{left: 140}}>
-             <Icon
-              name='add'
-              type='Content'
-              color='#517fa4'
-              size={65}
-              onPress={()=>this.props.navigation.navigate('CreateEvent')}
-             />
-          </View>
-        </View>
-       );
-    }
-}
-
-export default class EventList extends Component{
+class EventList extends Component{
 	constructor(props) {
     super(props);
     this.state = {eventPair:[]};
@@ -100,6 +39,10 @@ export default class EventList extends Component{
       this.setState({eventPair:eventPair}, () => {                              
         console.log(this.state.eventPair);
       });
+      
+      //console.log(this.props.eventList);
+      this.props.reduxSetEvent(eventPair);
+      //console.log(this.props.eventList);
 
     }
     //console.log(eventList);
@@ -107,21 +50,62 @@ export default class EventList extends Component{
 
 	render() {
     if(this.state.eventPair && this.state.eventPair.length){
-      return(<HaveEvents eventPair={this.state.eventPair} navigation={this.props.navigation}/>);
+      return(
+        <View>
+        {this.props.eventList.map(i =>
+          <View>
+            <ListItem key={i.eventID} bottomDivider onPress=
+              {()=>this.props.navigation.navigate('EventDetail', {eventID: i.eventID, eventInfo: i.eventInfo})}>
+              <ListItem.Content>
+                <ListItem.Title>{i.eventInfo.name}</ListItem.Title>
+                <ListItem.Subtitle>{i.eventID}</ListItem.Subtitle>
+              </ListItem.Content>
+              <ListItem.Chevron size={30} color="#808080"/>
+            </ListItem>
+          </View>)}
+          <View style = {{left: 140}}>
+             <Icon
+              name='add'
+              type='Content'
+              color='#517fa4'
+              size={65}
+              onPress={()=>this.props.navigation.navigate('CreateEvent')}
+             />
+          </View>
+        </View>
+
+      );
     }
     else{
-      return (<NoEvent navigation={this.props.navigation}/>);
-    }
+      return (
+        <View>
+          <View>
+            <Text>{console.log("Event list is empty")}</Text>
+          </View>
+
+        <View style = {{left: 140}}>
+          <Icon
+              name='add'
+              type='Content'
+              color='#517fa4'
+              size={65}
+              onPress={()=>this.props.navigation.navigate('CreateEvent')}
+            />
+          </View>
+        </View>
+     
+    );}
 	}
 }
-/*
-const mapStateToProps = (state) => {return {curEvent:state.eventReducer.curEvent, eventList: state.eventReducer.eventList}}
+
+const mapStateToProps = (state) => {return {curEvent:state.eventReducer.curEvent, eventList: state.eventReducer.eventList}};
 
 const mapDispatchToProps = (dispatch) => {
   return{
+    reduxSetEvent:(eventPair) => dispatch(setEvent(eventPair)),
     reduxAddEvent:(event) => dispatch(addEvent(event)),
     reduxRemoveEvent: (eventID) => dispatch(removeEvent(eventID)),
-    reduxEditCurEvent: (event) => dispatch(editEvent(event)),
-}}
+    reduxEditCurEvent: (event) => dispatch(editCurEvent(event)),
+}};
 
-export default connect(mapStateToProps, mapDispatchToProps)(EventList);*/
+export default connect(mapStateToProps, mapDispatchToProps)(EventList);

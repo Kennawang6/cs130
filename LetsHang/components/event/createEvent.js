@@ -7,7 +7,7 @@ import Icon from 'react-native-elements';
 import { Button } from 'react-native-elements';
 
 import { connect } from 'react-redux';
-import { addEvent, removeEvent, editCurEvent} from '../../actions/editEvent';
+import { setEvent, addEvent, removeEvent, editCurEvent} from '../../actions/editEvent';
 
 class CreateEvent extends Component{
   constructor(props) {
@@ -20,9 +20,24 @@ class CreateEvent extends Component{
   /*setFriendInvited=()=>{
     this.setState({friendInvited: this.props.curEvent.friendInvited}, ()=>{});
   }*/
-
+  createEvent = async() =>{
+      var eventName = this.state.eventName;
+      var eventDescription = this.state.eventDescription;
+      var invitees = this.state.invitees;
+      var startDate = this.state.startDate;
+      var endDate = this.state.endDate;
+      const data = await functions().httpsCallable('createEvent')({
+          event_name: eventName,
+          description: eventDescription,
+          invitees: invitees,
+          start_date: startDate,
+          end_date: endDate
+      });
+      console.log("Event is created");
+  }
   render() {
-    //console.log(this.props.curEvent.friendInvited);
+    console.log("hello");
+    console.log(this.props.curEvent.friendInvited);
     var curEvent = this.props.curEvent;
     console.log(curEvent);
     console.log(curEvent.friendInvited);
@@ -62,6 +77,16 @@ class CreateEvent extends Component{
         <Button
             title="Invite Friends"
             onPress={()=>this.props.navigation.navigate('InviteFriend')}
+        />
+        </View>
+        <Text></Text>
+        <View>
+        <Button
+            title="Create Event"
+            onPress={()=>{
+              this.createEvent();
+              this.props.navigation.navigate('EventList');
+            }}
         />
         </View>
       </View>

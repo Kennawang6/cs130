@@ -56,6 +56,7 @@ const addSchedule = props => {
       console.log("Button was pressed");
       console.log(description);
       sendScheduleEvent();
+      props.navigation.navigate('Schedule');
   }
 
   const start = useInput(new Date())

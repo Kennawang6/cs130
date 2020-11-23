@@ -35,10 +35,14 @@ class Schedule extends Component{
         console.log("Schedule is fetched");
         console.log(data);
     }
+
+    test = () =>{
+        console.log("Try redux");
+        console.log(this.props.schedule);
+    }
     componentDidMount() {
             this.getScheduleData();
-            console.log("Try redux");
-            console.log(this.props.schedule);
+            this.test();
     }
 
     render() {

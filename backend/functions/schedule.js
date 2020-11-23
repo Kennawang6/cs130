@@ -2,17 +2,45 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const schedules = admin.firestore().collection('schedules');
 
+class Timeslot {
+  // start: string
+  // end: string
+  // description: string
+  // availability: integer
+  constructor(start, end, description = "", availability = 1) {
+    this.start = start;
+    this.end = end;
+    this.description = description;
+    this.availability = availability;
+  }
+
+  serialize() {
+    return {start: this.start, end: this.end, description: this.description, availability: this.availability};
+  }
+}
+
 class Schedule {
-  constructor (timeslots) {
+  // timeslots: list of Timeslot objects
+  constructor (timeslotList) {
+    let timeslots = [];
+    timeslotList.forEach((timeslot) => {
+      timeslots.push(new Timeslot(timeslot.start, timeslot.end, timeslot.description, timeslot.availability));
+    });
     this.timeslots = timeslots;
+  }
+
+  serialize() {
+    let serializedTimeslots = [];
+    this.timeslots.forEach((timeslot) => {
+      serializedTimeslots.push(timeslot.serialize());
+    })
+    return {timeslots: serializedTimeslots};
   }
 }
 
 var scheduleConverter = {
   toFirestore: function(schedule) {
-    return {
-      timeslots: schedule.timeslots
-    }
+    return schedule.serialize();
   },
   fromFirestore: function(snapshot, options) {
     const data = snapshot.data(options);
@@ -51,7 +79,7 @@ exports.addSchedule = functions.https.onCall(async (data, context) => {
     }
 
     try {
-      await schedules.doc(id).withConverter(scheduleConverter).set(new Schedule(data));
+      await schedules.doc(id).withConverter(scheduleConverter).set(new Schedule(data.timeslots));
       functions.logger.info("Saved schedule for user " + id + "\n");
       return {status: "ok"};
     } catch (error) {
@@ -91,9 +119,8 @@ exports.getSchedule = functions.https.onCall(async (data, context) => {
   }
 });
 
-
 exports.addTimeslotToSchedule = functions.https.onCall(async (data, context) => {
-    //data parameters (all required): 
+    //data parameters (all required):
     //  timeslot: {
     //      start: <start time in format YYYY-MM-DDTHH:MM:SS.000+HH:00 where the final +HH:00 or -HH:00 is for the timezone relative to GMT. For example "2011-10-10T14:48:00.000+09:00">,
     //      end: <end time in same format>

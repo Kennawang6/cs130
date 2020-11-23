@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import {Alert, StyleSheet, Text, View, TouchableOpacity, Button, Dimensions} from 'react-native';
 import WeeklyCalendar from 'react-native-weekly-calendar';
 import moment from 'moment/min/moment-with-locales';
+import { connect } from 'react-redux';
 import styles from './styles';
 
 const windowHeight = Dimensions.get('window').height;
@@ -18,7 +19,7 @@ const sampleEvents = [
     { 'start': '2020-03-26 22:00:00', 'duration': '01:00:00', 'note': 'Schedule 5' }
   ]
 
-export default class Schedule extends Component{
+class Schedule extends Component{
 
     constructor(props) {
         super(props);
@@ -117,3 +118,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   }
 });*/
+
+const mapStateToProps = (state) => {
+  const { schedule } = state
+  return { schedule }
+};
+
+export default connect(mapStateToProps)(Schedule);

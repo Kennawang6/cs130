@@ -2,9 +2,11 @@ import React, { Component, useState, useEffect } from 'react';
 import { Button, View, Platform, Text, TextInput, TouchableOpacity} from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import functions from '@react-native-firebase/functions';
+import { connect } from 'react-redux';
+import {addEvent, removeEvent, editEvent} from '../../actions/editSchedule'
 import styles from './styles';
 
-export const addSchedule = props => {
+const addSchedule = props => {
   const [description, setDescription] = useState('');
 
   function useInput() {

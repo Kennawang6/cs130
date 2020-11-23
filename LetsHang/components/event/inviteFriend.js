@@ -5,7 +5,7 @@ import { Avatar, ListItem } from 'react-native-elements';
 import { CheckBox } from 'react-native-elements'
 
 import { connect } from 'react-redux';
-import { addEvent, removeEvent, editCurEvent} from '../../actions/editEvent';
+import { setEvent, addEvent, removeEvent, editCurEvent} from '../../actions/editEvent';
 
 class InviteFriend extends Component{
     constructor(props) {
@@ -126,6 +126,7 @@ const mapStateToProps = (state) => {return {curEvent:state.eventReducer.curEvent
 
 const mapDispatchToProps = (dispatch) => {
   return{
+    reduxSetEvent:(eventPair) => dispatch(setEvent(eventPair)),
     reduxAddEvent:(event) => dispatch(addEvent(event)),
     reduxRemoveEvent: (eventID) => dispatch(removeEvent(eventID)),
     reduxEditCurEvent: (event) => dispatch(editCurEvent(event)),

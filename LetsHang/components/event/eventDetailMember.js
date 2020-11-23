@@ -3,42 +3,40 @@ import { StyleSheet, View, Text, TextInput, TouchableOpacity, Keyboard } from 'r
 import auth from '@react-native-firebase/auth';
 import firebase from '@react-native-firebase/app';
 import functions from '@react-native-firebase/functions';
-import { Input } from 'react-native-elements';
+import { Input, ListItem } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Button } from 'react-native-elements';
 
+import { connect } from 'react-redux';
+import { setEvent, addEvent, removeEvent, editCurEvent} from '../../actions/editEvent';
 
-
-export default class EventDetail extends Component{
+class EventDetailHost extends Component{
 	constructor(props) {
         super(props);
         this.state = {
         	eventID: this.props.route.params.eventID,
-            eventInfo: this.props.route.params.eventInfo,
         };
     }
-    removeEvent = async() =>{
-    	const data = await functions().httpsCallable('removeFromEvent')({});
-    	
+    
+    render() {
+        
+        return (
+            <View>
+                <Text>Member</Text>
+            </View>
+            
+        );
     }
-	render() {
-		return (
-			<View>
-				<Text> helloWorld </Text>
-			</View>
-			
-		);
-	}
 }
 
-/*
-const mapStateToProps = (state) => {return {curEvent:state.eventReducer.curEvent, eventList: state.eventReducer.eventList}}
+const mapStateToProps = (state) => {return {curEvent:state.eventReducer.curEvent, eventList: state.eventReducer.eventList}};
 
 const mapDispatchToProps = (dispatch) => {
   return{
+    reduxSetEvent:(eventPair) => dispatch(setEvent(eventPair)),
     reduxAddEvent:(event) => dispatch(addEvent(event)),
     reduxRemoveEvent: (eventID) => dispatch(removeEvent(eventID)),
-    reduxEditCurEvent: (event) => dispatch(editEvent(event)),
-}}
+    reduxEditCurEvent: (event) => dispatch(editCurEvent(event)),
+}};
 
-export default connect(mapStateToProps, mapDispatchToProps)(EventDetail);*/
+export default connect(mapStateToProps, mapDispatchToProps)(EventDetailHost);

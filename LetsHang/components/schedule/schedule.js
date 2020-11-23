@@ -4,6 +4,8 @@ import WeeklyCalendar from 'react-native-weekly-calendar';
 import moment from 'moment/min/moment-with-locales';
 import styles from './styles';
 
+import functions from '@react-native-firebase/functions';
+
 const windowHeight = Dimensions.get('window').height;
 const sampleEvents = [
     { 'start': '2020-11-15 09:00:00', 'duration': '00:20:00', 'note': 'Walk my dog' },
@@ -22,7 +24,23 @@ export default class Schedule extends Component{
 
     constructor(props) {
         super(props);
-     }
+        this.state = {
+          schedule: []
+        };
+    }
+/*
+    getScheduleData = async() => {
+        const data = await functions().httpsCallable('getSchedule')({});
+        console.log("Schedule is fetched");
+        console.log(data);
+        for (timeslot in data) {
+          let event = new Map()
+
+        }
+    }
+    componentDidMount() {
+            this.getScheduleData();
+    }*/
 
     render() {
       return (

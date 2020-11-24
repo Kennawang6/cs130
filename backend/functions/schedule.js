@@ -231,6 +231,7 @@ exports.addTimeslotToScheduleandCombine = functions.https.onCall(async (data, co
             var newTimeslotStarted = false;
             var newTimeslotEnded = false;
             newTimeslot.description = data.timeslot.description;
+            newTimeslot.start = data.timeslot.start;
 
             for(const scheduleTimeslot of scheduleData.timeslots){
               const scheduleTimeslotStartTime = scheduleTimeslot.start;
@@ -246,21 +247,21 @@ exports.addTimeslotToScheduleandCombine = functions.https.onCall(async (data, co
                   }
 
                   if(endTime < scheduleTimeslotStartTime){
-                      newTimeslot.description = newTimeslot.description.concat(", ", scheduleTimeslot.description);
                       newTimeslot = {
                         start: newTimeslotStart,
                         end: data.timeslot.end,
                       }
+                      newTimeslot.description = newTimeslot.description.concat(", ", scheduleTimeslot.description);
                       finalTimeslots.push(newTimeslot);
                       finalTimeslots.push(scheduleTimeslot);
                       newTimeslotStarted = true;
                       newTimeslotEnded = true;
                   } else if(endTime <= scheduleTimeslotEndTime){
-                      newTimeslot.description = newTimeslot.description.concat(", ", scheduleTimeslot.description);
                       newTimeslot = {
                         start: newTimeslotStart,
                         end: scheduleTimeslot.end,
                       }
+                      newTimeslot.description = newTimeslot.description.concat(", ", scheduleTimeslot.description);
                       finalTimeslots.push(newTimeslot);
                       newTimeslotStarted = true;
                       newTimeslotEnded = true;
@@ -283,7 +284,6 @@ exports.addTimeslotToScheduleandCombine = functions.https.onCall(async (data, co
                   newTimeslot.description = newTimeslot.description.concat(", ", scheduleTimeslot.description);
                   newTimeslot.end = scheduleTimeslot.end;
                   finalTimeslots.push(newTimeslot);
-                  finalTimeslots.push(scheduleTimeslot);
                   newTimeslotEnded = true;
                 } else {
                   newTimeslot.description = newTimeslot.description.concat(", ", scheduleTimeslot.description);

@@ -44,15 +44,6 @@ class CreateEvent extends Component{
     console.log("Time Zone is set");
   }
 
-  generateEventPair = async(eventID) => {
-    var eventPair = [];
-    var eventInfo = await functions().httpsCallable('getEvent')({event_id: eventID});
-    
-    eventPair.push({eventID: eventID, eventInfo: eventInfo.data.event_data});
-    
-    this.props.reduxAddEvent(eventPair[0]);
-  }
-
   createEvent = async() =>{
       var eventName = this.state.eventName;
       var eventDescription = this.state.eventDescription;
@@ -76,6 +67,16 @@ class CreateEvent extends Component{
       this.generateEventPair(createdEventID);
       console.log("Event is created");
   }
+
+  generateEventPair = async(eventID) => {
+    var eventPair = [];
+    var eventInfo = await functions().httpsCallable('getEvent')({event_id: eventID});
+    
+    eventPair.push({eventID: eventID, eventInfo: eventInfo.data.event_data, ifUser: true});
+    
+    this.props.reduxAddEvent(eventPair[0]);
+  }
+
   render() {
     return (
       <View>

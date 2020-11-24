@@ -11,6 +11,7 @@ export const addEvent = (eventPair) =>(
 	type:"ADD_EVENT",
 	eventID: eventPair.eventID,
 	eventInfo: eventPair.eventInfo,
+	ifUser: eventPair.ifUser,
 });
 
 export const removeEvent = (eventID) =>(

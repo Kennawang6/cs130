@@ -122,8 +122,9 @@ exports.getSchedule = functions.https.onCall(async (data, context) => {
 exports.addTimeslotToSchedule = functions.https.onCall(async (data, context) => {
     //data parameters (all required):
     //  timeslot: {
-    //      start: <start time in format YYYY-MM-DDTHH:MM:SS.000+HH:00 where the final +HH:00 or -HH:00 is for the timezone relative to GMT. For example "2011-10-10T14:48:00.000+09:00">,
-    //      end: <end time in same format>
+    //      start: <milliseconds since 1970/01/01, which can be found using Date.getTime>
+    //      end: <end time in same format>,
+    //      description: <description>
     //  }
     if (!context.auth) {
         functions.logger.info("Unauthenticated user");
@@ -141,10 +142,10 @@ exports.addTimeslotToSchedule = functions.https.onCall(async (data, context) => 
 
             const scheduleData = getScheduleInfo.data();
 
-            const startTime = Date.parse(data.timeslot.start);
-            const endTime = Date.parse(data.timeslot.end);
+            const startTime = data.timeslot.start;
+            const endTime = data.timeslot.end;
 
-            if(isNan(startTime) || isNan(endTime)){
+            if(isNaN(startTime) || isNaN(endTime)){
                 console.log("Time format incorrect, check endpoint specification for details");
                 return {text: "Time format incorrect, check endpoint specification for details"};
             }
@@ -158,10 +159,11 @@ exports.addTimeslotToSchedule = functions.https.onCall(async (data, context) => 
             var newTimeslot = {};
             var newTimeslotStarted = false;
             var newTimeslotEnded = false;
+            newTimeslot.description = data.timeslot.description;
 
             for(const scheduleTimeslot of scheduleData.timeslots){
-              const scheduleTimeslotStartTime = Date.parse(scheduleTimeslot.start);
-              const scheduleTimeslotEndTime = Date.parse(scheduleTimeslot.end);
+              const scheduleTimeslotStartTime = scheduleTimeslot.start;
+              const scheduleTimeslotEndTime = scheduleTimeslot.end;
 
               if(!newTimeslotStarted){
                 if(startTime <= scheduleTimeslotEndTime){
@@ -173,6 +175,7 @@ exports.addTimeslotToSchedule = functions.https.onCall(async (data, context) => 
                   }
 
                   if(endTime < scheduleTimeslotStartTime){
+                      newTimeslot.description = newTimeslot.description.concat(", ", scheduleTimeslot.description);
                       newTimeslot = {
                         start: newTimeslotStart,
                         end: data.timeslot.end,
@@ -182,6 +185,7 @@ exports.addTimeslotToSchedule = functions.https.onCall(async (data, context) => 
                       newTimeslotStarted = true;
                       newTimeslotEnded = true;
                   } else if(endTime <= scheduleTimeslotEndTime){
+                      newTimeslot.description = newTimeslot.description.concat(", ", scheduleTimeslot.description);
                       newTimeslot = {
                         start: newTimeslotStart,
                         end: scheduleTimeslot.end,
@@ -190,6 +194,7 @@ exports.addTimeslotToSchedule = functions.https.onCall(async (data, context) => 
                       newTimeslotStarted = true;
                       newTimeslotEnded = true;
                   } else if(endTime > scheduleTimeslotEndTime){
+                      newTimeslot.description = newTimeslot.description.concat(", ", scheduleTimeslot.description);
                       newTimeslot.start = newTimeslotStart;
                       newTimeslotStarted = true;
                   }
@@ -198,17 +203,19 @@ exports.addTimeslotToSchedule = functions.https.onCall(async (data, context) => 
                 }
               } else if(!newTimeslotEnded){
                 if(endTime < scheduleTimeslotStartTime){
+                  newTimeslot.description = newTimeslot.description.concat(", ", scheduleTimeslot.description);
                   newTimeslot.end = data.timeslot.end;
                   finalTimeslots.push(newTimeslot);
                   finalTimeslots.push(scheduleTimeslot);
                   newTimeslotEnded = true;
                 } else if (endTime <= scheduleTimeslotEndTime){
+                  newTimeslot.description = newTimeslot.description.concat(", ", scheduleTimeslot.description);
                   newTimeslot.end = scheduleTimeslot.end;
                   finalTimeslots.push(newTimeslot);
                   finalTimeslots.push(scheduleTimeslot);
                   newTimeslotEnded = true;
                 } else {
-                  //do nothing
+                  newTimeslot.description = newTimeslot.description.concat(", ", scheduleTimeslot.description);
                 }
               } else {
                 finalTimeslots.push(scheduleTimeslot);

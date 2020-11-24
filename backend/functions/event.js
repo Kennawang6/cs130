@@ -496,7 +496,7 @@ exports.addUserScheduleToEvent = functions.https.onCall(async (data, context) =>
             var userTimeSlots = [];
             
             //cut out only the part of the User scedule between start time and end time
-            if(!isNan(eventStartTime) && !isNan(eventEndTime)){
+            if(!isNaN(eventStartTime) && !isNaN(eventEndTime)){
                 for(const scheduleTimeslot of scheduleData.timeslots){
                     const scheduleTimeslotStartTime = Date.parse(scheduleTimeslot.start);
                     const scheduleTimeslotEndTime = Date.parse(scheduleTimeslot.end);

@@ -511,82 +511,79 @@ exports.addUserScheduleToEvent = functions.https.onCall(async (data, context) =>
                 }
             }
             
-            var finalTimeslots = [];
-            var newTimeslot = {};
-            var userTimeslotStarted = false;
-            var newTimeslotStart;
-            if(userTimeslots.length > 0){
-                newTimeslotStart = userTimeslots[0].start;
-            } 
+            var finalTimeslots = JSON.parse(JSON.stringify(eventSchedule.timeslots));
 
             var i = 0, j = 0; //for interating through eventSchedule.timeslots and userTimeslots respectively
             //combine Event and User schedules
-            for(i = 0; i < eventSchedule.timeslots.length || j < userTimeSlots.length; i++){
-              const eventTimeslotStartTime = eventSchedule.timeslots[i].start;
-              const eventTimeslotEndTime = eventSchedule.timeslots[i].end;
-              const scheduleTimeslotStartTime = userTimeslots[j].start;
-              const scheduleTimeslotEndTime = userTimeslots[j].end;
+            for(j = 0; j < userTimeSlots.length; j++){
+                var combinedTimeslots = JSON.parse(JSON.stringify(finalTimeslots));
+                var newTimeslotStarted = false;
+                var newTimeslotEnded = false;
+                var newTimeslot = {};
+                newTimeslot.start = userTimeslots[j].start;
+                finalTimeslots = [];
 
-              if(!newTimeslotStarted){
-                newTimeslot = {};
-                if(scheduleTimeslotStartTime <= eventTimeslotEndTime){
-                   = "";
-                  if(scheduleTimeslotStartTime < eventTimeslotStartTime){
-                    newTimeslotStart = userTimeslots[j].start;
+                for(i = 0; i < combinedTimeslots.length; i++){
+                  const eventTimeslotStartTime = combinedTimeslots[i].start;
+                  const eventTimeslotEndTime = combinedTimeslots[i].end;
+                  const scheduleTimeslotStartTime = userTimeslots[j].start;
+                  const scheduleTimeslotEndTime = userTimeslots[j].end;
+
+                  var newTimeslotStart;
+                  if(!newTimeslotStarted){
+                    if(scheduleTimeslotStartTime <= eventTimeslotEndTime){
+                      if(scheduleTimeslotStartTime < eventTimeslotStartTime){
+                        newTimeslotStart = userTimeslots[j].start;
+                      } else {
+                        newTimeslotStart = eventTimeslotStartTime;
+                      }
+
+                      if(scheduleTimeslotEndTime < eventTimeslotStartTime){
+                          newTimeslot = {
+                            start: newTimeslotStart,
+                            end: userTimeslots[j].end,
+                          }
+                          finalTimeslots.push(newTimeslot);
+                          finalTimeslots.push(combinedTimeslots[i]);
+                          newTimeslotStarted = true;
+                          newTimeslotEnded = true;
+                      } else if(scheduleTimeslotEndTime <= eventTimeslotEndTime){
+                          newTimeslot = {
+                            start: newTimeslotStart,
+                            end: eventTimeslotEndTime,
+                          }
+                          finalTimeslots.push(newTimeslot);
+                          newTimeslotStarted = true;
+                          newTimeslotEnded = true;
+                      } else if(scheduleTimeslotEndTime > eventTimeslotEndTime){
+                          newTimeslot.start = newTimeslotStart;
+                          newTimeslotStarted = true;
+                      }
+                    } else {
+                      finalTimeslots.push(combinedTimeslots[i]);
+                    }
+                  } else if(!newTimeslotEnded){
+                    if(scheduleTimeslotEndTime < eventTimeslotStartTime){
+                      newTimeslot.end = userTimeslots[j].end;
+                      finalTimeslots.push(newTimeslot);
+                      finalTimeslots.push(combinedTimeslots[i]);
+                      newTimeslotEnded = true;
+                    } else if (scheduleTimeslotEndTime <= eventTimeslotEndTime){
+                      newTimeslot.end = eventTimeslotEndTime;
+                      finalTimeslots.push(newTimeslot);
+                      newTimeslotEnded = true;
+                    } else {
+                    }
                   } else {
-                    newTimeslotStart = eventSchedule.timeslots[i].start;
+                    finalTimeslots.push(combinedTimeslots[i]);
                   }
-
-                  if(scheduleTimeslotEndTime < eventTimeslotStartTime){
-                      newTimeslot = {
-                        start: newTimeslotStart,
-                        end: userTimeslots[j].end,
-                      }
-                      finalTimeslots.push(newTimeslot);
-                      i--; //to compensate for i++ in loop
-                      j++;
-                  } else if(scheduleTimeslotEndTime <= eventTimeslotEndTime){
-                      newTimeslot = {
-                        start: newTimeslotStart,
-                        end: eventSchedule.timeslots[i].end,
-                      }
-                      finalTimeslots.push(newTimeslot);
-                      j++;
-                  } else if(scheduleTimeslotEndTime > eventTimeslotEndTime){
-                      newTimeslot.start = newTimeslotStart;
-                      newTimeslotStarted = true;
-                  }
-                } else {
-                  finalTimeslots.push(eventSchedule.timeslots[i]);
                 }
-              } else {
-                if(scheduleTimeslotEndTime < eventTimeslotStartTime){
+
+                if(!newTimeslotEnded){
                   newTimeslot.end = userTimeslots[j].end;
                   finalTimeslots.push(newTimeslot);
-                  newTimeslotStarted = false;
-                  i--; //to compensate for i++ in loop
-                  j++;
-                } else if (scheduleTimeslotEndTime <= eventTimeslotEndTime){
-                  newTimeslot.end = eventSchedule.timeslots[i].end;
-                  finalTimeslots.push(newTimeslot);
-                  newTimeslotStarted = false;
-                  j++;
-                } else {
-                  //do nothing
+                  newTimeslotEnded = true;
                 }
-              }
-            }
-
-            if(newTimeslotStarted && userTimeslots.length > 0){
-              newTimeslot.end = userTimeslots[j].end;
-              finalTimeslots.push(newTimeslot);
-              j++;
-            }
-
-            if(i < eventSchedule.timeslots.length){
-                finalTimeslots.push(...eventSchedule.timeslots.slice(i));
-            } else if(j < userTimeSlots.length){
-                finalTimeslots.push(...userTimeSlots.slice(j));
             }
 
             await admin.firestore().collection('schedules').doc(context.auth.uid).update({

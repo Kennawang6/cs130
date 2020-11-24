@@ -408,7 +408,6 @@ exports.declineEventInvite = functions.https.onCall(async (data, context) => {
     }
 });
 
-
 exports.removeFromEvent = functions.https.onCall(async (data, context) => {
     //data parameters (all required): 
     // event_id: event's id
@@ -457,13 +456,9 @@ exports.removeFromEvent = functions.https.onCall(async (data, context) => {
 });
 
 
-exports.addTimeslotToSchedule = functions.https.onCall(async (data, context) => {
-    //data parameters (all required):
-    //  timeslot: {
-    //      start: <milliseconds since 1970/01/01, which can be found using Date.getTime>
-    //      end: <end time in same format>,
-    //      description: <description>
-    //  }
+exports.addUserScheduleToEvent = functions.https.onCall(async (data, context) => {
+    //data parameters (all required): 
+    // event_id: event's id
     if (!context.auth) {
         functions.logger.info("Unauthenticated user");
         return {text: "Unauthenticated user"};
@@ -480,102 +475,122 @@ exports.addTimeslotToSchedule = functions.https.onCall(async (data, context) => 
 
             const scheduleData = getScheduleInfo.data();
 
-            console.log(data)
+            const getEventInfo = await admin.firestore().collection('events').doc(data.event_id).get();
 
-            const startTime = data.timeslot.start;
-            const endTime = data.timeslot.end;
-
-            if(isNaN(startTime) || isNaN(endTime)){
-                console.log("Time format incorrect, check endpoint specification for details");
-                return {text: "Time format incorrect, check endpoint specification for details"};
+            if(!getEventInfo.exists){
+                console.log("event document does not exist");
+                return {text: "Event document does not exist"};
             }
 
-            if(startTime > endTime){
-                console.log("Error, start time later than end time");
-                return {text: "Error, start time later than end time"};
+            const eventData = getEventInfo.data();
+            const eventSchedule = eventData.commonSchedule;
+            const eventStartTime = Date.parse(eventData.start_date);
+            const eventEndTime = Date.parse(eventData.end_date);
+
+            var userTimeSlots = [];
+            
+            //cut out only the part of the User scedule between start time and end time
+            if(!isNan(eventStartTime) && !isNan(eventEndTime)){
+                for(const scheduleTimeslot of scheduleData.timeslots){
+                    const scheduleTimeslotStartTime = Date.parse(scheduleTimeslot.start);
+                    const scheduleTimeslotEndTime = Date.parse(scheduleTimeslot.end);
+
+                    if(scheduleTimeslotStartTime < eventStartTime && scheduleTimeslotEndTime > eventStartTime){
+                        userTimeSlots.push({
+                            start: eventData.start_date,
+                            end: scheduleTimeslot.end,
+                        });
+                    } else if(scheduleTimeslotEndTime > eventEndTime && scheduleTimeslotStartTime < eventEndTime){
+                        userTimeSlots.push({
+                            start: scheduleTimeslot.start,
+                            end: eventData.end_date,
+                        });
+                    } else {
+                        userTimeSlots.push(scheduleTimeslot);
+                    }
+                }
             }
             
             var finalTimeslots = [];
             var newTimeslot = {};
-            var newTimeslotStarted = false;
-            var newTimeslotEnded = false;
-            var newTimeslotStart;
-            newTimeslot.description = data.timeslot.description;
+            var userTimeslotStarted = false;
 
-            for(const scheduleTimeslot of scheduleData.timeslots){
-              const scheduleTimeslotStartTime = scheduleTimeslot.start;
-              const scheduleTimeslotEndTime = scheduleTimeslot.end;
+            var i = 0, j = 0; //for interating through eventSchedule.timeslots and userTimeslots respectively
+            //combine Event and User schedules
+            for(i = 0; i < eventSchedule.timeslots.length || j < userTimeSlots.length; i++){
+              const eventTimeslotStartTime = Date.parse(eventSchedule.timeslots[i].start);
+              const eventTimeslotEndTime = Date.parse(eventSchedule.timeslots[i].end);
+              const scheduleTimeslotStartTime = Date.parse(userTimeslots[j].start);
+              const scheduleTimeslotEndTime = Date.parse(userTimeslots[j].end);
 
               if(!newTimeslotStarted){
-                if(startTime <= scheduleTimeslotEndTime){
-                  newTimeslotStart = 0;
-                  if(startTime < scheduleTimeslotStartTime){
-                    newTimeslotStart = data.timeslot.start;
+                newTimeslot = {};
+                if(scheduleTimeslotStartTime <= eventTimeslotEndTime){
+                  const newTimeslotStart = "";
+                  if(scheduleTimeslotStartTime < eventTimeslotStartTime){
+                    newTimeslotStart = userTimeslots[j].start;
                   } else {
-                    newTimeslotStart = scheduleTimeslot.start;
+                    newTimeslotStart = eventSchedule.timeslots[i].start;
                   }
 
-                  if(endTime < scheduleTimeslotStartTime){
-                      newTimeslot.description = newTimeslot.description.concat(", ", scheduleTimeslot.description);
+                  if(scheduleTimeslotEndTime < eventTimeslotStartTime){
                       newTimeslot = {
                         start: newTimeslotStart,
-                        end: data.timeslot.end,
+                        end: userTimeslots[j].end,
                       }
                       finalTimeslots.push(newTimeslot);
-                      finalTimeslots.push(scheduleTimeslot);
-                      newTimeslotStarted = true;
-                      newTimeslotEnded = true;
-                  } else if(endTime <= scheduleTimeslotEndTime){
-                      newTimeslot.description = newTimeslot.description.concat(", ", scheduleTimeslot.description);
+                      i--; //to compensate for i++ in loop
+                      j++;
+                  } else if(scheduleTimeslotEndTime <= eventTimeslotEndTime){
                       newTimeslot = {
                         start: newTimeslotStart,
-                        end: scheduleTimeslot.end,
+                        end: eventSchedule.timeslots[i].end,
                       }
                       finalTimeslots.push(newTimeslot);
-                      newTimeslotStarted = true;
-                      newTimeslotEnded = true;
-                  } else if(endTime > scheduleTimeslotEndTime){
-                      newTimeslot.description = newTimeslot.description.concat(", ", scheduleTimeslot.description);
+                      j++;
+                  } else if(scheduleTimeslotEndTime > eventTimeslotEndTime){
                       newTimeslot.start = newTimeslotStart;
                       newTimeslotStarted = true;
                   }
                 } else {
-                  finalTimeslots.push(scheduleTimeslot);
-                }
-              } else if(!newTimeslotEnded){
-                if(endTime < scheduleTimeslotStartTime){
-                  newTimeslot.description = newTimeslot.description.concat(", ", scheduleTimeslot.description);
-                  newTimeslot.end = data.timeslot.end;
-                  finalTimeslots.push(newTimeslot);
-                  finalTimeslots.push(scheduleTimeslot);
-                  newTimeslotEnded = true;
-                } else if (endTime <= scheduleTimeslotEndTime){
-                  newTimeslot.description = newTimeslot.description.concat(", ", scheduleTimeslot.description);
-                  newTimeslot.end = scheduleTimeslot.end;
-                  finalTimeslots.push(newTimeslot);
-                  finalTimeslots.push(scheduleTimeslot);
-                  newTimeslotEnded = true;
-                } else {
-                  newTimeslot.description = newTimeslot.description.concat(", ", scheduleTimeslot.description);
+                  finalTimeslots.push(eventSchedule.timeslots[i]);
                 }
               } else {
-                finalTimeslots.push(scheduleTimeslot);
+                if(scheduleTimeslotEndTime < eventTimeslotStartTime){
+                  newTimeslot.end = userTimeslots[j].end;
+                  finalTimeslots.push(newTimeslot);
+                  newTimeslotStarted = false;
+                  i--; //to compensate for i++ in loop
+                  j++;
+                } else if (scheduleTimeslotEndTime <= eventTimeslotEndTime){
+                  newTimeslot.end = eventSchedule.timeslots[i].end;
+                  finalTimeslots.push(newTimeslot);
+                  newTimeslotStarted = false;
+                  j++;
+                } else {
+                  //do nothing
+                }
               }
             }
 
-            if(!newTimeslotEnded){
-              newTimeslot.start = newTimeslotStart;
-              newTimeslot.end = data.timeslot.end;
+            if(newTimeslotStarted){
+              newTimeslot.end = userTimeslots[j].end;
               finalTimeslots.push(newTimeslot);
-              newTimeslotEnded = true;
+              j++;
+            }
+
+            if(i < eventSchedule.timeslots.length){
+                finalTimeslots.push(...eventSchedule.timeslots.slice(i));
+            } else if(j < userTimeSlots.length){
+                finalTimeslots.push(...userTimeSlots.slice(j));
             }
 
             await admin.firestore().collection('schedules').doc(context.auth.uid).update({
               timeslots: finalTimeslots,
             });
 
-            console.log("Successfully updated schedule with new timeslot");
-            return {text: "Successfully updated schedule with new timeslot"};
+            console.log("Successfully updated event schedule with user schedule");
+            return {text: "Successfully updated event schedule with user schedule"};
         } catch (error) {
             console.log('Error:', error);
             return  {text: "Firebase error"};

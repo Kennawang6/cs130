@@ -119,13 +119,11 @@ exports.getSchedule = functions.https.onCall(async (data, context) => {
   }
 });
 
-
 exports.addTimeslotToSchedule = functions.https.onCall(async (data, context) => {
     //data parameters (all required):
     //  timeslot: {
-    //      start: <milliseconds since 1970/01/01, which can be found using Date.getTime>
-    //      end: <end time in same format>,
-    //      description: <description>
+    //      start: <start time in format YYYY-MM-DDTHH:MM:SS.000+HH:00 where the final +HH:00 or -HH:00 is for the timezone relative to GMT. For example "2011-10-10T14:48:00.000+09:00">,
+    //      end: <end time in same format>
     //  }
     if (!context.auth) {
         functions.logger.info("Unauthenticated user");
@@ -143,83 +141,10 @@ exports.addTimeslotToSchedule = functions.https.onCall(async (data, context) => 
 
             const scheduleData = getScheduleInfo.data();
 
-            if(isNaN(data.timeslot.start) || isNaN(data.timeslot.end)){
-                console.log("Time format incorrect, check endpoint specification for details");
-                return {text: "Time format incorrect, check endpoint specification for details"};
-            }
+            const startTime = Date.parse(data.timeslot.start);
+            const endTime = Date.parse(data.timeslot.end);
 
-            if(data.timeslot.start > data.timeslot.end){
-                console.log("Error, start time later than end time");
-                return {text: "Error, start time later than end time"};
-            }
-            
-            var finalTimeslots = [];
-            var newTimeslotAdded = false;
-
-            for(const scheduleTimeslot of scheduleData.timeslots){
-              if(!newTimeslotAdded && scheduleTimeslot.start > data.timeslot.start){
-                finalTimeslots.push({
-                  start: data.timeslot.start,
-                  end: data.timeslot.end,
-                  description: data.timeslot.description,
-                });
-                finalTimeslots.push(scheduleTimeslot);
-                newTimeslotAdded = true;
-              } else {
-                finalTimeslots.push(scheduleTimeslot);
-              }
-            }
-
-            if(!newTimeslotAdded){
-              finalTimeslots.push({
-                start: data.timeslot.start,
-                end: data.timeslot.end,
-                description: data.timeslot.description,
-              });
-            }
-
-            await admin.firestore().collection('schedules').doc(context.auth.uid).update({
-              timeslots: finalTimeslots,
-            });
-
-            console.log("Successfully updated schedule with new timeslot");
-            return {text: "Successfully updated schedule with new timeslot"};
-        } catch (error) {
-            console.log('Error:', error);
-            return  {text: "Firebase error"};
-        }
-    }
-});
-
-exports.addTimeslotToScheduleandCombine = functions.https.onCall(async (data, context) => {
-    //data parameters (all required):
-    //  timeslot: {
-    //      start: <milliseconds since 1970/01/01, which can be found using Date.getTime>
-    //      end: <end time in same format>,
-    //      description: <description>
-    //  }
-    if (!context.auth) {
-        functions.logger.info("Unauthenticated user");
-        return {text: "Unauthenticated user"};
-    } else {
-        try {
-            functions.logger.info("Hello to " + context.auth.uid);
-
-            const getScheduleInfo = await admin.firestore().collection('schedules').doc(context.auth.uid).get();
-            
-            if(!getScheduleInfo.exists){
-                console.log("User schedule does not exist");
-                return {text: "User schedule does not exist"};
-            }
-
-            const scheduleData = getScheduleInfo.data();
-
-            console.log(data)
-
-            const startTime = data.timeslot.start;
-            const endTime = data.timeslot.end;
-
-            if(isNaN(startTime) || isNaN(endTime)){
+            if(isNan(startTime) || isNan(endTime)){
                 console.log("Time format incorrect, check endpoint specification for details");
                 return {text: "Time format incorrect, check endpoint specification for details"};
             }
@@ -233,16 +158,14 @@ exports.addTimeslotToScheduleandCombine = functions.https.onCall(async (data, co
             var newTimeslot = {};
             var newTimeslotStarted = false;
             var newTimeslotEnded = false;
-            var newTimeslotStart = data.timeslot.start;
-            newTimeslot.description = data.timeslot.description;
 
             for(const scheduleTimeslot of scheduleData.timeslots){
-              const scheduleTimeslotStartTime = scheduleTimeslot.start;
-              const scheduleTimeslotEndTime = scheduleTimeslot.end;
+              const scheduleTimeslotStartTime = Date.parse(scheduleTimeslot.start);
+              const scheduleTimeslotEndTime = Date.parse(scheduleTimeslot.end);
 
               if(!newTimeslotStarted){
                 if(startTime <= scheduleTimeslotEndTime){
-                  newTimeslotStart = 0;
+                  const newTimeslotStart = "";
                   if(startTime < scheduleTimeslotStartTime){
                     newTimeslotStart = data.timeslot.start;
                   } else {
@@ -250,7 +173,6 @@ exports.addTimeslotToScheduleandCombine = functions.https.onCall(async (data, co
                   }
 
                   if(endTime < scheduleTimeslotStartTime){
-                      newTimeslot.description = newTimeslot.description.concat(", ", scheduleTimeslot.description);
                       newTimeslot = {
                         start: newTimeslotStart,
                         end: data.timeslot.end,
@@ -260,7 +182,6 @@ exports.addTimeslotToScheduleandCombine = functions.https.onCall(async (data, co
                       newTimeslotStarted = true;
                       newTimeslotEnded = true;
                   } else if(endTime <= scheduleTimeslotEndTime){
-                      newTimeslot.description = newTimeslot.description.concat(", ", scheduleTimeslot.description);
                       newTimeslot = {
                         start: newTimeslotStart,
                         end: scheduleTimeslot.end,
@@ -269,7 +190,6 @@ exports.addTimeslotToScheduleandCombine = functions.https.onCall(async (data, co
                       newTimeslotStarted = true;
                       newTimeslotEnded = true;
                   } else if(endTime > scheduleTimeslotEndTime){
-                      newTimeslot.description = newTimeslot.description.concat(", ", scheduleTimeslot.description);
                       newTimeslot.start = newTimeslotStart;
                       newTimeslotStarted = true;
                   }
@@ -278,19 +198,17 @@ exports.addTimeslotToScheduleandCombine = functions.https.onCall(async (data, co
                 }
               } else if(!newTimeslotEnded){
                 if(endTime < scheduleTimeslotStartTime){
-                  newTimeslot.description = newTimeslot.description.concat(", ", scheduleTimeslot.description);
                   newTimeslot.end = data.timeslot.end;
                   finalTimeslots.push(newTimeslot);
                   finalTimeslots.push(scheduleTimeslot);
                   newTimeslotEnded = true;
                 } else if (endTime <= scheduleTimeslotEndTime){
-                  newTimeslot.description = newTimeslot.description.concat(", ", scheduleTimeslot.description);
                   newTimeslot.end = scheduleTimeslot.end;
                   finalTimeslots.push(newTimeslot);
                   finalTimeslots.push(scheduleTimeslot);
                   newTimeslotEnded = true;
                 } else {
-                  newTimeslot.description = newTimeslot.description.concat(", ", scheduleTimeslot.description);
+                  //do nothing
                 }
               } else {
                 finalTimeslots.push(scheduleTimeslot);
@@ -298,7 +216,6 @@ exports.addTimeslotToScheduleandCombine = functions.https.onCall(async (data, co
             }
 
             if(!newTimeslotEnded){
-              newTimeslot.start = newTimeslotStart;
               newTimeslot.end = data.timeslot.end;
               finalTimeslots.push(newTimeslot);
               newTimeslotEnded = true;

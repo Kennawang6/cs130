@@ -74,11 +74,6 @@ exports.getEvent = functions.https.onCall(async (data, context) => {
 
             const eventData = getEventInfo.data();
 
-            if(!(('members' in eventData) && (eventData.members.includes(context.auth.uid)))){
-                console.log("User not member of event");
-                return {text: "User not member of event"};
-            }
-
             console.log("Get event successful");
             return {
                 text: "Get event successful, check event_data object",
@@ -344,7 +339,7 @@ exports.acceptEventInvite = functions.https.onCall(async (data, context) => {
 
             const userData = getUserInfo.data();
 
-            if(!(('eventNotifications' in userData) && (eventData.eventNotifications.includes(data.event_id)))){
+            if(!(('eventNotifications' in userData) && (userData.eventNotifications.includes(data.event_id)))){
                 console.log("User not invited to event");
                 return {text: "User not invited to event"};
             }
@@ -389,7 +384,7 @@ exports.declineEventInvite = functions.https.onCall(async (data, context) => {
 
             const userData = getUserInfo.data();
 
-            if(!(('eventNotifications' in userData) && (eventData.eventNotifications.includes(data.event_id)))){
+            if(!(('eventNotifications' in userData) && (userData.eventNotifications.includes(data.event_id)))){
                 console.log("User not invited to event");
                 return {text: "User not invited to event"};
             }
@@ -412,7 +407,6 @@ exports.declineEventInvite = functions.https.onCall(async (data, context) => {
         }
     }
 });
-
 
 exports.removeFromEvent = functions.https.onCall(async (data, context) => {
     //data parameters (all required): 

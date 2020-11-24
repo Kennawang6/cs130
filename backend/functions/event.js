@@ -484,16 +484,16 @@ exports.addUserScheduleToEvent = functions.https.onCall(async (data, context) =>
 
             const eventData = getEventInfo.data();
             const eventSchedule = eventData.commonSchedule;
-            const eventStartTime = Date.parse(eventData.start_date);
-            const eventEndTime = Date.parse(eventData.end_date);
+            const eventStartTime = eventData.start_date;
+            const eventEndTime = eventData.end_date;
 
             var userTimeSlots = [];
             
             //cut out only the part of the User scedule between start time and end time
             if(!isNaN(eventStartTime) && !isNaN(eventEndTime)){
                 for(const scheduleTimeslot of scheduleData.timeslots){
-                    const scheduleTimeslotStartTime = Date.parse(scheduleTimeslot.start);
-                    const scheduleTimeslotEndTime = Date.parse(scheduleTimeslot.end);
+                    const scheduleTimeslotStartTime = scheduleTimeslot.start;
+                    const scheduleTimeslotEndTime = scheduleTimeslot.end;
 
                     if(scheduleTimeslotStartTime < eventStartTime && scheduleTimeslotEndTime > eventStartTime){
                         userTimeSlots.push({
@@ -514,19 +514,23 @@ exports.addUserScheduleToEvent = functions.https.onCall(async (data, context) =>
             var finalTimeslots = [];
             var newTimeslot = {};
             var userTimeslotStarted = false;
+            var newTimeslotStart;
+            if(userTimeslots.length > 0){
+                newTimeslotStart = userTimeslots[0].start;
+            } 
 
             var i = 0, j = 0; //for interating through eventSchedule.timeslots and userTimeslots respectively
             //combine Event and User schedules
             for(i = 0; i < eventSchedule.timeslots.length || j < userTimeSlots.length; i++){
-              const eventTimeslotStartTime = Date.parse(eventSchedule.timeslots[i].start);
-              const eventTimeslotEndTime = Date.parse(eventSchedule.timeslots[i].end);
-              const scheduleTimeslotStartTime = Date.parse(userTimeslots[j].start);
-              const scheduleTimeslotEndTime = Date.parse(userTimeslots[j].end);
+              const eventTimeslotStartTime = eventSchedule.timeslots[i].start;
+              const eventTimeslotEndTime = eventSchedule.timeslots[i].end;
+              const scheduleTimeslotStartTime = userTimeslots[j].start;
+              const scheduleTimeslotEndTime = userTimeslots[j].end;
 
               if(!newTimeslotStarted){
                 newTimeslot = {};
                 if(scheduleTimeslotStartTime <= eventTimeslotEndTime){
-                  const newTimeslotStart = "";
+                   = "";
                   if(scheduleTimeslotStartTime < eventTimeslotStartTime){
                     newTimeslotStart = userTimeslots[j].start;
                   } else {
@@ -573,7 +577,7 @@ exports.addUserScheduleToEvent = functions.https.onCall(async (data, context) =>
               }
             }
 
-            if(newTimeslotStarted){
+            if(newTimeslotStarted && userTimeslots.length > 0){
               newTimeslot.end = userTimeslots[j].end;
               finalTimeslots.push(newTimeslot);
               j++;

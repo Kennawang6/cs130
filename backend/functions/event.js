@@ -44,7 +44,10 @@ exports.createEvent = functions.https.onCall(async (data, context) => {
             }
 
             console.log("Event added");
-            return {text: "Event added"};
+            return {
+                text: "Event added, check event_id field",
+                event_id: eventRes.id,
+            };
         } catch (error) {
             console.log('Error:', error);
             return  {text: "Firebase error"};
@@ -70,11 +73,6 @@ exports.getEvent = functions.https.onCall(async (data, context) => {
             }
 
             const eventData = getEventInfo.data();
-
-            if(!(('members' in eventData) && (eventData.members.includes(context.auth.uid)))){
-                console.log("User not member of event");
-                return {text: "User not member of event"};
-            }
 
             console.log("Get event successful");
             return {
@@ -341,7 +339,7 @@ exports.acceptEventInvite = functions.https.onCall(async (data, context) => {
 
             const userData = getUserInfo.data();
 
-            if(!(('eventNotifications' in userData) && (eventData.eventNotifications.includes(data.event_id)))){
+            if(!(('eventNotifications' in userData) && (userData.eventNotifications.includes(data.event_id)))){
                 console.log("User not invited to event");
                 return {text: "User not invited to event"};
             }
@@ -386,7 +384,7 @@ exports.declineEventInvite = functions.https.onCall(async (data, context) => {
 
             const userData = getUserInfo.data();
 
-            if(!(('eventNotifications' in userData) && (eventData.eventNotifications.includes(data.event_id)))){
+            if(!(('eventNotifications' in userData) && (userData.eventNotifications.includes(data.event_id)))){
                 console.log("User not invited to event");
                 return {text: "User not invited to event"};
             }
@@ -409,7 +407,6 @@ exports.declineEventInvite = functions.https.onCall(async (data, context) => {
         }
     }
 });
-
 
 exports.removeFromEvent = functions.https.onCall(async (data, context) => {
     //data parameters (all required): 
@@ -493,7 +490,7 @@ exports.addUserScheduleToEvent = functions.https.onCall(async (data, context) =>
             var userTimeSlots = [];
             
             //cut out only the part of the User scedule between start time and end time
-            if(!isNan(eventStartTime) && !isNan(eventEndTime)){
+            if(!isNaN(eventStartTime) && !isNaN(eventEndTime)){
                 for(const scheduleTimeslot of scheduleData.timeslots){
                     const scheduleTimeslotStartTime = Date.parse(scheduleTimeslot.start);
                     const scheduleTimeslotEndTime = Date.parse(scheduleTimeslot.end);

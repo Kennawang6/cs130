@@ -44,6 +44,15 @@ class CreateEvent extends Component{
     console.log("Time Zone is set");
   }
 
+  generateEventPair = async(eventID) => {
+    var eventPair = [];
+    var eventInfo = await functions().httpsCallable('getEvent')({event_id: eventID});
+    
+    eventPair.push({eventID: eventID, eventInfo: eventInfo.data.event_data});
+    
+    this.props.reduxAddEvent(eventPair[0]);
+  }
+
   createEvent = async() =>{
       var eventName = this.state.eventName;
       var eventDescription = this.state.eventDescription;
@@ -62,6 +71,9 @@ class CreateEvent extends Component{
           start_date: startDate,
           end_date: endDate
       });
+      
+      var createdEventID = data.data.event_id;
+      this.generateEventPair(createdEventID);
       console.log("Event is created");
   }
   render() {
@@ -90,7 +102,7 @@ class CreateEvent extends Component{
         {
           this.props.curEvent.friendInvited.map(i =>
             <View>
-              <ListItem key={i.name} bottomDivider>
+              <ListItem key={i} bottomDivider>
                 <ListItem.Content>
                   <ListItem.Title>{i.email}</ListItem.Title>
                 </ListItem.Content>

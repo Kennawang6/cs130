@@ -2,11 +2,18 @@ import React, { Component, useState, useEffect } from 'react';
 import { Button, View, Platform, Text, TextInput, TouchableOpacity} from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import functions from '@react-native-firebase/functions';
-import { connect } from 'react-redux';
-import {addEvent, removeEvent, editEvent} from '../../actions/editSchedule'
+import { useSelector, useDispatch } from 'react-redux';
+import { addScheduleEvent } from '../../actions/editSchedule'
+import { ADD_SCHEDULE } from '../../actions/types'
 import styles from './styles';
 
+const SECOND_IN_MILLISECONDS = 1000;
+const MINUTE_IN_MILLISECONDS = 60 * SECOND_IN_MILLISECONDS;
+const HOUR_IN_MILLISECONDS = 60 * MINUTE_IN_MILLISECONDS;
+
 const addSchedule = props => {
+  const schedule = useSelector(state => state);
+  const dispatch = useDispatch();
   const [description, setDescription] = useState('');
 
   function useInput() {
@@ -43,7 +50,7 @@ const addSchedule = props => {
   const sendScheduleEvent = async() => {
       const data = await functions().httpsCallable('addSchedule')(
         [{
-          description: description,
+          //description: description,
           start: start.date.getTime(),
           end: end.date.getTime()}]
       );
@@ -52,11 +59,38 @@ const addSchedule = props => {
       alert('Event added to schedule.');
   }
 
+    toDoubleDigit = (num) => {
+        if ((num / 10 >> 0 ) > 0) {
+            return num.toString();
+        } else {
+            return  "0" + num.toString();
+        }
+    }
+
+  calculateDuration = (start, end) => {
+    total = end - start;
+    return toDoubleDigit(total / HOUR_IN_MILLISECONDS >> 0) + ":"
+            + toDoubleDigit((total % HOUR_IN_MILLISECONDS) / MINUTE_IN_MILLISECONDS >> 0) + ":"
+            + toDoubleDigit(((total % HOUR_IN_MILLISECONDS) % MINUTE_IN_MILLISECONDS) / SECOND_IN_MILLISECONDS >> 0);
+  }
+
   handlePress = () => {
       console.log("Button was pressed");
       console.log(description);
+      dispatch({
+        type: ADD_SCHEDULE,
+        eventID: start.date.getTime(),
+        eventInfo: {
+            start: start.date.toISOString(),
+            end: end.date.toISOString(),
+            duration: calculateDuration(start.date.getTime(), end.date.getTime()),
+            description: description,
+            // TODO: change after splitEvent function implementation
+            associatedId: null,
+        },
+      });
+      console.log("Dispatched to store: " + JSON.stringify(schedule));
       sendScheduleEvent();
-      props.navigation.navigate('Schedule');
   }
 
   const start = useInput(new Date())

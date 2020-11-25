@@ -26,16 +26,65 @@ class Schedule extends Component{
 
     constructor(props) {
         super(props);
-        /*this.state = {
+        this.state = {
+          timeslots: [],
           schedule: []
-        };*/
+        };
     }
 
     getScheduleData = async() => {
         const data = await functions().httpsCallable('getSchedule')({});
         console.log("Schedule is fetched");
-        console.log(data);
+        console.log(data.data.schedule.timeslots);
+        this.setState({
+              timeslots: data.data.schedule.timeslots
+        });
+        console.log(this.state.timeslots);
+        this.convertToSchedule();
+        // TODO:Save to redux props
+        this.test();
     }
+
+    convertToSchedule = () =>{
+        console.log("Try converting to schedule");
+        var new_schedule = [];
+        for (i=0;i<this.state.timeslots.length;i++) {
+            //console.log(this.state.timeslots[i]);
+            var s = new Date(this.state.timeslots[i].start);
+            var s_date = ("0" + s.getDate()).slice(-2);
+            var s_month = ("0" + (s.getMonth() + 1)).slice(-2);
+            var s_year = s.getFullYear();
+            var s_hours = ("0" + s.getHours()).slice(-2);
+            var s_minutes = ("0" + s.getMinutes()).slice(-2);
+            var s_seconds = ("0" + s.getSeconds()).slice(-2);
+            var event = {'start': s_year + "-" + s_month + "-" + s_date + " " + s_hours + ":" + s_minutes + ":" + s_seconds,
+                         'duration': calculateDuration(this.state.timeslots[i].start,this.state.timeslots[i].end),
+                         'description': this.state.timeslots[i].description
+                        }
+            //console.log(event);
+            new_schedule.push(event);
+        }
+        // TODO: HANDLE SPLIT EVENT
+        this.setState({
+            schedule: new_schedule
+        });
+        console.log(this.state.schedule)
+    }
+
+    toDoubleDigit = (num) => {
+        if ((num / 10 >> 0 ) > 0) {
+            return num.toString();
+        } else {
+            return  "0" + num.toString();
+        }
+    }
+
+    calculateDuration = (start, end) => {
+        total = end - start;
+        return toDoubleDigit(total / HOUR_IN_MILLISECONDS >> 0) + ":"
+                + toDoubleDigit((total % HOUR_IN_MILLISECONDS) / MINUTE_IN_MILLISECONDS >> 0) + ":"
+                + toDoubleDigit(((total % HOUR_IN_MILLISECONDS) % MINUTE_IN_MILLISECONDS) / SECOND_IN_MILLISECONDS >> 0);
+      }
 
     test = () =>{
         console.log("Try redux");
@@ -43,15 +92,14 @@ class Schedule extends Component{
     }
 
     componentDidMount() {
-            this.getScheduleData();
-            this.test();
+        this.getScheduleData();
     }
 
     render() {
       return (
         <View>
           <WeeklyCalendar
-            events={sampleEvents}
+            events={this.state.schedule}
             renderEvent={(event, j) => {
               let startTime = moment(event.start).format('LT').toString()
               let duration = event.duration.split(':')
@@ -73,7 +121,7 @@ class Schedule extends Component{
                       <View style={styles.durationDotConnector} />
                     </View>
                     <View style={styles.eventNote}>
-                      <Text style={styles.eventText}>{event.note}</Text>
+                      <Text style={styles.eventText}>{event.description}</Text>
                     </View>
                   </TouchableOpacity>
                   <View style={styles.lineSeparator} />
@@ -101,7 +149,7 @@ class Schedule extends Component{
                       <View style={styles.durationDotConnector} />
                     </View>
                     <View style={styles.eventNote}>
-                      <Text style={styles.eventText}>{event.note}</Text>
+                      <Text style={styles.eventText}>{event.description}</Text>
                     </View>
                   </TouchableOpacity>
                 </View>

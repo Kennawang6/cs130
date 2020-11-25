@@ -48,24 +48,30 @@ const addSchedule = props => {
   }
 
   const sendScheduleEvent = async() => {
-      const data = await functions().httpsCallable('addSchedule')(
-        [{
-          //description: description,
+      /*const data = await functions().httpsCallable('addSchedule')(
+        {timeslots:[{
+          description: description,
           start: start.date.getTime(),
-          end: end.date.getTime()}]
-      );
-      console.log("addSchedule function has been called");
+          end: end.date.getTime()}]}
+      );*/
+      const data = await functions().httpsCallable('addTimeslotToSchedule')({
+              timeslot: {
+                description: description,
+                start: start.date.getTime(),
+                end: end.date.getTime()}
+      });
+      console.log("addTimeslotToSchedule function has been called");
       console.log(data);
       alert('Event added to schedule.');
   }
 
-    toDoubleDigit = (num) => {
-        if ((num / 10 >> 0 ) > 0) {
-            return num.toString();
-        } else {
-            return  "0" + num.toString();
-        }
+  toDoubleDigit = (num) => {
+    if ((num / 10 >> 0 ) > 0) {
+      return num.toString();
+    } else {
+      return "0" + num.toString();
     }
+  }
 
   calculateDuration = (start, end) => {
     total = end - start;
@@ -91,6 +97,7 @@ const addSchedule = props => {
       });
       console.log("Dispatched to store: " + JSON.stringify(schedule));
       sendScheduleEvent();
+      props.navigation.navigate('Schedule');
   }
 
   const start = useInput(new Date())

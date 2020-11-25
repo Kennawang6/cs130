@@ -12,7 +12,7 @@ const MINUTE_IN_MILLISECONDS = 60 * SECOND_IN_MILLISECONDS;
 const HOUR_IN_MILLISECONDS = 60 * MINUTE_IN_MILLISECONDS;
 
 const addSchedule = props => {
-  const schedule = useSelector(state => state);
+  const schedule = useSelector(state => state.scheduleReducer);
   const dispatch = useDispatch();
   const [description, setDescription] = useState('');
 
@@ -65,6 +65,7 @@ const addSchedule = props => {
       alert('Event added to schedule.');
   }
 
+  /*
   toDoubleDigit = (num) => {
     if ((num / 10 >> 0 ) > 0) {
       return num.toString();
@@ -73,27 +74,24 @@ const addSchedule = props => {
     }
   }
 
+
   calculateDuration = (start, end) => {
     total = end - start;
     return toDoubleDigit(total / HOUR_IN_MILLISECONDS >> 0) + ":"
             + toDoubleDigit((total % HOUR_IN_MILLISECONDS) / MINUTE_IN_MILLISECONDS >> 0) + ":"
             + toDoubleDigit(((total % HOUR_IN_MILLISECONDS) % MINUTE_IN_MILLISECONDS) / SECOND_IN_MILLISECONDS >> 0);
-  }
+  }*/
 
   handlePress = () => {
       console.log("Button was pressed");
       console.log(description);
       dispatch({
         type: ADD_SCHEDULE,
-        eventID: start.date.getTime(),
-        eventInfo: {
-            start: start.date.toISOString(),
-            end: end.date.toISOString(),
-            duration: calculateDuration(start.date.getTime(), end.date.getTime()),
-            description: description,
-            // TODO: change after splitEvent function implementation
-            associatedId: null,
-        },
+        start: start.date.getTime(),
+        end: end.date.getTime(),
+        description: description,
+        // TODO: change after splitEvent function implementation
+        id: start.date.getTime(),
       });
       console.log("Dispatched to store: " + JSON.stringify(schedule));
       sendScheduleEvent();

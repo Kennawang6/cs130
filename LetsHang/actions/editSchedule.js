@@ -1,18 +1,19 @@
-import {ADD_SCHEDULE, EDIT_SCHEDULE, REMOVE_SCHEDULE} from './types'
-export const addScheduleEvent = (eventPair) =>(
+import {ADD_SCHEDULE, REPLACE_SCHEDULE, REMOVE_SCHEDULE} from './types'
+export const addScheduleEvent = (event) =>(
 {
 	type: ADD_SCHEDULE,
-	eventID: eventPair.eventID,
-	eventInfo: eventPair.eventInfo,
+	description: event.description,
+    start: event.start,
+    end: event.end,
+    id: event.id,
+    //TODO: add fields for weekly calendar
 });
 
-/*export const editSchedule = (event) =>(
+export const replaceSchedule = (events) =>(
 {
-	type: EDIT_SCHEDULE,
-	eventID: eventPair.eventID,
-    eventInfo: eventPair.eventInfo,
+	type: REPLACE_SCHEDULE,
+	events: events,
 });
-*/
 
 export const removeScheduleEvent = (eventID) =>(
 {

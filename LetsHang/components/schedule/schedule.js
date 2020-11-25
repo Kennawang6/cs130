@@ -64,10 +64,14 @@ class Schedule extends Component{
             var e_minutes = ("0" + e.getMinutes()).slice(-2);
             var e_seconds = ("0" + e.getSeconds()).slice(-2);
             var event = {'start': s_year + "-" + s_month + "-" + s_date + " " + s_hours + ":" + s_minutes + ":" + s_seconds,
-                         'duration': this.calculateDuration(this.state.timeslots[i].start,this.state.timeslots[i].end),
                          'end': e_year + "-" + e_month + "-" + e_date + " " + e_hours + ":" + e_minutes + ":" + e_seconds,
                          'description': this.state.timeslots[i].description
                         };
+            var event = {'start':this.state.timeslots[i].start,
+                         'end':this.state.timeslots[i].end,
+                         'description': this.state.timeslots[i].description,
+                         
+                        }
             //console.log(event);
             new_schedule.push(event);
         }
@@ -102,15 +106,35 @@ class Schedule extends Component{
     componentDidMount() {
         this.getScheduleData();
     }
-// TODO: check why not presenting the events
+
+    // TODO: check why not presenting the events
     render() {
-        // When changing events={this.state.testEvents} to events={this.state.displaySchedule}, the weeklyCalendar does not work
+      // When changing events={this.state.testEvents} to events={this.state.displaySchedule}, the weeklyCalendar does not work
       return (
         <View>
           <WeeklyCalendar
             events={this.state.displaySchedule}
             renderEvent={(event, j) => {
-              console.log('weekly')
+            /*
+              var s = new Date(event.start);
+              var s_date = ("0" + s.getDate()).slice(-2);
+              var s_month = ("0" + (s.getMonth() + 1)).slice(-2);
+              var s_year = s.getFullYear();
+              var s_hours = ("0" + s.getHours()).slice(-2);
+              var s_minutes = ("0" + s.getMinutes()).slice(-2);
+              var s_seconds = ("0" + s.getSeconds()).slice(-2);
+              var start_string = s_year + "-" + s_month + "-" + s_date + " " + s_hours + ":" + s_minutes + ":" + s_seconds;
+              var e = new Date(event.end);
+              var e_date = ("0" + e.getDate()).slice(-2);
+              var e_month = ("0" + (e.getMonth() + 1)).slice(-2);
+              var e_year = e.getFullYear();
+              var e_hours = ("0" + e.getHours()).slice(-2);
+              var e_minutes = ("0" + e.getMinutes()).slice(-2);
+              var e_seconds = ("0" + e.getSeconds()).slice(-2);
+              var end_string =  e_year + "-" + e_month + "-" + e_date + " " + e_hours + ":" + e_minutes + ":" + e_seconds;
+              let startTime = moment(start_string).format('LT').toString()
+              let endTime = moment(end_string.end).format('LT').toString()
+              */
               let startTime = moment(event.start).format('LT').toString()
               //let duration = event.duration.split(':')
               //let seconds = parseInt(duration[0]) * 3600 + parseInt(duration[1]) * 60 + parseInt(duration[2])
@@ -140,7 +164,26 @@ class Schedule extends Component{
               )
             }}
             renderLastEvent={(event, j) => {
-              console.log('weekly-last')
+            /*
+              var s = new Date(event.start);
+              var s_date = ("0" + s.getDate()).slice(-2);
+              var s_month = ("0" + (s.getMonth() + 1)).slice(-2);
+              var s_year = s.getFullYear();
+              var s_hours = ("0" + s.getHours()).slice(-2);
+              var s_minutes = ("0" + s.getMinutes()).slice(-2);
+              var s_seconds = ("0" + s.getSeconds()).slice(-2);
+              var start_string = s_year + "-" + s_month + "-" + s_date + " " + s_hours + ":" + s_minutes + ":" + s_seconds;
+              var e = new Date(event.end);
+              var e_date = ("0" + e.getDate()).slice(-2);
+              var e_month = ("0" + (e.getMonth() + 1)).slice(-2);
+              var e_year = e.getFullYear();
+              var e_hours = ("0" + e.getHours()).slice(-2);
+              var e_minutes = ("0" + e.getMinutes()).slice(-2);
+              var e_seconds = ("0" + e.getSeconds()).slice(-2);
+              var end_string =  e_year + "-" + e_month + "-" + e_date + " " + e_hours + ":" + e_minutes + ":" + e_seconds;
+              let startTime = moment(start_string).format('LT').toString()
+              let endTime = moment(end_string.end).format('LT').toString()
+              */
               let startTime = moment(event.start).format('LT').toString()
               //let duration = event.duration.split(':')
               //let seconds = parseInt(duration[0]) * 3600 + parseInt(duration[1]) * 60 + parseInt(duration[2])

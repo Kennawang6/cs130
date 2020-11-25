@@ -27,14 +27,18 @@ class Schedule extends Component{
     getScheduleData = async() => {
         const data = await functions().httpsCallable('getSchedule')({});
         console.log("Schedule is fetched");
-        //console.log(data.data.schedule.timeslots);
+        console.log(data.data);
         // check if the user contains schedules on firebase
-        if (data.data.schedule.timeslots != null){
+        if (data.data.status=='ok'){
             this.setState({
                 timeslots: data.data.schedule.timeslots
             });
+
             console.log(this.state.timeslots);
             this.convertToSchedule();
+        }else{
+            console.log('initialize')
+            const data_initialized = await functions().httpsCallable('addSchedule')({timeslots:[]});
         }
         // TODO:Save to redux props
         this.test();

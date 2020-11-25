@@ -3,6 +3,9 @@ import { View, Text, TouchableOpacity, TextInput, Button, Alert } from 'react-na
 import functions from '@react-native-firebase/functions';
 import styles from './styles';
 
+import { connect } from 'react-redux';
+import { addFriend, removeFriend } from '../../actions/editFriendsList'
+
 class AddFriend extends Component{
     constructor(props) {
         super(props);
@@ -67,4 +70,15 @@ class AddFriend extends Component{
     }
 }
 
-export default AddFriend;
+const mapStateToProps = (state) => {
+    return {
+        friends: state.friendsListReducer.friends,
+}};
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        reduxAddFriend:(email) => dispatch(addFriend(email)),
+        reduxRemoveFriend:(email) => dispatch(removeFriend(email)),
+}};
+
+export default connect(mapStateToProps, mapDispatchToProps)(AddFriend);

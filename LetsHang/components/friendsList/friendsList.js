@@ -4,6 +4,9 @@ import functions from '@react-native-firebase/functions';
 import { Avatar, ListItem, Icon, Divider } from 'react-native-elements';
 import styles from './styles';
 
+import { connect } from 'react-redux';
+import { addFriend, removeFriend } from '../../actions/editFriendsList'
+
 class NoFriends extends Component{
     constructor(props) {
         super(props);
@@ -145,4 +148,15 @@ class FriendsList extends Component{
     }
 }
 
-export default FriendsList;
+const mapStateToProps = (state) => {
+    return {
+        friends: state.friendsListReducer.friends,
+}};
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        reduxAddFriend:(email) => dispatch(addFriend(email)),
+        reduxRemoveFriend:(email) => dispatch(removeFriend(email)),
+}};
+
+export default connect(mapStateToProps, mapDispatchToProps)(FriendsList);

@@ -19,4 +19,4 @@ exports.removeFriend = friend.removeFriend;
 // schedule endpoints
 exports.addSchedule = schedule.addSchedule;
 exports.getSchedule = schedule.getSchedule;
-exports.removeTimeslots = schedule.removeTimeslots;
+exports.removeSchedule = schedule.removeSchedule;

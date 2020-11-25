@@ -148,7 +148,7 @@ class Schedule extends Component{
 
               return (
                 <View key={j}>
-                  <TouchableOpacity style={styles.event} onPress={()=>this.props.navigation.navigate('EditSchedule',{'start': event.start,'end':event.end,'description':event.description,'id':event.id})}>
+                  <TouchableOpacity style={styles.event} onPress={()=>this.props.navigation.navigate('EditSchedule',{'start': event.start,'end':event.end,'description':event.description})}>
                     <View style={styles.eventDuration}>
                       <View style={styles.durationContainer}>
                         <View style={styles.durationDot} />
@@ -189,7 +189,7 @@ class Schedule extends Component{
               var end_string =  e_year + "-" + e_month + "-" + e_date + " " + e_hours + ":" + e_minutes + ":" + e_seconds;
               let startTime = moment(start_string).format('LT').toString()
               let endTime = moment(end_string.end).format('LT').toString();
-              
+
               //let startTime = moment(event.start).format('LT').toString()
               //let duration = event.duration.split(':')
               //let seconds = parseInt(duration[0]) * 3600 + parseInt(duration[1]) * 60 + parseInt(duration[2])
@@ -198,7 +198,7 @@ class Schedule extends Component{
 
               return (
                 <View key={j}>
-                  <TouchableOpacity style={styles.event} onPress={()=>this.props.navigation.navigate('EditSchedule',{'start': event.start,'end':event.end,'description':event.description,'id':event.id})}>
+                  <TouchableOpacity style={styles.event} onPress={()=>this.props.navigation.navigate('EditSchedule',{'start': event.start,'end':event.end,'description':event.description})}>
                     <View style={styles.eventDuration}>
                       <View style={styles.durationContainer}>
                         <View style={styles.durationDot} />

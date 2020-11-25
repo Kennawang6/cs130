@@ -11,6 +11,14 @@ const SECOND_IN_MILLISECONDS = 1000;
 const MINUTE_IN_MILLISECONDS = 60 * SECOND_IN_MILLISECONDS;
 const HOUR_IN_MILLISECONDS = 60 * MINUTE_IN_MILLISECONDS;
 
+//TODO LIST:
+// 1) handle start and end initial value
+//      for the end, we have to find the latest end time among the events with same id
+// 2) handle edit part - firebase: removeSchedule and addSchedule with complete schedule
+//    handle edit part - redux: replace with the complete schedule, or remove then add
+// 3) handle remove part - firebase: removeSchedule and addSchedule with complete schedule
+//    handle remove part - redux: remove
+
 const editSchedule = props => {
   const event = props.route.params;
   const schedule = useSelector(state => state.scheduleReducer);
@@ -114,14 +122,14 @@ const editSchedule = props => {
         sendScheduleEvent();
         props.navigation.navigate('Schedule');
     }
-  const start = useInput(new Date())
-  const end = useInput(new Date())
+  const start = useInput(new Date(event.start))
+  const end = useInput(new Date(event.end))
 
     return (
       <View>
         <TextInput style = {styles.input}
           underlineColorAndroid = "transparent"
-          placeholder = "Description"
+          placeholder = {event.description}
           placeholderTextColor = "#1f44f4"
           autoCapitalize = "none"
           onChangeText={(value) => {

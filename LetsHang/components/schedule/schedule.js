@@ -8,21 +8,7 @@ import styles from './styles';
 import functions from '@react-native-firebase/functions';
 
 const windowHeight = Dimensions.get('window').height;
-/*
-const sampleEvents = [
-    { 'start': '2020-11-15 09:00:00', 'duration': '00:20:00', 'description': 'Walk my dog' },
-    { 'start': '2020-11-16 14:00:00', 'duration': '01:00:00', 'description': 'Doctor\'s appointment' },
-    { 'start': '2020-11-17 08:00:00', 'duration': '00:30:00', 'description': 'Morning exercise' },
-    { 'start': '2020-11-17 14:00:00', 'duration': '02:00:00', 'description': 'Meeting with client' },
-    { 'start': '2020-11-18 23:00:00', 'duration': '01:00:00', 'description': 'Dinner with family' },
-    { 'start': '2020-11-19 00:00:00', 'duration': '02:00:00', 'description': 'Schedule 1' },
-    { 'start': '2020-11-20 11:00:00', 'duration': '02:00:00', 'description': 'Schedule 2' },
-    { 'start': '2020-11-20 15:00:00', 'duration': '01:30:00', 'description': 'Schedule 3' },
-    { 'start': '2020-11-21 18:00:00', 'duration': '02:00:00', 'description': 'Schedule 4' },
-    { 'start': '2020-11-26 22:00:00', 'duration': '02:00:00', 'description': 'Schedule 5' },
-    { 'start': '2020-11-27 00:00:00', 'duration': '02:00:00', 'description': 'Schedule 5' }
-  ]*/
-const tryout = [{"description": "test02", "duration": "01:00:00", "end": "2020-11-25 10:24:33", "start": "2020-11-25 09:24:33"}, {"description": "test 04", "duration": "01:18:00", "end": "2020-11-25 11:18:51", "start": "2020-11-25 10:00:51"}, {"description": "test3", "duration": "10:00:00", "end": "2020-11-26 19:39:06", "start": "2020-11-26 09:39:06"}]
+
 const SECOND_IN_MILLISECONDS = 1000;
 const MINUTE_IN_MILLISECONDS = 60 * SECOND_IN_MILLISECONDS;
 const HOUR_IN_MILLISECONDS = 60 * MINUTE_IN_MILLISECONDS;
@@ -33,7 +19,8 @@ class Schedule extends Component{
         super(props);
         this.state = {
           timeslots: [],
-          displaySchedule: []
+          displaySchedule: [],
+          testEvents: [{"description": "test02", "duration": "01:00:00", "end": "2020-11-25 10:24:33", "start": "2020-11-25 09:24:33"}, {"description": "test 04", "duration": "01:18:00", "end": "2020-11-25 11:18:51", "start": "2020-11-25 10:00:51"}, {"description": "test3", "duration": "10:00:00", "end": "2020-11-26 19:39:06", "start": "2020-11-26 09:39:06"}]
         };
     }
 
@@ -51,7 +38,7 @@ class Schedule extends Component{
     }
 
     convertToSchedule = () =>{
-        console.log("Try converting to schedule");
+        console.log("Convert to displaySchedule");
         var new_schedule = [];
         for (i=0;i<this.state.timeslots.length;i++) {
             //console.log(this.state.timeslots[i]);
@@ -110,14 +97,11 @@ class Schedule extends Component{
     }
 // TODO: check why not presenting the events
     render() {
-      console.log('render')
-      const SampleEvents = this.state.displaySchedule
-      console.log(SampleEvents)
-      console.log('above is in render')
+        // When changing events={this.state.testEvents} to events={this.state.displaySchedule}, the weeklyCalendar does not work
       return (
         <View>
           <WeeklyCalendar
-            events={SampleEvents}
+            events={this.state.testEvents}
             renderEvent={(event, j) => {
               console.log('weekly')
               let startTime = moment(event.start).format('LT').toString()
@@ -198,13 +182,15 @@ class Schedule extends Component{
           />
         </View>
       );
-      /*return (
+      /*
+      return (
         <View>
             {(Array.isArray(this.state.displaySchedule) && this.state.displaySchedule.length < 1) &&
                 <NoSchedule />
             }
-            {(Array.isArray(this.state.sampledisplayScheduleEvents)) &&
-displaySchedule            }
+            {(Array.isArray(this.state.displaySchedule)) &&
+                <HaveSchedule displaySchedule={this.state.displaySchedule}/>
+            }
         </View>
       );*/
     }
@@ -213,12 +199,13 @@ displaySchedule            }
 class HaveSchedule extends Component{
     constructor(props) {
         super(props);
+
     }
+    //static sampleEvents = this.props.displaySchedule;
 
     render() {
         console.log('HaveSchedule')
         console.log(this.props.displaySchedule)
-        console.log('why')
         return (
             <View>
                       <WeeklyCalendar

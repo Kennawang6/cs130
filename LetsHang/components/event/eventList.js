@@ -57,7 +57,7 @@ class EventList extends Component{
 
 	render() {
     var eventList = this.props.eventList;
-    if(eventList && eventList){
+    if(eventList && eventList.length){
       return(
         <View>
         {eventList.map(i =>

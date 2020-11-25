@@ -1,6 +1,6 @@
-import {ADD_SCHEDULE, EDIT_SCHEDULE, REMOVE_SCHEDULE} from '../actions/types'
+import {ADD_SCHEDULE, REPLACE_SCHEDULE, REMOVE_SCHEDULE} from '../actions/types'
 const initialState = {
-  scheduledEvents: {}
+  scheduledEvents: []
 };
 
 const scheduleReducer = (state = initialState, action) => {
@@ -8,23 +8,29 @@ const scheduleReducer = (state = initialState, action) => {
         case ADD_SCHEDULE: {
             console.log("ADD_SCHEDULE called");
             console.log(JSON.stringify(action));
-            return Object.assign({}, state, {
-                ...state,
-                scheduledEvents: {
-                    ...state.scheduledEvents,
-                    [action.eventID]: action.eventInfo,
-                }
-            });
-        }
-        case REMOVE_SCHEDULE: {
-            if (!(action.eventID in state.scheduledEvents)) {
-                alert("Error: event to remove does not exist.");
-                break;
-            }
-            const { [action.eventID]: _, ...remainingSchedule } = state.scheduledEvents;
             return {
                 ...state,
-                scheduledEvents: remainingSchedule,
+                scheduledEvents: state.scheduledEvents.concat({
+                    description: action.description,
+                    start: action.start,
+                    end: action.end,
+                    id: action.id,
+                })
+            };
+        }
+        case REPLACE_SCHEDULE: {
+            console.log("REPLACE_SCHEDULE called");
+            console.log(JSON.stringify(action));
+            return {
+                ...state,
+                scheduledEvents: action.events,
+            };
+        }
+        case REMOVE_SCHEDULE: {
+            console.log("REMOVE_SCHEDULE called");
+            return {
+                ...state,
+                scheduledEvents: state.scheduledEvents.filter((event) => event.id!== action.eventID),
             }
         }
         default: {

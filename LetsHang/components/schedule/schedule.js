@@ -4,6 +4,7 @@ import WeeklyCalendar from 'react-native-weekly-calendar';
 import moment from 'moment/min/moment-with-locales';
 import { connect } from 'react-redux';
 import styles from './styles';
+import { replaceSchedule } from '../../actions/editSchedule'
 
 import functions from '@react-native-firebase/functions';
 
@@ -40,7 +41,8 @@ class Schedule extends Component{
             console.log('initialize')
             const data_initialized = await functions().httpsCallable('addSchedule')({timeslots:[]});
         }
-        // TODO:Save to redux props
+        // assuming id is stored in firebase
+        this.props.replaceSchedule(this.state.timeslots);
         this.test();
     }
 
@@ -435,4 +437,11 @@ const mapStateToProps = (state) => {
   return { scheduledEvents: state.scheduleReducer.scheduledEvents }
 };
 
-export default connect(mapStateToProps)(Schedule);
+const mapDispatchToProps = (dispatch) => {
+  return{
+    replaceSchedule:(schedule) => dispatch(replaceSchedule(schedule)),
+    addScheduleEvent: (schedule) => dispatch(addScheduleEvent(schedule)),
+    removeScheduleEvent: (start) => dispatch(removeScheduleEvent(start)),
+}};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Schedule);

@@ -47,7 +47,7 @@ class Schedule extends Component{
     convertToSchedule = () =>{
         console.log("Convert to displaySchedule");
         var new_schedule = [];
-        for (i=0;i<this.state.timeslots.length;i++) {
+        for (var i=0;i<this.state.timeslots.length;i++) {
             //console.log(this.state.timeslots[i]);
             var s = new Date(this.state.timeslots[i].start);
             var s_date = ("0" + s.getDate()).slice(-2);
@@ -108,7 +108,7 @@ class Schedule extends Component{
       return (
         <View>
           <WeeklyCalendar
-            events={this.state.testEvents}
+            events={this.state.displaySchedule}
             renderEvent={(event, j) => {
               console.log('weekly')
               let startTime = moment(event.start).format('LT').toString()

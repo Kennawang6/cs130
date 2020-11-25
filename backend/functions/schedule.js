@@ -21,7 +21,7 @@ class Timeslot {
 
 class Schedule {
   // timeslots: list of Timeslot objects
-  constructor (timeslotList) {
+  constructor (timeslotList = []) {
     let timeslots = [];
     timeslotList.forEach((timeslot) => {
       timeslots.push(new Timeslot(timeslot.start, timeslot.end, timeslot.description, timeslot.availability));
@@ -310,4 +310,23 @@ exports.addTimeslotToScheduleandCombine = functions.https.onCall(async (data, co
             return  {text: "Firebase error"};
         }
     }
+});
+
+exports.removeTimeslots = functions.https.onCall(async (request, response) => {
+  if (!context.auth || !context.auth.uid) {
+    functions.logger.info("Unauthenticated user\n");
+    return {status: "not ok", text: "Unauthenticated user"};
+  } else {
+    const id = context.auth.uid;
+    functions.logger.info("Emptying schedule of user with id " + id + "\n");
+
+    try {
+      await schedules.doc(id).update({timeslots: []});
+      functions.logger.info("Emptied schedule for user " + id + "\n");
+      return {status: "ok"};
+    } catch (error) {
+      functions.logger.error("could empty schedule of user with id " + id + ", error: " + error.message + "\n");
+      return {status: "not ok", text: error.message};
+    }
+  }
 });

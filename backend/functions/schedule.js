@@ -312,7 +312,7 @@ exports.addTimeslotToScheduleandCombine = functions.https.onCall(async (data, co
     }
 });
 
-exports.removeSchedule = functions.https.onCall(async (request, response) => {
+exports.removeSchedule = functions.https.onCall(async (data, context) => {
   // data parameters:
   // none
   // returns:

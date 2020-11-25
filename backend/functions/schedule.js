@@ -3,8 +3,8 @@ const admin = require('firebase-admin');
 const schedules = admin.firestore().collection('schedules');
 
 class Timeslot {
-  // start: string
-  // end: string
+  // start: int
+  // end: int
   // description: string
   // availability: integer
   constructor(start, end, description = "", availability = 1) {
@@ -20,7 +20,7 @@ class Timeslot {
 }
 
 class Schedule {
-  // timeslots: list of Timeslot objects
+  // timeslots: list of objects with start and end fields (like Timeslot)
   constructor (timeslotList = []) {
     let timeslots = [];
     timeslotList.forEach((timeslot) => {

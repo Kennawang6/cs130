@@ -30,6 +30,7 @@ import EditName from './components/profile/editName';
 import EditTimeZone from './components/profile/editTimeZone';
 import Schedule from './components/schedule/schedule';
 import AddSchedule from './components/schedule/addSchedule';
+import EditSchedule from './components/schedule/editSchedule';
 import FriendsList from './components/friendsList/friendsList';
 import AddFriend from './components/friendsList/addFriend';
 import FriendRequests from './components/friendsList/friendRequests';
@@ -68,6 +69,10 @@ function ScheduleStackScreen(){
       <ScheduleStack.Screen
           name="AddSchedule"
           component={AddSchedule}
+      />
+      <ScheduleStack.Screen
+          name="EditSchedule"
+          component={EditSchedule}
       />
     </ScheduleStack.Navigator>
   );

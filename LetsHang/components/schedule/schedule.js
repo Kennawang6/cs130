@@ -32,24 +32,24 @@ class Schedule extends Component{
         console.log(data.data);
         // check if the user contains schedules on firebase
         if (data.data.status=='ok'){
+            this.props.replaceSchedule(data.data.schedule.timeslots);
             this.setState({
-                timeslots: data.data.schedule.timeslots
+                displaySchedule: data.data.schedule.timeslots
             });
-
-            console.log(this.state.timeslots);
-            this.props.replaceSchedule(this.state.timeslots);
-            this.convertToSchedule();
+            console.log(this.state.displaySchedule);
+            //this.convertToSchedule();
         }else{
             console.log('initialize')
             const data_initialized = await functions().httpsCallable('addSchedule')({timeslots:[]});
         }
+        this.forceUpdate();
         // assuming id is stored in firebase
         //this.props.replaceSchedule(this.state.timeslots);
         this.test();
     }
 
     convertToSchedule = () =>{
-        console.log("Convert to displaySchedule");
+        console.log("Convert timeslots to displaySchedule");
         var new_schedule = [];
         for (var i=0;i<this.state.timeslots.length;i++) {
             //console.log(this.state.timeslots[i]);
@@ -106,13 +106,15 @@ class Schedule extends Component{
         console.log("Try redux");
         console.log(this.props.scheduledEvents);
     }
-
+//
     componentDidMount() {
         this.getScheduleData();
     }
 
     // TODO: check why not presenting the events
     render() {
+      console.log('in render why')
+      console.log(this.props.scheduledEvents)
       return (
         <View>
           <WeeklyCalendar
@@ -143,9 +145,10 @@ class Schedule extends Component{
               //let seconds = parseInt(duration[0]) * 3600 + parseInt(duration[1]) * 60 + parseInt(duration[2])
               //let endTime = moment(event.start).add(seconds, 'seconds').format('LT').toString()
               //let endTime = moment(event.end).format('LT').toString()
+
               return (
                 <View key={j}>
-                  <TouchableOpacity style={styles.event} onPress={()=>console.log("event is pressed")}>
+                  <TouchableOpacity style={styles.event} onPress={()=>this.props.navigation.navigate('EditSchedule',{'start': event.start,'end':event.end,'description':event.description,'id':event.id})}>
                     <View style={styles.eventDuration}>
                       <View style={styles.durationContainer}>
                         <View style={styles.durationDot} />
@@ -192,9 +195,10 @@ class Schedule extends Component{
               //let seconds = parseInt(duration[0]) * 3600 + parseInt(duration[1]) * 60 + parseInt(duration[2])
               //let endTime = moment(event.start).add(seconds, 'seconds').format('LT').toString()
               //let endTime = moment(event.end).format('LT').toString()
+
               return (
                 <View key={j}>
-                  <TouchableOpacity style={styles.event} onPress={()=>console.log("event is pressed")}>
+                  <TouchableOpacity style={styles.event} onPress={()=>this.props.navigation.navigate('EditSchedule',{'start': event.start,'end':event.end,'description':event.description,'id':event.id})}>
                     <View style={styles.eventDuration}>
                       <View style={styles.durationContainer}>
                         <View style={styles.durationDot} />

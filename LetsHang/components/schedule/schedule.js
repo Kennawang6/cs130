@@ -188,8 +188,8 @@ class Schedule extends Component{
               var e_seconds = ("0" + e.getSeconds()).slice(-2);
               var end_string =  e_year + "-" + e_month + "-" + e_date + " " + e_hours + ":" + e_minutes + ":" + e_seconds;
               let startTime = moment(start_string).format('LT').toString()
-              let endTime = moment(end_string.end).format('LT').toString()
-
+              let endTime = moment(end_string.end).format('LT').toString();
+              
               //let startTime = moment(event.start).format('LT').toString()
               //let duration = event.duration.split(':')
               //let seconds = parseInt(duration[0]) * 3600 + parseInt(duration[1]) * 60 + parseInt(duration[2])

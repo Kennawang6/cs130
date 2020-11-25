@@ -82,8 +82,8 @@ const editSchedule = props => {
             + toDoubleDigit((total % HOUR_IN_MILLISECONDS) / MINUTE_IN_MILLISECONDS >> 0) + ":"
             + toDoubleDigit(((total % HOUR_IN_MILLISECONDS) % MINUTE_IN_MILLISECONDS) / SECOND_IN_MILLISECONDS >> 0);
   }*/
-   /*
-  handlePress = () => {
+
+  handleEditPress = () => {
       console.log("Button was pressed");
       console.log(description);
       dispatch({
@@ -98,10 +98,25 @@ const editSchedule = props => {
       sendScheduleEvent();
       props.navigation.navigate('Schedule');
   }
-  */
+
+  handleRemovePress = () => {
+        console.log("Button was pressed");
+        console.log(description);
+        dispatch({
+          type: ADD_SCHEDULE,
+          start: start.date.getTime(),
+          end: end.date.getTime(),
+          description: description,
+          // TODO: change after splitEvent function implementation
+          id: start.date.getTime(),
+        });
+        console.log("Dispatched to store: " + JSON.stringify(schedule));
+        sendScheduleEvent();
+        props.navigation.navigate('Schedule');
+    }
   const start = useInput(new Date())
   const end = useInput(new Date())
-    /*
+
     return (
       <View>
         <TextInput style = {styles.input}
@@ -158,14 +173,24 @@ const editSchedule = props => {
         )}
         <TouchableOpacity
           style = {styles.buttonStyle}
-          onPress = {handlePress}>
-          <Text style = {styles.submitButtonText}> Add Event </Text>
+          onPress = {handleEditPress}>
+          <Text style = {styles.submitButtonText}> Update Event </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style = {styles.buttonStyle}
+          onPress = {handleRemovePress}>
+          <Text style = {styles.submitButtonText}> Remove Event </Text>
         </TouchableOpacity>
       </View>
-    );*/
+    );
+    /*
     return(
+      <View>
         <Text>{event.description}</Text>
-        );
+        <Text>{event.start}</Text>
+        <Text>{event.end}</Text>
+      </View>
+    );*/
 }
 
 export default editSchedule;

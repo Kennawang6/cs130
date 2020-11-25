@@ -8,19 +8,24 @@ import styles from './styles';
 import functions from '@react-native-firebase/functions';
 
 const windowHeight = Dimensions.get('window').height;
+/*
 const sampleEvents = [
-    { 'start': '2020-11-15 09:00:00', 'duration': '00:20:00', 'note': 'Walk my dog' },
-    { 'start': '2020-11-16 14:00:00', 'duration': '01:00:00', 'note': 'Doctor\'s appointment' },
-    { 'start': '2020-11-17 08:00:00', 'duration': '00:30:00', 'note': 'Morning exercise' },
-    { 'start': '2020-11-17 14:00:00', 'duration': '02:00:00', 'note': 'Meeting with client' },
-    { 'start': '2020-11-18 23:00:00', 'duration': '01:00:00', 'note': 'Dinner with family' },
-    { 'start': '2020-11-19 00:00:00', 'duration': '02:00:00', 'note': 'Schedule 1' },
-    { 'start': '2020-11-20 11:00:00', 'duration': '02:00:00', 'note': 'Schedule 2' },
-    { 'start': '2020-11-20 15:00:00', 'duration': '01:30:00', 'note': 'Schedule 3' },
-    { 'start': '2020-11-21 18:00:00', 'duration': '02:00:00', 'note': 'Schedule 4' },
-    { 'start': '2020-11-26 22:00:00', 'duration': '02:00:00', 'note': 'Schedule 5' },
-    { 'start': '2020-11-27 00:00:00', 'duration': '02:00:00', 'note': 'Schedule 5' }
-  ]
+    { 'start': '2020-11-15 09:00:00', 'duration': '00:20:00', 'description': 'Walk my dog' },
+    { 'start': '2020-11-16 14:00:00', 'duration': '01:00:00', 'description': 'Doctor\'s appointment' },
+    { 'start': '2020-11-17 08:00:00', 'duration': '00:30:00', 'description': 'Morning exercise' },
+    { 'start': '2020-11-17 14:00:00', 'duration': '02:00:00', 'description': 'Meeting with client' },
+    { 'start': '2020-11-18 23:00:00', 'duration': '01:00:00', 'description': 'Dinner with family' },
+    { 'start': '2020-11-19 00:00:00', 'duration': '02:00:00', 'description': 'Schedule 1' },
+    { 'start': '2020-11-20 11:00:00', 'duration': '02:00:00', 'description': 'Schedule 2' },
+    { 'start': '2020-11-20 15:00:00', 'duration': '01:30:00', 'description': 'Schedule 3' },
+    { 'start': '2020-11-21 18:00:00', 'duration': '02:00:00', 'description': 'Schedule 4' },
+    { 'start': '2020-11-26 22:00:00', 'duration': '02:00:00', 'description': 'Schedule 5' },
+    { 'start': '2020-11-27 00:00:00', 'duration': '02:00:00', 'description': 'Schedule 5' }
+  ]*/
+const tryout = [{"description": "test02", "duration": "01:00:00", "end": "2020-11-25 10:24:33", "start": "2020-11-25 09:24:33"}, {"description": "test 04", "duration": "01:18:00", "end": "2020-11-25 11:18:51", "start": "2020-11-25 10:00:51"}, {"description": "test3", "duration": "10:00:00", "end": "2020-11-26 19:39:06", "start": "2020-11-26 09:39:06"}]
+const SECOND_IN_MILLISECONDS = 1000;
+const MINUTE_IN_MILLISECONDS = 60 * SECOND_IN_MILLISECONDS;
+const HOUR_IN_MILLISECONDS = 60 * MINUTE_IN_MILLISECONDS;
 
 class Schedule extends Component{
 
@@ -28,14 +33,14 @@ class Schedule extends Component{
         super(props);
         this.state = {
           timeslots: [],
-          schedule: []
+          displaySchedule: []
         };
     }
 
     getScheduleData = async() => {
         const data = await functions().httpsCallable('getSchedule')({});
         console.log("Schedule is fetched");
-        console.log(data.data.schedule.timeslots);
+        //console.log(data.data.schedule.timeslots);
         this.setState({
               timeslots: data.data.schedule.timeslots
         });
@@ -57,18 +62,27 @@ class Schedule extends Component{
             var s_hours = ("0" + s.getHours()).slice(-2);
             var s_minutes = ("0" + s.getMinutes()).slice(-2);
             var s_seconds = ("0" + s.getSeconds()).slice(-2);
+            var e = new Date(this.state.timeslots[i].end);
+            var e_date = ("0" + e.getDate()).slice(-2);
+            var e_month = ("0" + (e.getMonth() + 1)).slice(-2);
+            var e_year = e.getFullYear();
+            var e_hours = ("0" + e.getHours()).slice(-2);
+            var e_minutes = ("0" + e.getMinutes()).slice(-2);
+            var e_seconds = ("0" + e.getSeconds()).slice(-2);
             var event = {'start': s_year + "-" + s_month + "-" + s_date + " " + s_hours + ":" + s_minutes + ":" + s_seconds,
-                         'duration': calculateDuration(this.state.timeslots[i].start,this.state.timeslots[i].end),
+                         'duration': this.calculateDuration(this.state.timeslots[i].start,this.state.timeslots[i].end),
+                         'end': e_year + "-" + e_month + "-" + e_date + " " + e_hours + ":" + e_minutes + ":" + e_seconds,
                          'description': this.state.timeslots[i].description
-                        }
+                        };
             //console.log(event);
             new_schedule.push(event);
         }
         // TODO: HANDLE SPLIT EVENT
         this.setState({
-            schedule: new_schedule
+            displaySchedule: new_schedule
         });
-        console.log(this.state.schedule)
+        //console.log(displaySchedule)
+        console.log(this.state.displaySchedule)
     }
 
     toDoubleDigit = (num) => {
@@ -80,10 +94,10 @@ class Schedule extends Component{
     }
 
     calculateDuration = (start, end) => {
-        total = end - start;
-        return toDoubleDigit(total / HOUR_IN_MILLISECONDS >> 0) + ":"
-                + toDoubleDigit((total % HOUR_IN_MILLISECONDS) / MINUTE_IN_MILLISECONDS >> 0) + ":"
-                + toDoubleDigit(((total % HOUR_IN_MILLISECONDS) % MINUTE_IN_MILLISECONDS) / SECOND_IN_MILLISECONDS >> 0);
+        var total = end - start;
+        return this.toDoubleDigit(total / HOUR_IN_MILLISECONDS >> 0) + ":"
+                + this.toDoubleDigit((total % HOUR_IN_MILLISECONDS) / MINUTE_IN_MILLISECONDS >> 0) + ":"
+                + this.toDoubleDigit(((total % HOUR_IN_MILLISECONDS) % MINUTE_IN_MILLISECONDS) / SECOND_IN_MILLISECONDS >> 0);
       }
 
     test = () =>{
@@ -94,17 +108,23 @@ class Schedule extends Component{
     componentDidMount() {
         this.getScheduleData();
     }
-
+// TODO: check why not presenting the events
     render() {
+      console.log('render')
+      const SampleEvents = this.state.displaySchedule
+      console.log(SampleEvents)
+      console.log('above is in render')
       return (
         <View>
           <WeeklyCalendar
-            events={this.state.schedule}
+            events={SampleEvents}
             renderEvent={(event, j) => {
+              console.log('weekly')
               let startTime = moment(event.start).format('LT').toString()
-              let duration = event.duration.split(':')
-              let seconds = parseInt(duration[0]) * 3600 + parseInt(duration[1]) * 60 + parseInt(duration[2])
-              let endTime = moment(event.start).add(seconds, 'seconds').format('LT').toString()
+              //let duration = event.duration.split(':')
+              //let seconds = parseInt(duration[0]) * 3600 + parseInt(duration[1]) * 60 + parseInt(duration[2])
+              //let endTime = moment(event.start).add(seconds, 'seconds').format('LT').toString()
+              let endTime = moment(event.end).format('LT').toString()
               return (
                 <View key={j}>
                   <TouchableOpacity style={styles.event} onPress={()=>console.log("event is pressed")}>
@@ -129,10 +149,12 @@ class Schedule extends Component{
               )
             }}
             renderLastEvent={(event, j) => {
+              console.log('weekly-last')
               let startTime = moment(event.start).format('LT').toString()
-              let duration = event.duration.split(':')
-              let seconds = parseInt(duration[0]) * 3600 + parseInt(duration[1]) * 60 + parseInt(duration[2])
-              let endTime = moment(event.start).add(seconds, 'seconds').format('LT').toString()
+              //let duration = event.duration.split(':')
+              //let seconds = parseInt(duration[0]) * 3600 + parseInt(duration[1]) * 60 + parseInt(duration[2])
+              //let endTime = moment(event.start).add(seconds, 'seconds').format('LT').toString()
+              let endTime = moment(event.end).format('LT').toString()
               return (
                 <View key={j}>
                   <TouchableOpacity style={styles.event} onPress={()=>console.log("event is pressed")}>
@@ -176,19 +198,202 @@ class Schedule extends Component{
           />
         </View>
       );
+      /*return (
+        <View>
+            {(Array.isArray(this.state.displaySchedule) && this.state.displaySchedule.length < 1) &&
+                <NoSchedule />
+            }
+            {(Array.isArray(this.state.sampledisplayScheduleEvents)) &&
+displaySchedule            }
+        </View>
+      );*/
     }
-
 }
 /*
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  }
-});*/
+class HaveSchedule extends Component{
+    constructor(props) {
+        super(props);
+    }
 
+    render() {
+        console.log('HaveSchedule')
+        console.log(this.props.displaySchedule)
+        console.log('why')
+        return (
+            <View>
+                      <WeeklyCalendar
+                        events={this.props.displaySchedule}
+                        renderEvent={(event, j) => {
+                          console.log('weekly')
+                          let startTime = moment(event.start).format('LT').toString()
+                          //let duration = event.duration.split(':')
+                          //let seconds = parseInt(duration[0]) * 3600 + parseInt(duration[1]) * 60 + parseInt(duration[2])
+                          //let endTime = moment(event.start).add(seconds, 'seconds').format('LT').toString()
+                          let endTime = moment(event.end).format('LT').toString()
+                          return (
+                            <View key={j}>
+                              <TouchableOpacity style={styles.event} onPress={()=>console.log("event is pressed")}>
+                                <View style={styles.eventDuration}>
+                                  <View style={styles.durationContainer}>
+                                    <View style={styles.durationDot} />
+                                    <Text style={styles.durationText}>{startTime}</Text>
+                                  </View>
+                                  <View style={{ paddingTop: 10 }} />
+                                  <View style={styles.durationContainer}>
+                                    <View style={styles.durationDot} />
+                                    <Text style={styles.durationText}>{endTime}</Text>
+                                  </View>
+                                  <View style={styles.durationDotConnector} />
+                                </View>
+                                <View style={styles.eventNote}>
+                                  <Text style={styles.eventText}>{event.description}</Text>
+                                </View>
+                              </TouchableOpacity>
+                              <View style={styles.lineSeparator} />
+                            </View>
+                          )
+                        }}
+                        renderLastEvent={(event, j) => {
+                          console.log('weekly-last')
+                          let startTime = moment(event.start).format('LT').toString()
+                          //let duration = event.duration.split(':')
+                          //let seconds = parseInt(duration[0]) * 3600 + parseInt(duration[1]) * 60 + parseInt(duration[2])
+                          //let endTime = moment(event.start).add(seconds, 'seconds').format('LT').toString()
+                          let endTime = moment(event.end).format('LT').toString()
+                          return (
+                            <View key={j}>
+                              <TouchableOpacity style={styles.event} onPress={()=>console.log("event is pressed")}>
+                                <View style={styles.eventDuration}>
+                                  <View style={styles.durationContainer}>
+                                    <View style={styles.durationDot} />
+                                    <Text style={styles.durationText}>{startTime}</Text>
+                                  </View>
+                                  <View style={{ paddingTop: 10 }} />
+                                  <View style={styles.durationContainer}>
+                                    <View style={styles.durationDot} />
+                                    <Text style={styles.durationText}>{endTime}</Text>
+                                  </View>
+                                  <View style={styles.durationDotConnector} />
+                                </View>
+                                <View style={styles.eventNote}>
+                                  <Text style={styles.eventText}>{event.description}</Text>
+                                </View>
+                              </TouchableOpacity>
+                            </View>
+                          )
+                        }}
+                        renderDay={(eventViews, weekdayToAdd, i) => (
+                          <View key={i.toString()} style={styles.day}>
+                            <View style={styles.dayLabel}>
+                              <Text style={[styles.monthDateText, { color: 'steelblue' }]}>{weekdayToAdd.format('M/D').toString()}</Text>
+                              <Text style={[styles.dayText, { color: 'steelblue' }]}>{weekdayToAdd.format('ddd').toString()}</Text>
+                            </View>
+                            <View style={[styles.allEvents, eventViews.length === 0 ? { width: '100%', backgroundColor: 'whitesmoke' } : {}]}>
+                              {eventViews}
+                            </View>
+                          </View>
+                        )}
+                        onDayPress={(weekday, i) => {
+                          console.log(weekday.format('ddd') + ' is selected! And it is day ' + (i+1) + ' of the week!')
+                        }}
+                        themeColor='steelblue'
+                        style={{ height: windowHeight*0.83 }}
+                        titleStyle={{ color: 'black' }}
+                        dayLabelStyle={{ color: 'black' }}
+                      />
+                    </View>
+        );
+    }
+}
+
+class NoSchedule extends Component{
+    constructor(props) {
+        super(props);
+    }
+
+    render() {
+        console.log('NoSchedule')
+        return (
+            <View>
+                      <WeeklyCalendar
+                        events={[]}
+                        renderEvent={(event, j) => {
+                          console.log('weekly')
+                          let startTime = moment(event.start).format('LT').toString()
+                          let endTime = moment(event.end).format('LT').toString()
+                          return (
+                            <View key={j}>
+                              <TouchableOpacity style={styles.event} onPress={()=>console.log("event is pressed")}>
+                                <View style={styles.eventDuration}>
+                                  <View style={styles.durationContainer}>
+                                    <View style={styles.durationDot} />
+                                    <Text style={styles.durationText}>{startTime}</Text>
+                                  </View>
+                                  <View style={{ paddingTop: 10 }} />
+                                  <View style={styles.durationContainer}>
+                                    <View style={styles.durationDot} />
+                                    <Text style={styles.durationText}>{endTime}</Text>
+                                  </View>
+                                  <View style={styles.durationDotConnector} />
+                                </View>
+                                <View style={styles.eventNote}>
+                                  <Text style={styles.eventText}>{event.description}</Text>
+                                </View>
+                              </TouchableOpacity>
+                              <View style={styles.lineSeparator} />
+                            </View>
+                          )
+                        }}
+                        renderLastEvent={(event, j) => {
+                          console.log('weekly-last')
+                          let startTime = moment(event.start).format('LT').toString()
+                          let endTime = moment(event.end).format('LT').toString()
+                          return (
+                            <View key={j}>
+                              <TouchableOpacity style={styles.event} onPress={()=>console.log("event is pressed")}>
+                                <View style={styles.eventDuration}>
+                                  <View style={styles.durationContainer}>
+                                    <View style={styles.durationDot} />
+                                    <Text style={styles.durationText}>{startTime}</Text>
+                                  </View>
+                                  <View style={{ paddingTop: 10 }} />
+                                  <View style={styles.durationContainer}>
+                                    <View style={styles.durationDot} />
+                                    <Text style={styles.durationText}>{endTime}</Text>
+                                  </View>
+                                  <View style={styles.durationDotConnector} />
+                                </View>
+                                <View style={styles.eventNote}>
+                                  <Text style={styles.eventText}>{event.description}</Text>
+                                </View>
+                              </TouchableOpacity>
+                            </View>
+                          )
+                        }}
+                        renderDay={(eventViews, weekdayToAdd, i) => (
+                          <View key={i.toString()} style={styles.day}>
+                            <View style={styles.dayLabel}>
+                              <Text style={[styles.monthDateText, { color: 'steelblue' }]}>{weekdayToAdd.format('M/D').toString()}</Text>
+                              <Text style={[styles.dayText, { color: 'steelblue' }]}>{weekdayToAdd.format('ddd').toString()}</Text>
+                            </View>
+                            <View style={[styles.allEvents, eventViews.length === 0 ? { width: '100%', backgroundColor: 'whitesmoke' } : {}]}>
+                              {eventViews}
+                            </View>
+                          </View>
+                        )}
+                        onDayPress={(weekday, i) => {
+                          console.log(weekday.format('ddd') + ' is selected! And it is day ' + (i+1) + ' of the week!')
+                        }}
+                        themeColor='steelblue'
+                        style={{ height: windowHeight*0.83 }}
+                        titleStyle={{ color: 'black' }}
+                        dayLabelStyle={{ color: 'black' }}
+                      />
+                    </View>
+        );
+    }
+}
+*/
 const mapStateToProps = (state) => {
   return { scheduledEvents: state.scheduleReducer.scheduledEvents }
 };

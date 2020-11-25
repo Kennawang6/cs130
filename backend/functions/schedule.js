@@ -312,7 +312,11 @@ exports.addTimeslotToScheduleandCombine = functions.https.onCall(async (data, co
     }
 });
 
-exports.removeTimeslots = functions.https.onCall(async (request, response) => {
+exports.removeSchedule = functions.https.onCall(async (request, response) => {
+  // data parameters:
+  // none
+  // returns:
+  // ok/not ok status
   if (!context.auth || !context.auth.uid) {
     functions.logger.info("Unauthenticated user\n");
     return {status: "not ok", text: "Unauthenticated user"};

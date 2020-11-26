@@ -36,14 +36,17 @@ class Schedule extends Component{
         };
     }
     componentDidMount() {
-        this.getScheduleData();
+      this.getScheduleData();
+      
     }
-    /*componentDidUpdate(prevProps, prevState) {
+    componentDidUpdate(prevProps, prevState) {
       // only update chart if the data has changed
-      if (prevProps.data !== this.props.data) {
-        
+      if(prevProps.scheduledEvents !== this.props.scheduledEvents){
+        this.setState({ifLoading:true});
+        console.log(this.state.ifLoading);
+        this.getScheduleData();
       }
-    }*/
+    }
 
     getScheduleData = async() => {
         const data = await functions().httpsCallable('getSchedule')({});
@@ -54,6 +57,9 @@ class Schedule extends Component{
             this.props.replaceSchedule(data.data.schedule.timeslots);
             this.setState({
                 displaySchedule: data.data.schedule.timeslots
+            },() => {
+              console.log("state.displaySchedule");
+              console.log(this.state.displaySchedule);
             });
             
             console.log(this.state.displaySchedule);
@@ -66,6 +72,11 @@ class Schedule extends Component{
         // assuming id is stored in firebase
         //this.props.replaceSchedule(this.state.timeslots);
         this.setState({ifLoading: false});
+        this.setState((prevState)=>{
+          return{
+            displaySchedule: this.state.displaySchedule
+          }
+        })
         this.test();
     }
 
@@ -136,19 +147,12 @@ class Schedule extends Component{
       
       const events = this.props.scheduledEvents;
       const events1 = this.state.displaySchedule;
-      console.log(events);
       //console.log(events);
-      console.log("state");
-      console.log(this.state.displaySchedule);
+      //console.log(events);
+      //console.log("state");
+      //console.log(this.state.displaySchedule);
       //if(this.props.scheduledEvents&&this.props.scheduledEvents.length){
-      var temp;
-      if(this.props.scheduledEvents&&this.props.scheduledEvents.length){
-        var temp = this.props.scheduledEvents;
-      }
-      else{
-        console.log("I am in hello");
-        temp = [];
-      }
+      
       if(this.state.ifLoading){
         return(
           <View>
@@ -162,8 +166,6 @@ class Schedule extends Component{
           <WeeklyCalendar
             events= {this.props.scheduledEvents}
             renderEvent={(event, j) => {
-              console.log("hello");
-              console.log(event);
               var s = new Date(event.start);
               var s_date = ("0" + s.getDate()).slice(-2);
               var s_month = ("0" + (s.getMonth() + 1)).slice(-2);
@@ -213,8 +215,6 @@ class Schedule extends Component{
               )
             }}
             renderLastEvent={(event, j) => {
-              console.log("hello1");
-              console.log(event);
               var s = new Date(event.start);
               var s_date = ("0" + s.getDate()).slice(-2);
               var s_month = ("0" + (s.getMonth() + 1)).slice(-2);

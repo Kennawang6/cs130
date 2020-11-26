@@ -3,6 +3,9 @@ import { View, Text, TouchableOpacity, TextInput, Button, Alert } from 'react-na
 import functions from '@react-native-firebase/functions';
 import styles from './styles';
 
+import { connect } from 'react-redux';
+import { saveFriends, acceptFriend, removeFriend, rejectFriend } from '../../actions/editFriendsList'
+
 class AddFriend extends Component{
     constructor(props) {
         super(props);
@@ -22,20 +25,6 @@ class AddFriend extends Component{
             this.notifyUser(this.state.text);
         });
     }
-
-/*    shouldComponentUpdate(nextProps, nextState) {
-        console.log('Should I update?');
-        console.log(this.state.friendsEmail);
-        if (nextState.friendsEmail !== "") {
-            return true;
-        } else
-            return false;
-    }
-
-    componentDidUpdate() {
-      console.log('Component re-rendered.');
-      this.sendFriendRequest;
-    }*/
 
     handlePress = () => {
         console.log("Button was pressed");
@@ -67,4 +56,18 @@ class AddFriend extends Component{
     }
 }
 
-export default AddFriend;
+const mapStateToProps = (state) => {
+    return {
+        friends: state.friendsListReducer.friends,
+        friendRequests: state.friendsListReducer.friendRequests,
+}};
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        reduxSaveFriends:(friends, friendRequests) => dispatch(saveFriends(friends, friendRequests)),
+        reduxAcceptFriend:(friend) => dispatch(acceptFriend(friend)),
+        reduxRemoveFriend:(friend) => dispatch(removeFriend(friend)),
+        reduxRejectFriend:(friend) => dispatch(rejectFriend(friend)),
+}};
+
+export default connect(mapStateToProps, mapDispatchToProps)(AddFriend);

@@ -101,7 +101,7 @@ function ProfileStackScreen(){
   );
 }
 
-// Friend's List
+// Friends List
 const FriendsListStack = createStackNavigator();
 function FriendsListStackScreen(){
   return (
@@ -219,7 +219,7 @@ function LoginApp() {
       <Tab.Navigator>
         <Tab.Screen name="Schedule" component={ScheduleStackScreen} />
         <Tab.Screen name="Profile" component={ProfileStackScreen} />
-        <Tab.Screen name="Friend's List" component={FriendsListStackScreen} />
+        <Tab.Screen name="Friends List" component={FriendsListStackScreen} />
         <Tab.Screen name="Event" component={EventStackScreen} />
         <Tab.Screen name="Notification" component={NotificationStackScreen} />
       </Tab.Navigator>

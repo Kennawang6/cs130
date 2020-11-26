@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
-import {Alert, StyleSheet, Text, View, TouchableOpacity, Button, Dimensions} from 'react-native';
+import { Alert, StyleSheet, Text, View, TouchableOpacity, Button, Dimensions} from 'react-native';
 import WeeklyCalendar from 'react-native-weekly-calendar';
 import moment from 'moment/min/moment-with-locales';
 import styles from './styles';
+import { useState, useEffect } from 'react';
 
 import functions from '@react-native-firebase/functions';
 
@@ -15,6 +16,14 @@ const HOUR_IN_MILLISECONDS = 60 * MINUTE_IN_MILLISECONDS;
 import { connect } from 'react-redux';
 import { addScheduleEvent, replaceSchedule, removeScheduleEvent} from '../../actions/editSchedule';
 
+
+/*function weeklyCalendar(){
+  useEffect(() => {
+  fetchSomething();
+}, []);
+}
+*/
+
 class Schedule extends Component{
 
     constructor(props) {
@@ -22,9 +31,19 @@ class Schedule extends Component{
         this.state = {
           timeslots: [],
           displaySchedule: [],
+          ifLoading: true,
           testEvents: [{"description": "test02", "duration": "01:00:00", "end": "2020-11-25 10:24:33", "start": "2020-11-25 09:24:33"}, {"description": "test 04", "duration": "01:18:00", "end": "2020-11-25 11:18:51", "start": "2020-11-25 10:00:51"}, {"description": "test3", "duration": "10:00:00", "end": "2020-11-26 19:39:06", "start": "2020-11-26 09:39:06"}]
         };
     }
+    componentDidMount() {
+        this.getScheduleData();
+    }
+    /*componentDidUpdate(prevProps, prevState) {
+      // only update chart if the data has changed
+      if (prevProps.data !== this.props.data) {
+        
+      }
+    }*/
 
     getScheduleData = async() => {
         const data = await functions().httpsCallable('getSchedule')({});
@@ -36,15 +55,17 @@ class Schedule extends Component{
             this.setState({
                 displaySchedule: data.data.schedule.timeslots
             });
+            
             console.log(this.state.displaySchedule);
             //this.convertToSchedule();
         }else{
             console.log('initialize')
             const data_initialized = await functions().httpsCallable('addSchedule')({timeslots:[]});
         }
-        this.forceUpdate();
+        //this.forceUpdate();
         // assuming id is stored in firebase
         //this.props.replaceSchedule(this.state.timeslots);
+        this.setState({ifLoading: false});
         this.test();
     }
 
@@ -106,20 +127,42 @@ class Schedule extends Component{
         console.log("Try redux");
         console.log(this.props.scheduledEvents);
     }
-//
-    componentDidMount() {
-        this.getScheduleData();
-    }
+
+    
 
     // TODO: check why not presenting the events
     render() {
-      console.log('in render why')
-      console.log(this.props.scheduledEvents)
+      console.log('in render why');
+      
+      const events = this.props.scheduledEvents;
+      const events1 = this.state.displaySchedule;
+      console.log(events);
+      //console.log(events);
+      console.log("state");
+      console.log(this.state.displaySchedule);
+      //if(this.props.scheduledEvents&&this.props.scheduledEvents.length){
+      var temp;
+      if(this.props.scheduledEvents&&this.props.scheduledEvents.length){
+        var temp = this.props.scheduledEvents;
+      }
+      else{
+        console.log("I am in hello");
+        temp = [];
+      }
+      if(this.state.ifLoading){
+        return(
+          <View>
+            <Text> Loading </Text>
+          </View>
+        );
+      }
+      else{
       return (
         <View>
           <WeeklyCalendar
-            events={this.props.scheduledEvents}
+            events= {this.props.scheduledEvents}
             renderEvent={(event, j) => {
+              console.log("hello");
               console.log(event);
               var s = new Date(event.start);
               var s_date = ("0" + s.getDate()).slice(-2);
@@ -170,6 +213,7 @@ class Schedule extends Component{
               )
             }}
             renderLastEvent={(event, j) => {
+              console.log("hello1");
               console.log(event);
               var s = new Date(event.start);
               var s_date = ("0" + s.getDate()).slice(-2);
@@ -238,7 +282,9 @@ class Schedule extends Component{
             dayLabelStyle={{ color: 'black' }}
           />
         </View>
+        
       );
+    }
     }
 }
 

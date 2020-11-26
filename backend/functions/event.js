@@ -534,6 +534,48 @@ exports.removeFromEvent = functions.https.onCall(async (data, context) => {
     }
 });
 
+exports.leaveEvent = functions.https.onCall(async (data, context) => {
+    //data parameters (all required): 
+    // event_id: event's id
+    if (!context.auth) {
+        functions.logger.info("Unauthenticated user");
+        return {text: "Unauthenticated user"};
+    } else {
+        try {
+            functions.logger.info("Hello to " + context.auth.uid);
+
+            const getEventInfo = await admin.firestore().collection('events').doc(data.event_id).get();
+
+            if(!getEventInfo.exists){
+                console.log("event document does not exist");
+                return {text: "Event document does not exist"};
+            }
+
+            const eventData = getEventInfo.data();
+
+            if(!(('members' in eventData) && (eventData.members.includes(context.auth.uid)))){
+                console.log("User not member of event");
+                return {text: "User not member of event"};
+            }
+
+            await admin.firestore().collection('events').doc(data.event_id)
+                .update({
+                    members: admin.firestore.FieldValue.arrayRemove(context.auth.uid),
+                });
+
+            await admin.firestore().collection('users').doc(context.auth.uid)
+                .update({
+                    events: admin.firestore.FieldValue.arrayRemove(data.event_id),
+                });
+
+            console.log("Left event");
+            return {text: "Left event"};
+        } catch (error) {
+            console.log('Error:', error);
+            return  {text: "Firebase error"};
+        }
+    }
+});
 
 exports.addUserScheduleToEvent = functions.https.onCall(async (data, context) => {
     //This function updates the event with all of its members' schedules at once

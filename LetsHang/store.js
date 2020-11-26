@@ -7,6 +7,7 @@ const rootReducer = combineReducers({
   userReducer: userReducer,
   eventReducer: eventReducer,
   scheduleReducer: scheduleReducer,
+  friendsListReducer: friendsListReducer,
 })
 
 const configureStore = () => createStore(rootReducer);

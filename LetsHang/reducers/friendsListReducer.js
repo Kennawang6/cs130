@@ -1,23 +1,40 @@
-import {ADD_FRIEND, REMOVE_FRIEND} from '../actions/types'
+import {SAVE_FRIENDS, REMOVE_FRIEND, ACCEPT_FRIEND, REJECT_FRIEND} from '../actions/types'
 
 const initialState = {
-    friends: []
+    friends: [],
+    friendRequests: [],
 };
 
 const friendsListReducer = (state = initialState, action) => {
     switch (action.type) {
-        case ADD_FRIEND: {
+        case SAVE_FRIENDS: {
+            return {
+                ...state,
+                friends: action.friends,
+                friendRequests: action.friendRequests
+            };
+        }
+        case ACCEPT_FRIEND: {
             return {
                 ...state,
                 friends: state.friends.concat({
-                    email: action.email,
-                })
+                    friend: action.friend,
+                }),
+                friendRequests: state.friendRequests.filter((event) => event !== action.friend)
+            };
+        }
+        case REJECT_FRIEND: {
+            return {
+                ...state,
+                friends: state.friends,
+                friendRequests: state.friendRequests.filter((event) => event !== action.friend)
             };
         }
         case REMOVE_FRIEND: {
             return {
                 ...state,
-                friends: state.friends.filter((event) => event.email !== action.email),
+                friends: state.friends.filter((event) => event !== action.friend),
+                friendRequests: state.friendRequests,
             };
         }
         default: {
@@ -27,3 +44,5 @@ const friendsListReducer = (state = initialState, action) => {
 }
 
 export default friendsListReducer;
+
+

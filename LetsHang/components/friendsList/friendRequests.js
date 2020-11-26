@@ -5,41 +5,59 @@ import { Avatar, ListItem, Icon, Divider } from 'react-native-elements';
 import styles from './styles';
 
 import { connect } from 'react-redux';
-import { addFriend, removeFriend } from '../../actions/editFriendsList'
+import { saveFriends, acceptFriend, removeFriend, rejectFriend } from '../../actions/editFriendsList'
 
 class FriendRequests extends Component{
     constructor(props) {
         super(props);
         this.state = {
-            friendsToAdd: this.props.route.params.friendsToAdd,
             text: "",
         }
         this.accept = this.accept.bind(this);
         this.reject = this.reject.bind(this);
     }
 
-    accept = async(email) => {
+    accept = async(friend, email) => {
         console.log(email);
         const data = await functions().httpsCallable('addFriend')({friend_email: email});
         this.setState({text: data.data.text}, () => {
             this.notifyUser(this.state.text);
         });
+        this.props.reduxAcceptFriend(friend);
+        console.log(this.props.friendRequests);
     }
 
-    reject = async(email) => {
+    reject = async(friend, email) => {
         console.log(email);
         const data = await functions().httpsCallable('removeFriend')({friend_email: email});
         this.setState({text: data.data.text}, () => {
             this.notifyUser(this.state.text);
         });
+        this.props.reduxRejectFriend(friend);
+        console.log(this.props.friendRequests[0] == friend);
     }
 
     notifyUser = (text) => {
        alert(text);
     }
 
+    shouldComponentUpdate(nextProps, nextState) {
+        console.log('Should I update?');
+        console.log("new friends request length: ", nextProps.friendRequests.length);
+        console.log("old friends request length: ", this.props.friendRequests.length);
+        if (nextProps.friendRequests.length !== this.props.friendRequests.length)
+            return true;
+        else
+            return false;
+    }
+
+    componentDidUpdate(prevProps) {
+        console.log("Re-rendering...");
+        console.log(this.props.friendRequests);
+    }
+
     render() {
-        const friendsToAdd = this.state.friendsToAdd.map(i =>
+        const friendsToAdd = this.props.friendRequests.map(i =>
             <View key={i.uid} bottomDivider style = {{padding: 1,}}>
                 <ListItem>
                     <Avatar
@@ -53,19 +71,19 @@ class FriendRequests extends Component{
                     </ListItem.Content>
                     <View style={{flexDirection: 'row', width: 100,
                                 justifyContent: 'space-around'}}>
-                      <Icon onPress={() => this.accept(i.email)} color="green" name="done" />
-                      <Icon onPress={() => this.reject(i.email)} color="red" name="clear" />
+                      <Icon onPress={() => this.accept(i, i.email)} color="green" name="done" />
+                      <Icon onPress={() => this.reject(i, i.email)} color="red" name="clear" />
                     </View>
                 </ListItem>
             </View>
          );
-        if ((Array.isArray(this.state.friendsToAdd) && this.state.friendsToAdd.length > 0))
+        if ((Array.isArray(this.props.friendRequests) && this.props.friendRequests.length > 0))
             return(
                 <View>
                     {friendsToAdd}
                 </View>
             );
-        else if ((Array.isArray(this.state.friendsToAdd) && this.state.friendsToAdd.length == 0))
+        else if ((Array.isArray(this.props.friendRequests) && this.props.friendRequests.length == 0))
             return(
                 <View style={{
                           flex: 1,
@@ -81,15 +99,19 @@ class FriendRequests extends Component{
     }
 }
 
+
 const mapStateToProps = (state) => {
     return {
         friends: state.friendsListReducer.friends,
+        friendRequests: state.friendsListReducer.friendRequests,
 }};
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        reduxAddFriend:(email) => dispatch(addFriend(email)),
-        reduxRemoveFriend:(email) => dispatch(removeFriend(email)),
+        reduxSaveFriends:(friends, friendRequests) => dispatch(saveFriends(friends, friendRequests)),
+        reduxAcceptFriend:(friend) => dispatch(acceptFriend(friend)),
+        reduxRemoveFriend:(friend) => dispatch(removeFriend(friend)),
+        reduxRejectFriend:(friend) => dispatch(rejectFriend(friend)),
 }};
 
 export default connect(mapStateToProps, mapDispatchToProps)(FriendRequests);

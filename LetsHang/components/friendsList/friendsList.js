@@ -5,7 +5,7 @@ import { Avatar, ListItem, Icon, Divider } from 'react-native-elements';
 import styles from './styles';
 
 import { connect } from 'react-redux';
-import { addFriend, removeFriend } from '../../actions/editFriendsList'
+import { saveFriends, acceptFriend, removeFriend, rejectFriend } from '../../actions/editFriendsList'
 
 class NoFriends extends Component{
     constructor(props) {
@@ -34,6 +34,7 @@ class HaveFriends extends Component{
 
     getFriendInfo(person){
         this.props.navigation.navigate( 'Friend Info', {
+           person: person,
            photo: person.photoURL,
            name: person.name,
            email: person.email,
@@ -94,14 +95,35 @@ class FriendsList extends Component{
         this.setState({text: data.data.text,
                        friendsToAdd: data.data.friendsToAdd,
                        friends: data.data.friends}, () => {
-            console.log(this.state.text);
-            console.log(this.state.friends);
-            console.log(this.state.friendsToAdd);
+            let friends = [];
+            if (Array.isArray(this.state.friends))
+                for (let friend of this.state.friends)
+                    friends.push(friend);
+
+            let friendRequests = [];
+            if (Array.isArray(this.state.friendsToAdd))
+                for (let request of this.state.friendsToAdd)
+                    friendRequests.push(request);
+
+            this.props.reduxSaveFriends(friends, friendRequests);
         });
+
+
     }
 
     componentDidMount() {
         this.getFriendData();
+    }
+
+    componentDidUpdate(prevProps) {
+        console.log('Should I update?');
+        console.log("new friends length: ", this.props.friends.length);
+        console.log("old friends length: ", prevProps.friends.length);
+        if (this.props.friends.length !== prevProps.friends.length ||
+            this.props.friendRequests.length !== prevProps.friendRequests.length){
+            console.log('Re-rendering...');
+            this.getFriendData();
+        }
     }
 
     render() {
@@ -140,7 +162,7 @@ class FriendsList extends Component{
             }
             {(Array.isArray(this.state.friends) == false) &&
                 <View>
-                    <Text>{console.log("friends list is undefined")} {this.state.text}</Text>
+                    <Text>{console.log("friends list is undefined1")} {this.state.text}</Text>
                 </View>
             }
         </View>
@@ -148,15 +170,20 @@ class FriendsList extends Component{
     }
 }
 
+
 const mapStateToProps = (state) => {
     return {
         friends: state.friendsListReducer.friends,
+        friendRequests: state.friendsListReducer.friendRequests,
 }};
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        reduxAddFriend:(email) => dispatch(addFriend(email)),
-        reduxRemoveFriend:(email) => dispatch(removeFriend(email)),
+        reduxSaveFriends:(friends, friendRequests) => dispatch(saveFriends(friends, friendRequests)),
+        reduxAcceptFriend:(friend) => dispatch(acceptFriend(friend)),
+        reduxRemoveFriend:(friend) => dispatch(removeFriend(friend)),
+        reduxRejectFriend:(friend) => dispatch(rejectFriend(friend)),
 }};
 
 export default connect(mapStateToProps, mapDispatchToProps)(FriendsList);
+

@@ -7,8 +7,8 @@ exports.createEvent = functions.https.onCall(async (data, context) => {
     // event_name: event's name
     // description: (could be empty) description of event
     // invitees: (could be empty) list of friend IDs to add to event
-    // start_date: start date
-    // end_date: end date
+    // start_date: start date in format YYYY-MM-DD
+    // end_date: end date in format YYYY-MM-DD
     if (!context.auth) {
         functions.logger.info("Unauthenticated user");
         return {text: "Unauthenticated user"};
@@ -19,16 +19,19 @@ exports.createEvent = functions.https.onCall(async (data, context) => {
             const eventRes = await admin.firestore().collection('events')
                 .add({
                     name: data.event_name,
-                    description: "",
+                    description: data.description,
                     hostID: context.auth.uid,
                     invitees: data.invitees,
                     members: [context.auth.uid], //host + friends who have accepted the invite
-                    startDate: data.start_date,
-                    endDate: data.end_date,
+                    startDate: data.start_date, //in format YYYY-MM-DD
+                    endDate: data.end_date, //in format YYYY-MM-DD
                     schedules: [],
                     commonSchedule: {},
-                    decidedTime: "",
+                    computedTime: 0, //earliest possible time that members can meet at
+                    decidedTime: 0, //time that host has decided to meet at
+                    finalTime: 0, //final time that host has decided to meet at after evaluating availability
                     membersReady: [], // members who have confirmed their availability to meet at the given time
+                    membersNotReady: [], // members who cannot meet at the given time
                 });
 
             await admin.firestore().collection('users').doc(context.auth.uid)
@@ -44,7 +47,10 @@ exports.createEvent = functions.https.onCall(async (data, context) => {
             }
 
             console.log("Event added");
-            return {text: "Event added"};
+            return {
+                text: "Event added, check event_id field",
+                event_id: eventRes.id,
+            };
         } catch (error) {
             console.log('Error:', error);
             return  {text: "Firebase error"};
@@ -71,11 +77,6 @@ exports.getEvent = functions.https.onCall(async (data, context) => {
 
             const eventData = getEventInfo.data();
 
-            if(!(('members' in eventData) && (eventData.members.includes(context.auth.uid)))){
-                console.log("User not member of event");
-                return {text: "User not member of event"};
-            }
-
             console.log("Get event successful");
             return {
                 text: "Get event successful, check event_data object",
@@ -95,8 +96,8 @@ exports.updateEvent = functions.https.onCall(async (data, context) => {
     /*{
         name: ,
         description: , 
-        startDate: , 
-        endDate: ,
+        startDate: , (in format YYYY-MM-DD)
+        endDate: , (in format YYYY-MM-DD)
     }*/
     if (!context.auth) {
         functions.logger.info("Unauthenticated user");
@@ -130,7 +131,6 @@ exports.updateEvent = functions.https.onCall(async (data, context) => {
         }
     }
 });
-
 
 exports.getUsersInEvent = functions.https.onCall(async (data, context) => {
     //data parameters (all required): 
@@ -166,7 +166,8 @@ exports.getUsersInEvent = functions.https.onCall(async (data, context) => {
                     console.log("Invitee data in event not found");
                     return {text: "Invitee data in event not found"};
                 }
-                const userData = getUserInfo.data();
+                var userData = getUserInfo.data();
+                userData.uid = invitee;
                 inviteeInfo.push(userData);
             }
 
@@ -177,7 +178,8 @@ exports.getUsersInEvent = functions.https.onCall(async (data, context) => {
                     console.log("Member data in event not found");
                     return {text: "Member data in event not found"};
                 }
-                const userData = getUserInfo.data();
+                var userData = getUserInfo.data();
+                userData.uid = member;
                 memberInfo.push(userData);
             }
 
@@ -198,7 +200,7 @@ exports.getUsersInEvent = functions.https.onCall(async (data, context) => {
 exports.setEventTime = functions.https.onCall(async (data, context) => {
     //data parameters (all required): 
     // event_id: event's id
-    // event_time: time to meet in TimeSlot format, that is, MM/DD/YY XX:XX <AM/PM>
+    // event_time: time to meet in milliseconds
     if (!context.auth) {
         functions.logger.info("Unauthenticated user");
         return {text: "Unauthenticated user"};
@@ -224,6 +226,7 @@ exports.setEventTime = functions.https.onCall(async (data, context) => {
                 .update({
                     decidedTime: data.event_time,
                     membersReady: [],
+                    membersNotReady: [],
                 });
 
             console.log("Set event time");
@@ -235,10 +238,48 @@ exports.setEventTime = functions.https.onCall(async (data, context) => {
     }
 });
 
+exports.finalizeEventTime = functions.https.onCall(async (data, context) => {
+    //data parameters (all required): 
+    // event_id: event's id
+    if (!context.auth) {
+        functions.logger.info("Unauthenticated user");
+        return {text: "Unauthenticated user"};
+    } else {
+        try {
+            functions.logger.info("Hello to " + context.auth.uid);
+
+            const getEventInfo = await admin.firestore().collection('events').doc(data.event_id).get();
+
+            if(!getEventInfo.exists){
+                console.log("event document does not exist");
+                return {text: "Event document does not exist"};
+            }
+
+            const eventData = getEventInfo.data();
+
+            if(!(('hostID' in eventData) && (eventData.hostID == context.auth.uid))){
+                console.log("User not host of event");
+                return {text: "User not host of event"};
+            }
+
+            await admin.firestore().collection('events').doc(data.event_id)
+                .update({
+                    finalTime: eventData.decidedTime, //event time will be set to decidedTime
+                });
+
+            console.log("Decided event time");
+            return {text: "Decided event time"};
+        } catch (error) {
+            console.log('Error:', error);
+            return  {text: "Firebase error"};
+        }
+    }
+});
+
+
 exports.setReadyForEvent = functions.https.onCall(async (data, context) => {
     //data parameters (all required): 
     // event_id: event's id
-    // event_time: time to meet in TimeSlot format, that is, MM/DD/YY XX:XX <AM/PM>
     if (!context.auth) {
         functions.logger.info("Unauthenticated user");
         return {text: "Unauthenticated user"};
@@ -263,6 +304,44 @@ exports.setReadyForEvent = functions.https.onCall(async (data, context) => {
             await admin.firestore().collection('events').doc(data.event_id)
                 .update({
                     membersReady: admin.firestore.FieldValue.arrayUnion(context.auth.uid),
+                });
+
+            console.log("Set event time");
+            return {text: "Set event time"};
+        } catch (error) {
+            console.log('Error:', error);
+            return  {text: "Firebase error"};
+        }
+    }
+});
+
+exports.setNotReadyForEvent = functions.https.onCall(async (data, context) => {
+    //data parameters (all required): 
+    // event_id: event's id
+    if (!context.auth) {
+        functions.logger.info("Unauthenticated user");
+        return {text: "Unauthenticated user"};
+    } else {
+        try {
+            functions.logger.info("Hello to " + context.auth.uid);
+
+            const getEventInfo = await admin.firestore().collection('events').doc(data.event_id).get();
+
+            if(!getEventInfo.exists){
+                console.log("event document does not exist");
+                return {text: "Event document does not exist"};
+            }
+
+            const eventData = getEventInfo.data();
+
+            if(!(('members' in eventData) && (eventData.members.includes(context.auth.uid)))){
+                console.log("User not member of event");
+                return {text: "User not member of event"};
+            }
+
+            await admin.firestore().collection('events').doc(data.event_id)
+                .update({
+                    membersNotReady: admin.firestore.FieldValue.arrayUnion(context.auth.uid),
                 });
 
             console.log("Set event time");
@@ -339,7 +418,7 @@ exports.acceptEventInvite = functions.https.onCall(async (data, context) => {
 
             const userData = getUserInfo.data();
 
-            if(!(('eventNotifications' in userData) && (eventData.eventNotifications.includes(data.event_id)))){
+            if(!(('eventNotifications' in userData) && (userData.eventNotifications.includes(data.event_id)))){
                 console.log("User not invited to event");
                 return {text: "User not invited to event"};
             }
@@ -384,7 +463,7 @@ exports.declineEventInvite = functions.https.onCall(async (data, context) => {
 
             const userData = getUserInfo.data();
 
-            if(!(('eventNotifications' in userData) && (eventData.eventNotifications.includes(data.event_id)))){
+            if(!(('eventNotifications' in userData) && (userData.eventNotifications.includes(data.event_id)))){
                 console.log("User not invited to event");
                 return {text: "User not invited to event"};
             }
@@ -407,7 +486,6 @@ exports.declineEventInvite = functions.https.onCall(async (data, context) => {
         }
     }
 });
-
 
 exports.removeFromEvent = functions.https.onCall(async (data, context) => {
     //data parameters (all required): 
@@ -449,6 +527,258 @@ exports.removeFromEvent = functions.https.onCall(async (data, context) => {
 
             console.log("Users removed from event");
             return {text: "Users removed from event"};
+        } catch (error) {
+            console.log('Error:', error);
+            return  {text: "Firebase error"};
+        }
+    }
+});
+
+exports.leaveEvent = functions.https.onCall(async (data, context) => {
+    //data parameters (all required): 
+    // event_id: event's id
+    if (!context.auth) {
+        functions.logger.info("Unauthenticated user");
+        return {text: "Unauthenticated user"};
+    } else {
+        try {
+            functions.logger.info("Hello to " + context.auth.uid);
+
+            const getEventInfo = await admin.firestore().collection('events').doc(data.event_id).get();
+
+            if(!getEventInfo.exists){
+                console.log("event document does not exist");
+                return {text: "Event document does not exist"};
+            }
+
+            const eventData = getEventInfo.data();
+
+            if(!(('members' in eventData) && (eventData.members.includes(context.auth.uid)))){
+                console.log("User not member of event");
+                return {text: "User not member of event"};
+            }
+
+            await admin.firestore().collection('events').doc(data.event_id)
+                .update({
+                    members: admin.firestore.FieldValue.arrayRemove(context.auth.uid),
+                });
+
+            await admin.firestore().collection('users').doc(context.auth.uid)
+                .update({
+                    events: admin.firestore.FieldValue.arrayRemove(data.event_id),
+                });
+
+            console.log("Left event");
+            return {text: "Left event"};
+        } catch (error) {
+            console.log('Error:', error);
+            return  {text: "Firebase error"};
+        }
+    }
+});
+
+exports.addUserScheduleToEvent = functions.https.onCall(async (data, context) => {
+    //This function updates the event with all of its members' schedules at once
+    //data parameters (all required):
+    // event_id: event's id
+    if (!context.auth) {
+        functions.logger.info("Unauthenticated user");
+        return {text: "Unauthenticated user"};
+    } else {
+        try {
+            functions.logger.info("Hello to " + context.auth.uid);
+
+            const getEventInfo = await admin.firestore().collection('events').doc(data.event_id).get();
+
+            if(!getEventInfo.exists){
+                console.log("event document does not exist");
+                return {text: "Event document does not exist"};
+            }
+
+            const eventData = getEventInfo.data();
+            const eventStartTime = eventData.start_date;
+            const eventEndTime = eventData.end_date;
+
+            var finalTimeslots = [];
+
+            for(member in eventData.members){
+                const getScheduleInfo = await admin.firestore().collection('schedules').doc(member).get();
+                if(!getScheduleInfo.exists){
+                    console.log("User schedule does not exist for ", member);
+                    continue;
+                }
+                const scheduleData = getScheduleInfo.data();
+                
+                var userTimeSlots = [];
+                //cut out only the part of the User scedule between start time and end time
+                if(!isNaN(eventStartTime) && !isNaN(eventEndTime)){
+                    for(const scheduleTimeslot of scheduleData.timeslots){
+                        const scheduleTimeslotStartTime = scheduleTimeslot.start;
+                        const scheduleTimeslotEndTime = scheduleTimeslot.end;
+
+                        if(scheduleTimeslotStartTime < eventStartTime && scheduleTimeslotEndTime > eventStartTime){
+                            userTimeSlots.push({
+                                start: eventData.start_date,
+                                end: scheduleTimeslot.end,
+                            });
+                        } else if(scheduleTimeslotEndTime > eventEndTime && scheduleTimeslotStartTime < eventEndTime){
+                            userTimeSlots.push({
+                                start: scheduleTimeslot.start,
+                                end: eventData.end_date,
+                            });
+                        } else {
+                            userTimeSlots.push(scheduleTimeslot);
+                        }
+                    }
+                }
+
+                var i = 0, j = 0; //for interating through finalTimeslots and userTimeslots respectively
+                //combine Event and User schedules
+                for(j = 0; j < userTimeSlots.length; j++){
+                    var combinedTimeslots = JSON.parse(JSON.stringify(finalTimeslots));
+                    var newTimeslotStarted = false;
+                    var newTimeslotEnded = false;
+                    var newTimeslot = {};
+                    newTimeslot.start = userTimeslots[j].start;
+                    finalTimeslots = [];
+
+                    for(i = 0; i < combinedTimeslots.length; i++){
+                      const eventTimeslotStartTime = combinedTimeslots[i].start;
+                      const eventTimeslotEndTime = combinedTimeslots[i].end;
+                      const scheduleTimeslotStartTime = userTimeslots[j].start;
+                      const scheduleTimeslotEndTime = userTimeslots[j].end;
+
+                      var newTimeslotStart;
+                      if(!newTimeslotStarted){
+                        if(scheduleTimeslotStartTime <= eventTimeslotEndTime){
+                          if(scheduleTimeslotStartTime < eventTimeslotStartTime){
+                            newTimeslotStart = userTimeslots[j].start;
+                          } else {
+                            newTimeslotStart = eventTimeslotStartTime;
+                          }
+
+                          if(scheduleTimeslotEndTime < eventTimeslotStartTime){
+                              newTimeslot = {
+                                start: newTimeslotStart,
+                                end: userTimeslots[j].end,
+                              }
+                              finalTimeslots.push(newTimeslot);
+                              finalTimeslots.push(combinedTimeslots[i]);
+                              newTimeslotStarted = true;
+                              newTimeslotEnded = true;
+                          } else if(scheduleTimeslotEndTime <= eventTimeslotEndTime){
+                              newTimeslot = {
+                                start: newTimeslotStart,
+                                end: eventTimeslotEndTime,
+                              }
+                              finalTimeslots.push(newTimeslot);
+                              newTimeslotStarted = true;
+                              newTimeslotEnded = true;
+                          } else if(scheduleTimeslotEndTime > eventTimeslotEndTime){
+                              newTimeslot.start = newTimeslotStart;
+                              newTimeslotStarted = true;
+                          }
+                        } else {
+                          finalTimeslots.push(combinedTimeslots[i]);
+                        }
+                      } else if(!newTimeslotEnded){
+                        if(scheduleTimeslotEndTime < eventTimeslotStartTime){
+                          newTimeslot.end = userTimeslots[j].end;
+                          finalTimeslots.push(newTimeslot);
+                          finalTimeslots.push(combinedTimeslots[i]);
+                          newTimeslotEnded = true;
+                        } else if (scheduleTimeslotEndTime <= eventTimeslotEndTime){
+                          newTimeslot.end = eventTimeslotEndTime;
+                          finalTimeslots.push(newTimeslot);
+                          newTimeslotEnded = true;
+                        } else {
+                        }
+                      } else {
+                        finalTimeslots.push(combinedTimeslots[i]);
+                      }
+                    }
+
+                    if(!newTimeslotEnded){
+                      newTimeslot.end = userTimeslots[j].end;
+                      finalTimeslots.push(newTimeslot);
+                      newTimeslotEnded = true;
+                    }
+                }
+            }
+
+            await admin.firestore().collection('events').doc(data.event_id).update({
+              commonSchedule: finalTimeslots,
+            });
+
+            console.log("Successfully updated event schedule with user schedules");
+            return {text: "Successfully updated event schedule with user schedules"};
+        } catch (error) {
+            console.log('Error:', error);
+            return  {text: "Firebase error"};
+        }
+    }
+});
+
+
+
+exports.computeNextEarliestAvailableTime = functions.https.onCall(async (data, context) => {
+    //This function updates the event with all of its members' schedules at once
+    //data parameters (all required):
+    // event_id: event's id
+    if (!context.auth) {
+        functions.logger.info("Unauthenticated user");
+        return {text: "Unauthenticated user"};
+    } else {
+        try {
+            functions.logger.info("Hello to " + context.auth.uid);
+
+            const getEventInfo = await admin.firestore().collection('events').doc(data.event_id).get();
+
+            if(!getEventInfo.exists){
+                console.log("event document does not exist");
+                return {text: "Event document does not exist"};
+            }
+
+            const eventData = getEventInfo.data();
+            const eventSchedule = eventData.commonSchedule;
+            const eventStartTime = eventData.start_date;
+            const eventEndTime = eventData.end_date;
+
+            for(var i = 0; i < eventSchedule.length; i++){ 
+                if(i == 0 && eventSchedule[i].start != eventStartTime && eventData.computedTime != eventStartTime){
+                    await admin.firestore().collection('events').doc(data.event_id).update({
+                      computedTime: eventStartTime,
+                    });
+
+                    console.log("Time computed");
+                    return {
+                        text: "Earliest time computed, check computedTime field",
+                        computedTime: eventStartTime,
+                    };
+                }
+
+                if(eventData.computedTime != eventSchedule[i].end){
+                    await admin.firestore().collection('events').doc(data.event_id).update({
+                      computedTime: eventSchedule[i].end,
+                    });
+
+                    console.log("Time computed");
+                    return {
+                        text: "Earliest time computed, check computedTime field",
+                        computedTime: eventSchedule[i].end,
+                    };
+                }
+            }
+
+
+            await admin.firestore().collection('events').doc(data.event_id).update({
+              computedTime: eventEndTime,
+            });
+            console.log("End date set as earliest time");
+            return {
+                text: "No time available, earliest time set to end date, check computedTime field",
+                computedTime: eventEndTime,
+            };
         } catch (error) {
             console.log('Error:', error);
             return  {text: "Firebase error"};

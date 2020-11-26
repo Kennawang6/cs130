@@ -17,20 +17,23 @@ import auth from '@react-native-firebase/auth';
 import firebase from '@react-native-firebase/app';
 import functions from '@react-native-firebase/functions';
 
+import { Icon } from 'react-native-elements'
 
 import {Provider} from 'react-redux';
 import configureStore from './store';
 
 const store = configureStore();
 
-
 import Signin from './components/signin/signin';
 import Profile from './components/profile/profile';
 import EditName from './components/profile/editName';
 import EditTimeZone from './components/profile/editTimeZone';
 import Schedule from './components/schedule/schedule';
+import AddSchedule from './components/schedule/addSchedule';
+import EditSchedule from './components/schedule/editSchedule';
 import FriendsList from './components/friendsList/friendsList';
 import AddFriend from './components/friendsList/addFriend';
+import FriendRequests from './components/friendsList/friendRequests';
 import FriendInfo from './components/friendsList/friendInfo';
 import EventList from './components/event/eventList';
 import CreateEvent from './components/event/createEvent';
@@ -51,9 +54,25 @@ const ScheduleStack = createStackNavigator();
 function ScheduleStackScreen(){
   return (
     <ScheduleStack.Navigator>
-      <ScheduleStack.Screen 
-        name="Schedule" 
-        component={Schedule} 
+      <ScheduleStack.Screen
+        name="Schedule"
+        component={Schedule}
+        options={({ navigation }) => ({
+          headerRight: () => (
+            <Icon
+              name='add'
+              onPress={() => navigation.navigate('AddSchedule')}
+            />
+          )
+        })}
+      />
+      <ScheduleStack.Screen
+          name="AddSchedule"
+          component={AddSchedule}
+      />
+      <ScheduleStack.Screen
+          name="EditSchedule"
+          component={EditSchedule}
       />
     </ScheduleStack.Navigator>
   );
@@ -94,6 +113,10 @@ function FriendsListStackScreen(){
       <FriendsListStack.Screen
         name="Add Friend"
         component={AddFriend}
+      />
+      <FriendsListStack.Screen
+        name="Friend Requests"
+        component={FriendRequests}
       />
       <FriendsListStack.Screen
         name="Friend Info"

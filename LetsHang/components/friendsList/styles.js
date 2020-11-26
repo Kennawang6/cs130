@@ -9,14 +9,6 @@ export default StyleSheet.create({
     //padding: 35,
     backgroundColor: '#fff'
   },
-    noFriendsContainer: {
-      flex: 1,
-      display: "flex",
-      justifyContent: 'center',
-      alignItems: 'center',
-      padding: 35,
-      backgroundColor: '#fff'
-    },
   addFriendContainer: {
     padding: 23,
   },
@@ -27,15 +19,27 @@ export default StyleSheet.create({
   input: {
      margin: 15,
      height: 40,
-     borderColor: '#1f44f4',
+     borderColor: '#0099ff',
      borderWidth: 1
   },
   buttonStyle: {
-     backgroundColor: '#1f44f4',
+     backgroundColor: '#0099ff',
      padding: 10,
      margin: 15,
      height: 40,
   },
+   requestButtonStyle: {
+       backgroundColor: '#0099ff',
+       padding: 10,
+       //margin: 15,
+       height: 40,
+    },
+    addButtonStyle: {
+       backgroundColor: '#0099ff',
+       padding: 10,
+       //margin: 15,
+       height: 40,
+    },
   deleteButtonStyle: {
      backgroundColor: '#D12222',
      padding: 10,
@@ -45,5 +49,10 @@ export default StyleSheet.create({
   },
   submitButtonText:{
      color: 'white'
+  },
+  requestsAndAddFriends:{
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    //backgroundColor: 'white'
   }
 });

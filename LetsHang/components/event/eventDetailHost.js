@@ -11,16 +11,20 @@ import { setEvent, addEvent, removeEvent, editCurEvent} from '../../actions/edit
 
 class EventDetailHost extends Component{
 	constructor(props) {
-        super(props);
-        this.state = {
-        	eventID: this.props.route.params.eventID,
-        };
-    }
+      super(props);
+      this.state = {
+      	eventID: this.props.route.params.eventID,
+      };
+  }
+
     
-    render() {
+  render() {
         var eventInfo = this.props.eventList;
         var thisEvent = eventInfo.filter(i=>i.eventID==this.state.eventID);
         console.log(thisEvent);
+        console.log("hello");
+        var members = thisEvent[0].eventInfo.members.filter(member => {member!==thisEvent[0].eventInfo.host;});
+        console.log(members);
         return (
             <View>
               <View>
@@ -47,7 +51,7 @@ class EventDetailHost extends Component{
             </View>
             
         );
-    }
+  }
 }
 
 const mapStateToProps = (state) => {return {curEvent:state.eventReducer.curEvent, eventList: state.eventReducer.eventList}};

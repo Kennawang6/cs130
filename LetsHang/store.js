@@ -1,11 +1,12 @@
 import {createStore, combineReducers} from 'redux';
 import userReducer from './reducers/userReducer';
 import eventReducer from './reducers/eventReducer';
-import friendsListReducer from './reducers/friendsListReducer'
+import scheduleReducer from './reducers/scheduleReducer';
 
 const rootReducer = combineReducers({
   userReducer: userReducer,
   eventReducer: eventReducer,
+  scheduleReducer: scheduleReducer,
   friendsListReducer: friendsListReducer,
 })
 

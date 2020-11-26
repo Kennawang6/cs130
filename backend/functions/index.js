@@ -9,6 +9,7 @@ const schedule = require("./schedule.js");
 exports.addUserData = user.addUserData;
 exports.getUserData = user.getUserData;
 exports.updateUserData = user.updateUserData;
+exports.getUserName = user.getUserName;
 
 // friend endpoins
 exports.addFriend = friend.addFriend;
@@ -19,3 +20,4 @@ exports.removeFriend = friend.removeFriend;
 // schedule endpoints
 exports.addSchedule = schedule.addSchedule;
 exports.getSchedule = schedule.getSchedule;
+exports.removeSchedule = schedule.removeSchedule;

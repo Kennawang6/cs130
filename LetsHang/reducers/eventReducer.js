@@ -18,7 +18,7 @@ const eventReducer = (state = initialState, action) => {
 	  eventList: state.eventList.concat({
 	  	eventID: action.eventID,
 	  	eventInfo: action.eventInfo,
-	  	ifUser: true,
+	  	ifUser: action.ifUser,
 	  })}
 
 	}

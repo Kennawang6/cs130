@@ -122,7 +122,7 @@ describe('Schedule Functions', () => {
 
     it('should return ok if the request is authenticated and the provided schedule is stored successfully', async() => {
       addStub.resolves(null);
-      let result = await addSchedule({timeslots: []}, {auth: {uid: "1"}});
+      let result = await addSchedule({timeslots: [{start: 1, end: 2, description: "test"}]}, {auth: {uid: "1"}});
       assert(addStub.calledOnce);
       assert(result.status == "ok");
       assert(!result.text);

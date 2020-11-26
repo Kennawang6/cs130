@@ -17,18 +17,20 @@ import auth from '@react-native-firebase/auth';
 import firebase from '@react-native-firebase/app';
 import functions from '@react-native-firebase/functions';
 
+import { Icon } from 'react-native-elements'
 
 import {Provider} from 'react-redux';
 import configureStore from './store';
 
 const store = configureStore();
 
-
 import Signin from './components/signin/signin';
 import Profile from './components/profile/profile';
 import EditName from './components/profile/editName';
 import EditTimeZone from './components/profile/editTimeZone';
 import Schedule from './components/schedule/schedule';
+import AddSchedule from './components/schedule/addSchedule';
+import EditSchedule from './components/schedule/editSchedule';
 import FriendsList from './components/friendsList/friendsList';
 import AddFriend from './components/friendsList/addFriend';
 import FriendRequests from './components/friendsList/friendRequests';
@@ -40,6 +42,7 @@ import EventDetailMember from './components/event/eventDetailMember';
 import InviteFriend from './components/event/inviteFriend';
 import EditEventName from './components/event/editEventName';
 import EditEventDescription from './components/event/editEventDescription';
+import Notification from './components/notification/notification';
 
 // For signIn
 const Stack = createStackNavigator();
@@ -51,9 +54,25 @@ const ScheduleStack = createStackNavigator();
 function ScheduleStackScreen(){
   return (
     <ScheduleStack.Navigator>
-      <ScheduleStack.Screen 
-        name="Schedule" 
-        component={Schedule} 
+      <ScheduleStack.Screen
+        name="Schedule"
+        component={Schedule}
+        options={({ navigation }) => ({
+          headerRight: () => (
+            <Icon
+              name='add'
+              onPress={() => navigation.navigate('AddSchedule')}
+            />
+          )
+        })}
+      />
+      <ScheduleStack.Screen
+          name="AddSchedule"
+          component={AddSchedule}
+      />
+      <ScheduleStack.Screen
+          name="EditSchedule"
+          component={EditSchedule}
       />
     </ScheduleStack.Navigator>
   );
@@ -151,6 +170,20 @@ function EventStackScreen(){
   );
 }
 
+// Notification
+const NotificationStack = createStackNavigator();
+function NotificationStackScreen(){
+  return (
+    <NotificationStack.Navigator>
+      <NotificationStack.Screen
+        name="Notification"
+        component={Notification}
+        options={{ title: 'Notifications' }}
+      />
+    </NotificationStack.Navigator>
+  );
+}
+
 function LoginApp() {
   // Set an initializing state whilst Firebase connects
   const [initializing, setInitializing] = useState(true);
@@ -188,6 +221,7 @@ function LoginApp() {
         <Tab.Screen name="Profile" component={ProfileStackScreen} />
         <Tab.Screen name="Friends List" component={FriendsListStackScreen} />
         <Tab.Screen name="Event" component={EventStackScreen} />
+        <Tab.Screen name="Notification" component={NotificationStackScreen} />
       </Tab.Navigator>
     );
   }

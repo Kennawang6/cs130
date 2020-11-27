@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Keyboard } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import firebase from '@react-native-firebase/app';
 import functions from '@react-native-firebase/functions';
@@ -19,7 +19,6 @@ class EditEventDescription extends Component{
     }
     handleDescription = (newDes) => {
     	this.setState({eventDesc: newDes}, () => {                              
-        	console.log(this.state.eventDesc);
     	});
   	}
     setDescription = async() =>{
@@ -48,7 +47,7 @@ class EditEventDescription extends Component{
 	    <View>
 		  <Input
             placeholder={this.state.eventDesc}
-            value={this.state.eventName}
+            value={this.state.eventDesc}
             onChangeText={this.handleDescription}
           />
          <Button

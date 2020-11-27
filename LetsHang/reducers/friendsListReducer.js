@@ -20,20 +20,20 @@ const friendsListReducer = (state = initialState, action) => {
                 friends: state.friends.concat({
                     friend: action.friend,
                 }),
-                friendRequests: state.friendRequests.filter((event) => event !== action.friend)
+                friendRequests: state.friendRequests.filter((person) => person.email !== action.friend.email)
             };
         }
         case REJECT_FRIEND: {
             return {
                 ...state,
                 friends: state.friends,
-                friendRequests: state.friendRequests.filter((event) => event !== action.friend)
+                friendRequests: state.friendRequests.filter((person) => person.email !== action.friend.email)
             };
         }
         case REMOVE_FRIEND: {
             return {
                 ...state,
-                friends: state.friends.filter((event) => event !== action.friend),
+                friends: state.friends.filter((person) => person.email !== action.friend.email),
                 friendRequests: state.friendRequests,
             };
         }

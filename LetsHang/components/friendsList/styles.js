@@ -54,5 +54,14 @@ export default StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     //backgroundColor: 'white'
-  }
+  },
+  spinnerTextStyle: {
+      color: '#FFF'
+  },
+  loading: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F5FCFF'
+  },
 });

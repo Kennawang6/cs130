@@ -19,22 +19,22 @@ class FriendRequests extends Component{
 
     accept = async(friend, email) => {
         console.log(email);
+        console.log("accept button pressed")
         const data = await functions().httpsCallable('addFriend')({friend_email: email});
         this.setState({text: data.data.text}, () => {
             this.notifyUser(this.state.text);
         });
         this.props.reduxAcceptFriend(friend);
-        console.log(this.props.friendRequests);
     }
 
     reject = async(friend, email) => {
         console.log(email);
+        console.log("reject button pressed");
         const data = await functions().httpsCallable('removeFriend')({friend_email: email});
         this.setState({text: data.data.text}, () => {
             this.notifyUser(this.state.text);
         });
         this.props.reduxRejectFriend(friend);
-        console.log(this.props.friendRequests[0] == friend);
     }
 
     notifyUser = (text) => {
@@ -43,8 +43,8 @@ class FriendRequests extends Component{
 
     shouldComponentUpdate(nextProps, nextState) {
         console.log('Should I update?');
-        console.log("new friends request length: ", nextProps.friendRequests.length);
-        console.log("old friends request length: ", this.props.friendRequests.length);
+        console.log("new friend requests length: ", nextProps.friendRequests.length);
+        console.log("old friends requests length: ", this.props.friendRequests.length);
         if (nextProps.friendRequests.length !== this.props.friendRequests.length)
             return true;
         else

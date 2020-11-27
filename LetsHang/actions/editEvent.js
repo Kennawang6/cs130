@@ -14,10 +14,10 @@ export const addEvent = (eventPair) =>(
 	ifUser: eventPair.ifUser,
 });
 
-export const removeEvent = (eventID) =>(
+export const removeEvent = (event) =>(
 {
 	type:"REMOVE_EVENT",
-	eventID: eventID,
+	eventID: event.eventID,
 });
 
 export const editCurEvent = (event) =>(

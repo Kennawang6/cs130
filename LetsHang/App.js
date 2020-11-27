@@ -42,8 +42,8 @@ import EventDetailMember from './components/event/eventDetailMember';
 import InviteFriend from './components/event/inviteFriend';
 import EditEventName from './components/event/editEventName';
 import EditEventDescription from './components/event/editEventDescription';
-import Notification from './components/notification/notification';
-
+import EventRequests from './components/event/eventRequests';
+import InviteFriendHost from './components/event/inviteFriendHost';
 // For signIn
 const Stack = createStackNavigator();
 // For tab
@@ -83,18 +83,18 @@ const ProfileStack = createStackNavigator();
 function ProfileStackScreen(){
   return (
     <ProfileStack.Navigator>
-      <ProfileStack.Screen 
-        name="Profile" 
-        component={Profile} 
+      <ProfileStack.Screen
+        name="Profile"
+        component={Profile}
       />
-      <ProfileStack.Screen 
-        name="EditName" 
-        component={EditName} 
+      <ProfileStack.Screen
+        name="EditName"
+        component={EditName}
         options={{ title: 'Name' }}
       />
-      <ProfileStack.Screen 
-        name="EditTimeZone" 
-        component={EditTimeZone} 
+      <ProfileStack.Screen
+        name="EditTimeZone"
+        component={EditTimeZone}
         options={{ title: 'Time Zone' }}
       />
     </ProfileStack.Navigator>
@@ -166,23 +166,20 @@ function EventStackScreen(){
         component={EditEventDescription}
         options={{ title: 'Event Description' }}
       />
+      <EventStack.Screen
+        name="EventRequests"
+        component={EventRequests}
+        options={{ title: 'Event Requests' }}
+      />
+      <EventStack.Screen
+        name="InviteFriendHost"
+        component={InviteFriendHost}
+        options={{ title: 'Invite Friends' }}
+      />
     </EventStack.Navigator>
   );
 }
 
-// Notification
-const NotificationStack = createStackNavigator();
-function NotificationStackScreen(){
-  return (
-    <NotificationStack.Navigator>
-      <NotificationStack.Screen
-        name="Notification"
-        component={Notification}
-        options={{ title: 'Notifications' }}
-      />
-    </NotificationStack.Navigator>
-  );
-}
 
 function LoginApp() {
   // Set an initializing state whilst Firebase connects
@@ -206,11 +203,11 @@ function LoginApp() {
   if (!user) {
     return (
       <Stack.Navigator>
-        <Stack.Screen 
+        <Stack.Screen
           name="Signin"
-          component={Signin} 
+          component={Signin}
           options={{ title: 'Welcome' }}
-        />  
+        />
       </Stack.Navigator>
     );
   }
@@ -218,14 +215,13 @@ function LoginApp() {
     return (
       <Tab.Navigator>
         <Tab.Screen name="Schedule" component={ScheduleStackScreen} />
-        <Tab.Screen name="Profile" component={ProfileStackScreen} />
-        <Tab.Screen name="Friends List" component={FriendsListStackScreen} />
         <Tab.Screen name="Event" component={EventStackScreen} />
-        <Tab.Screen name="Notification" component={NotificationStackScreen} />
+        <Tab.Screen name="Friend's List" component={FriendsListStackScreen} />
+        <Tab.Screen name="Profile" component={ProfileStackScreen} />
       </Tab.Navigator>
     );
   }
-  
+
 }
 
 

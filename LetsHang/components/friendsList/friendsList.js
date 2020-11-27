@@ -3,6 +3,7 @@ import {View, Text, Button, TouchableOpacity, Alert, ScrollView} from 'react-nat
 import functions from '@react-native-firebase/functions';
 import { Avatar, ListItem, Icon, Divider } from 'react-native-elements';
 import styles from './styles';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 import { connect } from 'react-redux';
 import { saveFriends, acceptFriend, removeFriend, rejectFriend } from '../../actions/editFriendsList'
@@ -15,7 +16,7 @@ class NoFriends extends Component{
     render() {
         return (
         <View>
-            <Text>{console.log("friends list is not undefined")}</Text>
+            <Text>{console.log("friends list is not undefined1")}</Text>
             <Divider style={{ margin: 15, }} />
             <Text style={{fontSize: 16, textAlign:'center', textAlignVertical:'center',
                             backgroundColor:'white', height: 60}}>
@@ -76,7 +77,8 @@ class FriendsList extends Component{
         this.state = {
           text: "",
           friendsToAdd: [],
-          friends: []
+          friends: [],
+          spinner: false
         };
         this.addOrSeeRequests = this.addOrSeeRequests.bind(this);
     }
@@ -95,6 +97,8 @@ class FriendsList extends Component{
         this.setState({text: data.data.text,
                        friendsToAdd: data.data.friendsToAdd,
                        friends: data.data.friends}, () => {
+            this.setState({ spinner: false });
+
             let friends = [];
             if (Array.isArray(this.state.friends))
                 for (let friend of this.state.friends)
@@ -112,6 +116,7 @@ class FriendsList extends Component{
     }
 
     componentDidMount() {
+        this.setState({ spinner: true });
         this.getFriendData();
     }
 
@@ -139,6 +144,15 @@ class FriendsList extends Component{
 
         return (
         <View>
+            {this.state.spinner === true &&
+                  <View style={styles.loading}>
+                  <Spinner
+                    visible={this.state.spinner}
+                    textContent={'Loading...'}
+                    textStyle={styles.spinnerTextStyle}
+                  />
+                  </View>
+            }
             <View>
               {
                 list.map((item, i) => (

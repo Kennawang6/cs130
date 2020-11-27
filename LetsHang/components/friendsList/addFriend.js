@@ -2,6 +2,7 @@ import React, {useState, Component} from 'react';
 import { View, Text, TouchableOpacity, TextInput, Button, Alert } from 'react-native'
 import functions from '@react-native-firebase/functions';
 import styles from './styles';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 import { connect } from 'react-redux';
 import { saveFriends, acceptFriend, removeFriend, rejectFriend } from '../../actions/editFriendsList'
@@ -11,7 +12,8 @@ class AddFriend extends Component{
         super(props);
         this.state = {
             text: "",
-            friendsEmail: ""
+            friendsEmail: "",
+            spinner: false
         };
         this.sendFriendRequest = this.sendFriendRequest.bind(this);
     }
@@ -28,16 +30,27 @@ class AddFriend extends Component{
     handlePress = () => {
         console.log("Button was pressed");
         console.log(this.state.friendsEmail);
+        this.setState({ spinner: true });
         this.sendFriendRequest();
     }
 
     notifyUser = (text) => {
+       this.setState({ spinner: false });
        alert(text);
     }
 
     render() {
         return (
           <View style={styles.addFriendContainer}>
+            {this.state.spinner === true &&
+                  <View style={styles.loading}>
+                  <Spinner
+                    visible={this.state.spinner}
+                    textContent={'Loading...'}
+                    textStyle={styles.spinnerTextStyle}
+                  />
+                  </View>
+            }
             <TextInput style = {styles.input}
                    underlineColorAndroid = "transparent"
                    placeholder = "Email"

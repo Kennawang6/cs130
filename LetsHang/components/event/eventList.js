@@ -24,25 +24,139 @@ class EventList extends Component{
 		const data = await functions().httpsCallable('getUserData')({});
 		console.log("Data is fetched(eventID)");
 		var eventIDs = data.data.data.events;
-    console.log(eventIDs);
     const userID = firebase.auth().currentUser.uid;
     //var eventList=[];
     //eventPair is a map: where the key will be the eventID, and the value will be the eventInfo
     var eventPair=[];
+    //console.log(eventIDs);
     if(eventIDs!=[]){
       var i;
       for(i=0; i<eventIDs.length;i++){
         var eventInfo = await functions().httpsCallable('getEvent')({event_id: eventIDs[i]});
         //get event details
-        //eventList.push(eventInfo.data.event_data);
-        if(eventInfo.data.event_data.hostID == userID){
-          eventPair.push({eventID: eventIDs[i], eventInfo: eventInfo.data.event_data, ifUser: true});
+        console.log(eventIDs[i]);
+        var eventData = eventInfo.data.event_data;
+        //console.log(eventData);
+        //
+        //
+        // logic for ifDecidedButton and ifFinalizedButton
+        // exist not Ready
+        if(eventData.membersNotReady && eventData.membersNotReady.length){
+          this.computeTime();
+          this.modifyReadyMember();
+          if(eventData.hostID == userID){
+            console.log("host: exist not Ready");
+            eventPair.push({eventID: eventIDs[i], eventInfo: eventData, ifUser: true, 
+              ifDecidedButton: true, ifFinalizedButton: false});
+          }
+          else{
+            console.log("member: exist not Ready");
+            eventPair.push({eventID: eventIDs[i], eventInfo: eventData, ifUser: false, 
+              ifDecidedButton: true, ifFinalizedButton: false});
+          }
         }
+        // no not Ready
         else{
-          eventPair.push({eventID: eventIDs[i], eventInfo: eventInfo.data.event_data, ifUser: false});
+          var ifFinalizedButton = false; //= endpoints if the membersReady == all members;
+          //no not Ready, final time
+          if(eventData.finalTime !== 0){
+            if(eventData.hostID == userID){
+              console.log("host: no not Ready, final time");
+              eventPair.push({eventID: eventIDs[i], eventInfo: eventData, ifUser: true, 
+              ifDecidedButton: false, ifFinalizedButton: false});
+            }
+            else{
+              console.log("member: no not Ready, final time");
+              eventPair.push({eventID: eventIDs[i], eventInfo: eventData, ifUser: false, 
+              ifDecidedButton: false, ifFinalizedButton: false});
+            }
+          }
+          //no not Ready, no final time
+          else{
+            var ifFinalizedButton = false; //ifFinalizedButton = endpoints if the membersReady == all members;
+            // not not Ready, no final time, all members ready
+            if(ifFinalizedButton){
+              if(eventData.hostID == userID){
+                console.log("host: not not Ready, no final time, all members ready");
+                eventPair.push({eventID: eventIDs[i], eventInfo: eventData, ifUser: true, 
+                ifDecidedButton: false, ifFinalizedButton: true});
+              }
+              else{
+                console.log("member: not not Ready, no final time, all members ready");
+                eventPair.push({eventID: eventIDs[i], eventInfo: eventData, ifUser: false, 
+                ifDecidedButton: false, ifFinalizedButton: false});
+              }
+            }
+            // no notReady, no final time, not all members ready
+            else{
+              // no not Ready, no final time, some members ready
+              if(eventData.membersReady && eventData.membersReady.length){
+                var ifReady = eventData.membersReady.filter(uid=> uid===userID);
+                // no not Ready, no final time, some members ready, the current user is ready
+                if(ifReady && ifReady.length){
+                  if(eventData.hostID == userID){
+                    console.log("host: no not Ready, no final time, some members ready, the current user is ready");
+                    eventPair.push({eventID: eventIDs[i], eventInfo: eventData, ifUser: true, 
+                    ifDecidedButton: false, ifFinalizedButton: false});
+                  }
+                  else{
+                    console.log("member: no not Ready, no final time, some members ready, the current user is ready");
+                    eventPair.push({eventID: eventIDs[i], eventInfo: eventData, ifUser: false, 
+                    ifDecidedButton: false, ifFinalizedButton: false});
+                  }
+                }
+                // no not Ready, no final time, some members ready, the current user is not ready
+                else{
+                  if(eventData.hostID == userID){
+                    console.log("host: no not Ready, no final time, some members ready, the current user is not ready");
+                    eventPair.push({eventID: eventIDs[i], eventInfo: eventData, ifUser: true, 
+                    ifDecidedButton: true, ifFinalizedButton: false});
+                  }
+                  else{
+                    console.log("member: no not Ready, no final time, some members ready, the current user is not ready");
+                    eventPair.push({eventID: eventIDs[i], eventInfo: eventData, ifUser: false, 
+                    ifDecidedButton: true, ifFinalizedButton: false});
+                  }
+                }
+              }
+              //no not Ready, no final time, no members ready
+              else{
+                // no not Ready, no final time, no members ready, exist invitees
+                if(eventData.invitees&&eventData.invitees.length){
+                  if(eventData.hostID == userID){
+                    console.log("host: no not Ready, no final time, no members ready, exist invitees");
+                    eventPair.push({eventID: eventIDs[i], eventInfo: eventData, ifUser: true, 
+                    ifDecidedButton: false, ifFinalizedButton: false});
+                  }
+                  else{
+                    console.log("member: no not Ready, no final time, no members ready, exist invitees");
+                    eventPair.push({eventID: eventIDs[i], eventInfo: eventData, ifUser: false, 
+                    ifDecidedButton: false, ifFinalizedButton: false});
+                  }
+                }
+                // no not Ready, no final time, no members ready, no invitees
+                else{
+                  this.computeTime();
+                  if(eventData.hostID == userID){
+                    console.log("host: no not Ready, no final time, no members ready, no invitees");
+                    eventPair.push({eventID: eventIDs[i], eventInfo: eventData, ifUser: true, 
+                    ifDecidedButton: true, ifFinalizedButton: false});
+                  }
+                  else{
+                    console.log("member: no not Ready, no final time, no members ready, no invitees");
+                    eventPair.push({eventID: eventIDs[i], eventInfo: eventData, ifUser: false, 
+                    ifDecidedButton: true, ifFinalizedButton: false});
+                  }
+                }
+              }
+            }
+          }
         }
-        
+        // End of logic for Buttons
       }
+      // end of for loop
+      
+      //console.log(eventPair);
       this.setState({eventPair:eventPair}, () => {                              
         console.log(this.state.eventPair);
       });
@@ -54,6 +168,28 @@ class EventList extends Component{
     }
     //console.log(eventList);
 	}
+
+  // use redux replace schedule
+  modifyReadyMember = async() => {
+
+  }
+
+  computeTime = async() => {
+
+  }
+
+  // use redux add schedule
+  clickReadyButton = async() => {
+
+  }
+
+  clickNotReadyButton = async() => {
+
+  }
+
+  clickFinalizeButton = async() => {
+
+  }
 
 	render() {
     var eventList = this.props.eventList;
@@ -97,10 +233,37 @@ class EventList extends Component{
                 }}>
               <ListItem.Content>
                 <ListItem.Title>{i.eventInfo.name}</ListItem.Title>
-                <ListItem.Subtitle>{i.ifUser?"Host":"Member"}</ListItem.Subtitle>
+                <ListItem.Subtitle>{i.ifUser?"Host":"Member"} @Meeting time: {i.eventInfo.finalTime===0?"--": i.eventInfo.finalTime.toString}</ListItem.Subtitle>
               </ListItem.Content>
               <ListItem.Chevron size={30} color="#808080"/>
             </ListItem>
+            {i.ifFinalizedButton?
+              <View>
+              <Button title="Finalized" type="outline" onPress={()=>{
+                                                               ;}}
+                titleStyle= {{ color: 'black'}} 
+                buttonStyle={{ borderColor: 'grey', borderRadius: 0 }} 
+                containerStyle={{ backgroundColor: 'white' }}/>
+              </View>
+              :<View></View>}
+            {i.ifDecidedButton?
+              <View style={{flexDirection: 'row' }}>
+                <View style={{flex: 1}}>             
+                  <Button title="Ready" type="outline" onPress={()=>{
+                                                                 ;}}
+                    titleStyle= {{ color: 'black'}} 
+                    buttonStyle={{ borderColor: 'grey', borderRadius: 0 }} 
+                    containerStyle={{ backgroundColor: 'white' }}/>
+                </View>
+                <View style={{flex: 1}}>
+                  <Button title="Not Ready" type="outline" onPress={()=>{
+                                                                 ;}}
+                    titleStyle= {{ color: 'black'}} 
+                    buttonStyle={{ borderColor: 'grey', borderRadius: 0 }} 
+                    containerStyle={{ backgroundColor: 'white' }}/>
+                </View>
+              </View>
+              :<View></View>}
           </View>)}
           </ScrollView>
           </View>
@@ -113,20 +276,28 @@ class EventList extends Component{
       return (
         <View>
           <View>
+          <ListItem bottomDivider onPress={()=>{
+                this.props.reduxEditCurEvent({curEvent: {friendInvited: []}});
+                this.props.navigation.navigate('CreateEvent');}}>
+            <Icon name='add' />
+            <ListItem.Content>
+              <ListItem.Title>Create Event</ListItem.Title>
+            </ListItem.Content>
+            <ListItem.Chevron size={30} color="#808080"/>
+          </ListItem>
+          <ListItem bottomDivider onPress={()=>this.props.navigation.navigate('EventRequests')}>
+            <Icon name='notifications' />
+            <ListItem.Content>
+              <ListItem.Title>Event Requests</ListItem.Title>
+            </ListItem.Content>
+            <ListItem.Chevron size={30} color="#808080"/>
+          </ListItem>
+         </View>
+          <View>
             <Text>{console.log("Event list is empty")}</Text>
           </View>
 
-        <View style = {{left: 140}}>
-          <Icon
-              name='add'
-              type='Content'
-              color='#517fa4'
-              size={65}
-              onPress={()=>{
-                this.props.reduxEditCurEvent({curEvent: {friendInvited: []}});
-                this.props.navigation.navigate('CreateEvent');}}
-            />
-          </View>
+        
         </View>
      
     );}

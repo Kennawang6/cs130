@@ -19,6 +19,8 @@ const eventReducer = (state = initialState, action) => {
 	  	eventID: action.eventID,
 	  	eventInfo: action.eventInfo,
 	  	ifUser: action.ifUser,
+	  	ifDecidedButton: false,
+	  	ifFinalizedButton: false,
 	  })}
 
 	}

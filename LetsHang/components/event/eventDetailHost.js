@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import firebase from '@react-native-firebase/app';
 import functions from '@react-native-firebase/functions';
-import { Text, Input, ListItem } from 'react-native-elements';
+import { Avatar, Text, Input, ListItem } from 'react-native-elements';
 import { Button } from 'react-native-elements';
 
 import { connect } from 'react-redux';
@@ -14,17 +14,52 @@ class EventDetailHost extends Component{
       super(props);
       this.state = {
       	eventID: this.props.route.params.eventID,
+        memberList: [],
       };
   }
-
+  componentDidMount(){
+    this.getMemberList();
+  }
+  
+  getMemberList = async() =>{
+    var eventInfo = this.props.eventList;
+    var thisEvent = eventInfo.filter(i=>i.eventID==this.state.eventID);
+    var membersIDs = thisEvent[0].eventInfo.members.filter(member => member !== thisEvent[0].eventInfo.hostID);
+    var memberList = [];
+    for (var i = 0; i <  membersIDs.length; i++) {
+      var userInfo = await functions().httpsCallable('getUserInfo')({uid: membersIDs[i]});
+      memberList.push({userInfo: userInfo.data.data});
+    }
+    console.log(memberList);
+    this.setState({memberList:memberList});
+  }
     
   render() {
         var eventInfo = this.props.eventList;
         var thisEvent = eventInfo.filter(i=>i.eventID==this.state.eventID);
-        console.log(thisEvent);
-        console.log("hello");
-        var members = thisEvent[0].eventInfo.members.filter(member => {member!==thisEvent[0].eventInfo.host;});
-        console.log(members);
+        var memberList;
+        if(this.state.memberList&&this.state.memberList.length){
+          memberList = this.state.memberList.map(i =>
+              <View key={i.userInfo.uid}>
+                <ListItem bottomDivider>
+                  <Avatar
+                    rounded
+                    source={{uri: i.userInfo.providerData[0].photoURL}} />
+                  <ListItem.Content>
+                    <ListItem.Title>{i.userInfo.displayName}</ListItem.Title>
+                    <ListItem.Subtitle>{i.userInfo.email}</ListItem.Subtitle>
+                  </ListItem.Content>
+                </ListItem>
+              </View>
+              );
+        }
+        else{
+          memberList = 
+              <View>
+                
+              </View>
+            ;
+        }
         return (
             <View>
               <View>
@@ -46,8 +81,9 @@ class EventDetailHost extends Component{
                 </ListItem>
               </View>
               <View>
-                <Text> Members attending </Text>
+              {this.state.memberList&&this.state.memberList.length?<Text>Member List</Text>: <Text> </Text>}
               </View>
+              {memberList}
             </View>
             
         );

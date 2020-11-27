@@ -102,8 +102,8 @@ class CreateEvent extends Component{
         <Text> Friends Invited </Text>
         {
           this.props.curEvent.friendInvited.map(i =>
-            <View>
-              <ListItem key={i} bottomDivider>
+            <View key={i.email}>
+              <ListItem bottomDivider>
                 <ListItem.Content>
                   <ListItem.Title>{i.email}</ListItem.Title>
                 </ListItem.Content>

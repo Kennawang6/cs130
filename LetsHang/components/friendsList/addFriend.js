@@ -19,7 +19,6 @@ class AddFriend extends Component{
     sendFriendRequest = async() => {
         const data = await functions().httpsCallable('addFriend')({friend_email: this.state.friendsEmail});
         console.log("addFriend function has been called");
-        console.log(data);
         this.setState({text: data.data.text}, () => {
             console.log(data.data.text);
             this.notifyUser(this.state.text);

@@ -23,7 +23,6 @@ class FriendInfo extends Component{
     removeFriend = async() => {
         const data = await functions().httpsCallable('removeFriend')({friend_email: this.state.email});
         console.log("removeFriend function has been called");
-        console.log(data);
         this.setState({text: data.data.text}, () => {
             console.log(data.data.text);
             this.notifyUser(this.state.text);

@@ -162,7 +162,7 @@ class FriendsList extends Component{
             }
             {(Array.isArray(this.state.friends) == false) &&
                 <View>
-                    <Text>{console.log("friends list is undefined1")} {this.state.text}</Text>
+                    <Text>{console.log("friends list is undefined")} {this.state.text}</Text>
                 </View>
             }
         </View>

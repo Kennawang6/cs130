@@ -64,7 +64,10 @@ class EventRequests extends Component{
                   
                   <View style={{flexDirection: 'row', width: 100,
                                 justifyContent: 'space-around'}}>
-                    <Icon onPress={() => {this.acceptEventRequest(i.eventID); this.props.navigation.navigate('EventList');}} color="green" name="done" />
+                    <Icon onPress={() => {
+                      this.acceptEventRequest(i.eventID); 
+                      alert("You are now the member of the event!");
+                      this.props.navigation.navigate('EventList');}} color="green" name="done" />
                     <Icon onPress={() => {this.rejectEventRequest(i.eventID); this.props.navigation.navigate('EventList');}} color="red" name="clear" />
                   </View>
             	  </ListItem>

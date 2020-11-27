@@ -66,7 +66,7 @@ class EventList extends Component{
                 this.props.navigation.navigate('CreateEvent');}}>
             <Icon name='add' />
             <ListItem.Content>
-              <ListItem.Title>Add Event</ListItem.Title>
+              <ListItem.Title>Create Event</ListItem.Title>
             </ListItem.Content>
             <ListItem.Chevron size={30} color="#808080"/>
           </ListItem>

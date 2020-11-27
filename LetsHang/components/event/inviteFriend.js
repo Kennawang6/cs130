@@ -87,7 +87,7 @@ class InviteFriend extends Component{
                   <View>
                     {
                     this.state.friends.map(i =>
-                        <View>
+                        <View key ={i.cur.email}>
                           <CheckBox
                             title={i.cur.name}
                             checked={i.checked}

@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, Keyboard } from 'react-native';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, Keyboard, ScrollView } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import firebase from '@react-native-firebase/app';
 import functions from '@react-native-firebase/functions';
 import { Input } from 'react-native-elements';
 import { Icon } from 'react-native-elements'
-import { Button, ListItem } from 'react-native-elements';
+import { Button, ListItem, Divider } from 'react-native-elements';
 
 import { connect } from 'react-redux';
 import { setEvent, addEvent, removeEvent, editCurEvent} from '../../actions/editEvent';
@@ -60,8 +60,32 @@ class EventList extends Component{
     if(eventList && eventList.length){
       return(
         <View>
-        {eventList.map(i =>
-          <View key={i}>
+          <View>
+          <ListItem bottomDivider onPress={()=>{
+                this.props.reduxEditCurEvent({curEvent: {friendInvited: []}});
+                this.props.navigation.navigate('CreateEvent');}}>
+            <Icon name='add' />
+            <ListItem.Content>
+              <ListItem.Title>Add Event</ListItem.Title>
+            </ListItem.Content>
+            <ListItem.Chevron size={30} color="#808080"/>
+          </ListItem>
+          <ListItem bottomDivider>
+            <Icon name='notifications' />
+            <ListItem.Content>
+              <ListItem.Title>Event Requests</ListItem.Title>
+            </ListItem.Content>
+            <ListItem.Chevron size={30} color="#808080"/>
+          </ListItem>
+         </View>
+
+         <View>
+
+         <ScrollView>
+         <Text> </Text>
+         <Text> Event List</Text>
+          {eventList.map(i =>
+            <View key={i.eventID}>
             <ListItem bottomDivider onPress=
               {()=>{
                 if(i.ifUser){
@@ -78,17 +102,9 @@ class EventList extends Component{
               <ListItem.Chevron size={30} color="#808080"/>
             </ListItem>
           </View>)}
-          <View style = {{left: 140}}>
-             <Icon
-              name='add'
-              type='Content'
-              color='#517fa4'
-              size={65}
-              onPress={()=>{
-                this.props.reduxEditCurEvent({curEvent: {friendInvited: []}});
-                this.props.navigation.navigate('CreateEvent');}}
-             />
+          </ScrollView>
           </View>
+          
         </View>
 
       );

@@ -61,8 +61,8 @@ class EventList extends Component{
       return(
         <View>
         {eventList.map(i =>
-          <View>
-            <ListItem key={i} bottomDivider onPress=
+          <View key={i}>
+            <ListItem bottomDivider onPress=
               {()=>{
                 if(i.ifUser){
                   this.props.navigation.navigate('EventDetailHost', {eventID: i.eventID});

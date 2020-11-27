@@ -43,7 +43,7 @@ import InviteFriend from './components/event/inviteFriend';
 import EditEventName from './components/event/editEventName';
 import EditEventDescription from './components/event/editEventDescription';
 import EventRequests from './components/event/eventRequests';
-
+import InviteFriendHost from './components/event/inviteFriendHost';
 // For signIn
 const Stack = createStackNavigator();
 // For tab
@@ -170,6 +170,11 @@ function EventStackScreen(){
         name="EventRequests"
         component={EventRequests}
         options={{ title: 'Event Requests' }}
+      />
+      <EventStack.Screen
+        name="InviteFriendHost"
+        component={InviteFriendHost}
+        options={{ title: 'Invite Friends' }}
       />
     </EventStack.Navigator>
   );

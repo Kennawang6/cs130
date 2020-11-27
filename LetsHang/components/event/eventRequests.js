@@ -18,8 +18,7 @@ class EventRequests extends Component{
   componentDidMount(){
   	this.getEventNotification();
   }
-  
-  // Event Notification part 
+
   getEventNotification = async() => {
   	const data = await functions().httpsCallable('getUserData')({});
 	  var eventNotiIDs = data.data.data.eventNotifications;
@@ -27,7 +26,9 @@ class EventRequests extends Component{
     var eventNotiPair = [];
     for (var i = eventNotiIDs.length - 1; i >= 0; i--) {
     	var eventInfo = await functions().httpsCallable('getEvent')({event_id: eventNotiIDs[i]});
-    	eventNotiPair.push({eventID: eventNotiIDs[i], eventInfo: eventInfo.data.event_data});
+
+      var userInfo = await functions().httpsCallable('getUserInfo')({uid: eventInfo.data.event_data.hostID});
+    	eventNotiPair.push({eventID: eventNotiIDs[i], eventInfo: eventInfo.data.event_data, hostInfo: userInfo.data.data});
     }
     this.setState({eventNotiPair: eventNotiPair});
     console.log(eventNotiPair);
@@ -42,11 +43,11 @@ class EventRequests extends Component{
   	eventPair.push({eventID: eventID, eventInfo: eventInfo.data.event_data, ifUser: false});
     this.props.reduxAddEvent(eventPair[0]);
   }
-/*
-
-
-
-*/
+  rejectEventRequest = async(eventID) => {
+    const data = await functions().httpsCallable('declineEventInvite')({event_id: eventID});
+    console.log("decline");
+    console.log(data);
+  }
 
   // render
   render(){
@@ -58,13 +59,13 @@ class EventRequests extends Component{
                 <ListItem bottomDivider>
                   <ListItem.Content>
                   	<ListItem.Title>{i.eventInfo.name}</ListItem.Title>
-                    <ListItem.Subtitle>Description: {i.eventInfo.description} @host: {i.eventInfo.hostID} </ListItem.Subtitle>
+                    <ListItem.Subtitle>Description: {i.eventInfo.description} @HostName: {i.hostInfo.displayName} @HostEmail: {i.hostInfo.email} </ListItem.Subtitle>
               	  </ListItem.Content>
                   
                   <View style={{flexDirection: 'row', width: 100,
                                 justifyContent: 'space-around'}}>
-                    <Icon onPress={() => this.acceptEventRequest(i.eventID)} color="green" name="done" />
-                    <Icon color="red" name="clear" />
+                    <Icon onPress={() => {this.acceptEventRequest(i.eventID); this.props.navigation.navigate('EventList');}} color="green" name="done" />
+                    <Icon onPress={() => {this.rejectEventRequest(i.eventID); this.props.navigation.navigate('EventList');}} color="red" name="clear" />
                   </View>
             	  </ListItem>
               </View>

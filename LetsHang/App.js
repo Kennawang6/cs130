@@ -101,7 +101,7 @@ function ProfileStackScreen(){
   );
 }
 
-// Friend's List
+// Friends List
 const FriendsListStack = createStackNavigator();
 function FriendsListStackScreen(){
   return (

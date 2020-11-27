@@ -70,7 +70,7 @@ class EventList extends Component{
             </ListItem.Content>
             <ListItem.Chevron size={30} color="#808080"/>
           </ListItem>
-          <ListItem bottomDivider>
+          <ListItem bottomDivider onPress={()=>this.props.navigation.navigate('EventRequests')}>
             <Icon name='notifications' />
             <ListItem.Content>
               <ListItem.Title>Event Requests</ListItem.Title>

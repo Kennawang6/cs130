@@ -42,6 +42,7 @@ import EventDetailMember from './components/event/eventDetailMember';
 import InviteFriend from './components/event/inviteFriend';
 import EditEventName from './components/event/editEventName';
 import EditEventDescription from './components/event/editEventDescription';
+import EventRequests from './components/event/eventRequests';
 
 // For signIn
 const Stack = createStackNavigator();
@@ -164,6 +165,11 @@ function EventStackScreen(){
         name="EditEventDescription"
         component={EditEventDescription}
         options={{ title: 'Event Description' }}
+      />
+      <EventStack.Screen
+        name="EventRequests"
+        component={EventRequests}
+        options={{ title: 'Event Requests' }}
       />
     </EventStack.Navigator>
   );

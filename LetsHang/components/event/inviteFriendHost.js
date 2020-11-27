@@ -8,6 +8,7 @@ export default class InviteFriendHost extends Component{
     constructor(props) {
         super(props);
         this.state = {
+          eventID: this.props.route.params.eventID,
           membersAttending: this.props.route.params.membersAttending,
           friends: [],
           ifFriend: true,
@@ -55,6 +56,18 @@ export default class InviteFriendHost extends Component{
         this.setState({friends: friends});
     }
 
+    inviteFriends = async() => {
+        var friendsToInvite = [];
+        var friends = this.state.friends;
+        friends.forEach(friend => {
+          if (friend.checked){
+            friendsToInvite.push(friend.friendInfo.uid);
+          }
+        });
+        const data = await functions().httpsCallable('inviteToEvent')({event_id: this.state.eventID, invitees: friendsToInvite});
+        console.log("Invitations have been sent.");
+    }
+
     render() {
         if(this.state.ifFriend){
             return (
@@ -85,8 +98,9 @@ export default class InviteFriendHost extends Component{
                     <Button
                     title = 'Invite'
                     onPress={()=>{
-                        
-                        //this.props.navigation.navigate('EventDetailHost');
+                        this.inviteFriends();
+                        alert("Invitations have been sent!");
+                        this.props.navigation.navigate('EventDetailHost');
                     }}
                     />
                     </View>

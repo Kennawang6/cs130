@@ -92,7 +92,7 @@ class EventDetailHost extends Component{
               <Text> </Text>
               <Button
                 title="Invite Friends"
-                onPress={()=>this.props.navigation.navigate('InviteFriendHost', {membersAttending:this.state.membersIDs})}
+                onPress={()=>this.props.navigation.navigate('InviteFriendHost', {eventID: this.state.eventID, membersAttending:this.state.membersIDs})}
               />
               </View>
             </View>

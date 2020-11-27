@@ -39,14 +39,14 @@ class Schedule extends Component{
       this.getScheduleData();
       
     }
-    componentDidUpdate(prevProps, prevState) {
+    /*componentDidUpdate(prevProps, prevState) {
       // only update chart if the data has changed
       if(prevProps.scheduledEvents !== this.props.scheduledEvents){
         this.setState({ifLoading:true});
         console.log(this.state.ifLoading);
         this.getScheduleData();
       }
-    }
+    }*/
 
     getScheduleData = async() => {
         const data = await functions().httpsCallable('getSchedule')({});

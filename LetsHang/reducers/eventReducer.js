@@ -26,7 +26,7 @@ const eventReducer = (state = initialState, action) => {
   	return{
 	  ...state,
 	  curEvent: {friendInvited: []},
-	  eventList: state.eventList.filter((event) => event.eventID !== eventID),
+	  eventList: state.eventList.filter((event) => event.eventID !== action.eventID),
 	  }
 	}
 	case "CUR_EVENT" :{

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, ScrollView } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import firebase from '@react-native-firebase/app';
 import functions from '@react-native-firebase/functions';
@@ -15,6 +15,7 @@ class EventDetailHost extends Component{
       this.state = {
       	eventID: this.props.route.params.eventID,
         memberList: [],
+        membersIDs: [],
       };
   }
   componentDidMount(){
@@ -25,6 +26,7 @@ class EventDetailHost extends Component{
     var eventInfo = this.props.eventList;
     var thisEvent = eventInfo.filter(i=>i.eventID==this.state.eventID);
     var membersIDs = thisEvent[0].eventInfo.members.filter(member => member !== thisEvent[0].eventInfo.hostID);
+    this.setState({membersIDs: membersIDs});
     var memberList = [];
     for (var i = 0; i <  membersIDs.length; i++) {
       var userInfo = await functions().httpsCallable('getUserInfo')({uid: membersIDs[i]});
@@ -56,7 +58,6 @@ class EventDetailHost extends Component{
         else{
           memberList = 
               <View>
-                
               </View>
             ;
         }
@@ -81,9 +82,19 @@ class EventDetailHost extends Component{
                 </ListItem>
               </View>
               <View>
-              {this.state.memberList&&this.state.memberList.length?<Text>Member List</Text>: <Text> </Text>}
+              {this.state.memberList&&this.state.memberList.length?<Text></Text>: <View></View>}
+              {this.state.memberList&&this.state.memberList.length?<Text>Member List</Text>: <View></View>}
               </View>
+              <ScrollView>
               {memberList}
+              </ScrollView>
+              <View>
+              <Text> </Text>
+              <Button
+                title="Invite Friends"
+                onPress={()=>this.props.navigation.navigate('InviteFriendHost', {membersAttending:this.state.membersIDs})}
+              />
+              </View>
             </View>
             
         );

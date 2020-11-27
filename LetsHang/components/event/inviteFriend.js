@@ -31,7 +31,7 @@ class InviteFriend extends Component{
         }
         const newFriendList = [];
         var curEventRedux = this.props.curEvent.friendInvited;
-        for (var i = friendInfo.length - 1; i >= 0; i--) {
+        for (var i = 0; i < friendInfo.length; i++) {
             var ifFind = curEventRedux.find(cur => cur.email == friendInfo[i].email);
             if(typeof ifFind === "undefined"){
                 newFriendList.push({cur: friendInfo[i], checked: false});

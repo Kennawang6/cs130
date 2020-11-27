@@ -111,21 +111,14 @@ class Profile extends Component {
   };
 
   render() {
-    const list = [
-    
-    {
-      title: 'Email',
-      icon: 'email',
-      subtitle: this.props.userInfo.uEmail
-    },
-    {
-      title: 'Time Zone',
-      icon: 'schedule',
-      subtitle: this.props.userInfo.uTimeZone
-    }];
-
+    console.log("Profile");
+    var timeZone = this.props.userInfo.uTimeZone;
+    console.log(timeZone);
+    var ifSetTimeZone = false;
+    if(timeZone >= -12 && timeZone<=12){
+      ifSetTimeZone = true;
+    }
     return (
-
       <View>
         <View style={{marginTop: 20, marginLeft: 10}}>
         <Avatar
@@ -148,17 +141,27 @@ class Profile extends Component {
           </ListItem.Content>
           <ListItem.Chevron size={30} color="#808080"/>
         </ListItem>
-        {
-          list.map((item, i) => (
-            <ListItem key={i} bottomDivider>
-            <Icon name={item.icon} />
-            <ListItem.Content>
-              <ListItem.Title>{item.title}</ListItem.Title>
-              <ListItem.Subtitle>{item.subtitle}</ListItem.Subtitle>
-            </ListItem.Content>
-            </ListItem>
-          ))
-         }
+        <ListItem bottomDivider>
+          <Icon name='email'/>
+          <ListItem.Content>
+            <ListItem.Title>Email</ListItem.Title>
+            <ListItem.Subtitle>{this.props.userInfo.uEmail}</ListItem.Subtitle>
+          </ListItem.Content>
+        </ListItem>
+        <ListItem bottomDivider onPress={()=>{
+                  if(ifSetTimeZone){
+                    this.props.navigation.navigate('EditTimeZone', {timeZone: timeZone});
+                  }
+                  else{
+                    this.props.navigation.navigate('EditTimeZone', {timeZone: 0});
+                  }}}>
+          <Icon name='schedule'/>
+          <ListItem.Content>
+            <ListItem.Title>Time Zone</ListItem.Title>
+            <ListItem.Subtitle>{ifSetTimeZone?timeZone:""}</ListItem.Subtitle>
+          </ListItem.Content>
+          <ListItem.Chevron size={30} color="#808080"/>
+        </ListItem>
         </View>
         <View>
         <Button

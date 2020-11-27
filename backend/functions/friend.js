@@ -110,8 +110,6 @@ exports.removeFriend = functions.https.onCall(async (data, context) => {
     }
 });
 
-
-
 exports.getFriendsList = functions.https.onCall(async (data, context) => {
     //data parameters: 
     //  None
@@ -140,25 +138,27 @@ exports.getFriendsList = functions.https.onCall(async (data, context) => {
             var friendToAddInfo = [];
             var friendInfo = [];
 
-            for (friendToAdd in userData.friendsToAdd){
+            for (const friendToAdd of userData.friendsToAdd){
                 const getFriendInfo = await admin.firestore().collection('users').doc(friendToAdd).get();
 
                 if(!getFriendInfo.exists){
-                    console.log("Friend data not found");
-                    return {text: "Friend data not found"};
+                    console.log("Friend data not found", friendToAdd);
+                    continue;
                 }
-                const friendData = getFriendInfo.data();
+                var friendData = getFriendInfo.data();
+                friendData.uid = friendToAdd;
                 friendToAddInfo.push(friendData);
             }
 
-            for (friend in userData.friends){
+            for (const friend of userData.friends){
                 const getFriendInfo = await admin.firestore().collection('users').doc(friend).get();
 
                 if(!getFriendInfo.exists){
-                    console.log("Friend data not found");
-                    return {text: "Friend data not found"};
+                    console.log("Friend data not found", friend);
+                    continue;
                 }
-                const friendData = getFriendInfo.data();
+                var friendData = getFriendInfo.data();
+                friendData.uid = friend;
                 friendInfo.push(friendData);
             }
 

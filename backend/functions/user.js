@@ -20,7 +20,7 @@ exports.addUserData = functions.https.onCall(async (data, context) => {
                             name: context.auth.token.name,
                             email: context.auth.token.email,
                             photoURL: context.auth.token.picture,
-                            timeZone: 0, //This could encode hours relative to GMT
+                            timeZone: 20, //This could encode hours relative to GMT
                             schedule: {},
                             events: [],
                             eventNotifications: [], 
@@ -109,4 +109,29 @@ exports.updateUserData = functions.https.onCall(async (data, context) => {
             return  {text: "Error getting user data"};
         }
     }
+});
+
+exports.getUserInfo = functions.https.onCall(async (data, context) => {
+  // data parameters:
+  // uid: string
+  // returns:
+  // name: string (if successful)
+  // email: string (if no name found, should not occur)
+  // text: string (if failed)
+  let uid = data.uid;
+  if (!uid) {
+    return {text: "No user id provided"};
+  } else {
+    try {
+      const userRecord = await admin.auth().getUser(uid);
+      if (!userRecord) {
+        return {text: "User does not exist"};
+      } else {
+        return {data: userRecord};
+      }
+    } catch (error) {
+      functions.logger.error(error.message);
+      return {text: error.message};
+    }
+  }
 });

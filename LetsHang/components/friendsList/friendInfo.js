@@ -4,11 +4,15 @@ import { View, Text, TouchableOpacity } from 'react-native'
 import { ListItem, Item, Avatar, Icon, Accessory } from 'react-native-elements'
 import styles from './styles';
 
+import { connect } from 'react-redux';
+import { saveFriends, acceptFriend, removeFriend, rejectFriend } from '../../actions/editFriendsList'
+
 class FriendInfo extends Component{
     constructor(props) {
         super(props);
         console.log(this.props.route.params.name);
         this.state = {
+            person: this.props.route.params.person,
             photo: this.props.route.params.photo,
             name: this.props.route.params.name,
             email: this.props.route.params.email,
@@ -19,10 +23,10 @@ class FriendInfo extends Component{
     removeFriend = async() => {
         const data = await functions().httpsCallable('removeFriend')({friend_email: this.state.email});
         console.log("removeFriend function has been called");
-        console.log(data);
         this.setState({text: data.data.text}, () => {
             console.log(data.data.text);
             this.notifyUser(this.state.text);
+            this.props.reduxRemoveFriend(this.state.person);
         });
     }
 
@@ -94,4 +98,19 @@ class FriendInfo extends Component{
   }
 }
 
-export default FriendInfo;
+
+const mapStateToProps = (state) => {
+    return {
+        friends: state.friendsListReducer.friends,
+        friendRequests: state.friendsListReducer.friendRequests,
+}};
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        reduxSaveFriends:(friends, friendRequests) => dispatch(saveFriends(friends, friendRequests)),
+        reduxAcceptFriend:(friend) => dispatch(acceptFriend(friend)),
+        reduxRemoveFriend:(friend) => dispatch(removeFriend(friend)),
+        reduxRejectFriend:(friend) => dispatch(rejectFriend(friend)),
+}};
+
+export default connect(mapStateToProps, mapDispatchToProps)(FriendInfo);

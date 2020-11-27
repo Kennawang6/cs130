@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useEffect } from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, Keyboard, ScrollView } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import firebase from '@react-native-firebase/app';
@@ -6,6 +6,7 @@ import functions from '@react-native-firebase/functions';
 import { Input } from 'react-native-elements';
 import { Icon } from 'react-native-elements'
 import { Button, ListItem, Divider } from 'react-native-elements';
+import firestore from '@react-native-firebase/firestore';
 
 import { connect } from 'react-redux';
 import { setEvent, addEvent, removeEvent, editCurEvent} from '../../actions/editEvent';
@@ -13,12 +14,32 @@ import { setEvent, addEvent, removeEvent, editCurEvent} from '../../actions/edit
 class EventList extends Component{
 	constructor(props) {
     super(props);
-    this.state = {eventPair:[]};
-    	//this.getUserData = this.getUserData.bind(this);
-  	}
-  	componentDidMount() {
-    	this.getEvent();
-  	}
+    this.state = {eventPair:[], eventIDs: []};
+    //this.getUserData = this.getUserData.bind(this);
+    console.log("Hello0");
+    this.getEventIDs();
+
+    this.subscriber = firestore()
+        .collection('events')
+        .onSnapshot(snapshot => {
+          snapshot.forEach(doc => {
+            console.log(doc.data());
+          });
+    });
+                     
+  }
+
+
+  componentDidMount() {
+    this.getEvent();
+  }
+
+  getEventIDs = async() => {
+    const data = await functions().httpsCallable('getUserData')({});
+    console.log("Data is fetched(eventID)");
+    var eventIDs = data.data.data.events;
+    this.setState({eventIDs:eventIDs});
+  }
 	getEvent = async() => {
     //Get the event IDs of all events
 		const data = await functions().httpsCallable('getUserData')({});

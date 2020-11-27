@@ -16,6 +16,7 @@ class EventDetailHost extends Component{
       	eventID: this.props.route.params.eventID,
         memberList: [],
         membersIDs: [],
+        thisEvent: [],
       };
   }
   componentDidMount(){
@@ -25,6 +26,7 @@ class EventDetailHost extends Component{
   getMemberList = async() =>{
     var eventInfo = this.props.eventList;
     var thisEvent = eventInfo.filter(i=>i.eventID==this.state.eventID);
+    this.setState({thisEvent:thisEvent});
     var membersIDs = thisEvent[0].eventInfo.members.filter(member => member !== thisEvent[0].eventInfo.hostID);
     this.setState({membersIDs: membersIDs});
     var memberList = [];
@@ -37,8 +39,6 @@ class EventDetailHost extends Component{
   }
     
   render() {
-        var eventInfo = this.props.eventList;
-        var thisEvent = eventInfo.filter(i=>i.eventID==this.state.eventID);
         var memberList;
         if(this.state.memberList&&this.state.memberList.length){
           memberList = this.state.memberList.map(i =>
@@ -61,22 +61,23 @@ class EventDetailHost extends Component{
               </View>
             ;
         }
+        if(this.state.thisEvent&&this.state.thisEvent.length){
         return (
             <View>
               <View>
                 <ListItem bottomDivider onPress={()=>this.props.navigation.navigate('EditEventName', 
-                                {eventID: this.state.eventID, eventName: thisEvent[0].eventInfo.name})}>
+                                {eventID: this.state.eventID, eventName: this.state.thisEvent[0].eventInfo.name})}>
                   <ListItem.Content>
                     <ListItem.Title>Event Name</ListItem.Title>
-                    <ListItem.Subtitle>{thisEvent[0].eventInfo.name}</ListItem.Subtitle>
+                    <ListItem.Subtitle>{this.state.thisEvent[0].eventInfo.name}</ListItem.Subtitle>
                   </ListItem.Content>
                   <ListItem.Chevron size={30} color="#808080"/>
                 </ListItem>
                 <ListItem bottomDivider onPress={()=>this.props.navigation.navigate('EditEventDescription', 
-                         {eventID: this.state.eventID, eventDescription: thisEvent[0].eventInfo.description})}>
+                         {eventID: this.state.eventID, eventDescription: this.state.thisEvent[0].eventInfo.description})}>
                   <ListItem.Content>
                     <ListItem.Title>Event Description</ListItem.Title>
-                    <ListItem.Subtitle>{thisEvent[0].eventInfo.description}</ListItem.Subtitle>
+                    <ListItem.Subtitle>{this.state.thisEvent[0].eventInfo.description}</ListItem.Subtitle>
                   </ListItem.Content>
                   <ListItem.Chevron size={30} color="#808080"/>
                 </ListItem>
@@ -98,6 +99,13 @@ class EventDetailHost extends Component{
             </View>
             
         );
+      }
+      else{
+        return(
+        <View>
+        </View>
+        );
+      }
   }
 }
 

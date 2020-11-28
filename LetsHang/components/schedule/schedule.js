@@ -1,44 +1,39 @@
 import React, {Component} from 'react';
+import { useState, useEffect } from 'react';
 import { Alert, StyleSheet, Text, View, TouchableOpacity, Button, Dimensions} from 'react-native';
+// weekly calendar
 import WeeklyCalendar from 'react-native-weekly-calendar';
 import moment from 'moment/min/moment-with-locales';
 import styles from './styles';
-import { useState, useEffect } from 'react';
-
+// firebase
 import functions from '@react-native-firebase/functions';
+import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
+import firebase from '@react-native-firebase/app';
 
-const windowHeight = Dimensions.get('window').height;
-
-const SECOND_IN_MILLISECONDS = 1000;
-const MINUTE_IN_MILLISECONDS = 60 * SECOND_IN_MILLISECONDS;
-const HOUR_IN_MILLISECONDS = 60 * MINUTE_IN_MILLISECONDS;
-
+// redux
 import { connect } from 'react-redux';
 import { addScheduleEvent, replaceSchedule, removeScheduleEvent} from '../../actions/editSchedule';
 
-
-/*function weeklyCalendar(){
-  useEffect(() => {
-  fetchSomething();
-}, []);
-}
-*/
+// CONST
+const windowHeight = Dimensions.get('window').height;
 
 class Schedule extends Component{
-
+    // TODO: modify to snapshot
     constructor(props) {
         super(props);
         this.state = {
           timeslots: [],
           displaySchedule: [],
           ifLoading: true,
-          testEvents: [{"description": "test02", "duration": "01:00:00", "end": "2020-11-25 10:24:33", "start": "2020-11-25 09:24:33"}, {"description": "test 04", "duration": "01:18:00", "end": "2020-11-25 11:18:51", "start": "2020-11-25 10:00:51"}, {"description": "test3", "duration": "10:00:00", "end": "2020-11-26 19:39:06", "start": "2020-11-26 09:39:06"}]
         };
     }
+
     componentDidMount() {
       this.getScheduleData();
       
     }
+
     /*componentDidUpdate(prevProps, prevState) {
       // only update chart if the data has changed
       if(prevProps.scheduledEvents !== this.props.scheduledEvents){
@@ -63,14 +58,10 @@ class Schedule extends Component{
             });
             
             console.log(this.state.displaySchedule);
-            //this.convertToSchedule();
         }else{
             console.log('initialize')
             const data_initialized = await functions().httpsCallable('addSchedule')({timeslots:[]});
         }
-        //this.forceUpdate();
-        // assuming id is stored in firebase
-        //this.props.replaceSchedule(this.state.timeslots);
         this.setState({ifLoading: false});
         this.setState((prevState)=>{
           return{
@@ -80,78 +71,14 @@ class Schedule extends Component{
         this.test();
     }
 
-    convertToSchedule = () =>{
-        console.log("Convert timeslots to displaySchedule");
-        var new_schedule = [];
-        for (var i=0;i<this.state.timeslots.length;i++) {
-            //console.log(this.state.timeslots[i]);
-            /*
-            var s = new Date(this.state.timeslots[i].start);
-            var s_date = ("0" + s.getDate()).slice(-2);
-            var s_month = ("0" + (s.getMonth() + 1)).slice(-2);
-            var s_year = s.getFullYear();
-            var s_hours = ("0" + s.getHours()).slice(-2);
-            var s_minutes = ("0" + s.getMinutes()).slice(-2);
-            var s_seconds = ("0" + s.getSeconds()).slice(-2);
-            var e = new Date(this.state.timeslots[i].end);
-            var e_date = ("0" + e.getDate()).slice(-2);
-            var e_month = ("0" + (e.getMonth() + 1)).slice(-2);
-            var e_year = e.getFullYear();
-            var e_hours = ("0" + e.getHours()).slice(-2);
-            var e_minutes = ("0" + e.getMinutes()).slice(-2);
-            var e_seconds = ("0" + e.getSeconds()).slice(-2);
-            var event = {'start': s_year + "-" + s_month + "-" + s_date + " " + s_hours + ":" + s_minutes + ":" + s_seconds,
-                         'end': e_year + "-" + e_month + "-" + e_date + " " + e_hours + ":" + e_minutes + ":" + e_seconds,
-                         'description': this.state.timeslots[i].description
-                        };*/
-            var event = {'start':this.state.timeslots[i].start,
-                         'end':this.state.timeslots[i].end,
-                         'description': this.state.timeslots[i].description,
-                         'id':this.state.timeslots[i].start,
-                        }
-            //console.log(event);
-            new_schedule.push(event);
-        }
-        // TODO: HANDLE SPLIT EVENT
-        this.setState({
-            displaySchedule: new_schedule
-        });
-        console.log(this.state.displaySchedule);
-    }
-
-    toDoubleDigit = (num) => {
-        if ((num / 10 >> 0 ) > 0) {
-            return num.toString();
-        } else {
-            return  "0" + num.toString();
-        }
-    }
-
-    calculateDuration = (start, end) => {
-        var total = end - start;
-        return this.toDoubleDigit(total / HOUR_IN_MILLISECONDS >> 0) + ":"
-                + this.toDoubleDigit((total % HOUR_IN_MILLISECONDS) / MINUTE_IN_MILLISECONDS >> 0) + ":"
-                + this.toDoubleDigit(((total % HOUR_IN_MILLISECONDS) % MINUTE_IN_MILLISECONDS) / SECOND_IN_MILLISECONDS >> 0);
-      }
-
+    //
     test = () =>{
         console.log("Try redux");
         console.log(this.props.scheduledEvents);
     }
 
-    
-
-    // TODO: check why not presenting the events
     render() {
-      console.log('in render why');
-      
-      const events = this.props.scheduledEvents;
-      const events1 = this.state.displaySchedule;
-      //console.log(events);
-      //console.log(events);
-      //console.log("state");
-      //console.log(this.state.displaySchedule);
-      //if(this.props.scheduledEvents&&this.props.scheduledEvents.length){
+      //console.log('in render');
       
       if(this.state.ifLoading){
         return(
@@ -160,6 +87,7 @@ class Schedule extends Component{
           </View>
         );
       }
+
       else{
       return (
         <View>

@@ -12,9 +12,16 @@ const MINUTE_IN_MILLISECONDS = 60 * SECOND_IN_MILLISECONDS;
 const HOUR_IN_MILLISECONDS = 60 * MINUTE_IN_MILLISECONDS;
 
 const addSchedule = props => {
+  // redux
   const schedule = useSelector(state => state.scheduleReducer);
   const dispatch = useDispatch();
+  // state
   const [description, setDescription] = useState('');
+
+  //initialize
+  var original_timeslot = {'start':0, 'end':0};
+  var timeslots = []; //{'start':0, 'end':0, 'id':0, 'description':''}
+  var timeslots_dispatch = []; //{type: ADD_SCHEDULE, start:0, end:0, description:'',id: 0}
 
   function useInput() {
       const [date, setDate] = useState(new Date());
@@ -47,59 +54,78 @@ const addSchedule = props => {
       }
   }
 
+  // set start and end
+  const start = useInput(new Date())
+  const end = useInput(new Date())
+
   const sendScheduleEvent = async() => {
-      /*const data = await functions().httpsCallable('addSchedule')(
-        {timeslots:[{
-          description: description,
-          start: start.date.getTime(),
-          end: end.date.getTime()}]}
-      );*/
+       // might need to loop thorough timeslots
       const data = await functions().httpsCallable('addTimeslotToSchedule')({
               timeslot: {
                 description: description,
                 start: start.date.getTime(),
-                end: end.date.getTime()}
+                end: end.date.getTime()
+                }
       });
       console.log("addTimeslotToSchedule function has been called");
       console.log(data);
-      alert('Event added to schedule.');
+      //alert('Event added to schedule.');
   }
-
-  /*
-  toDoubleDigit = (num) => {
-    if ((num / 10 >> 0 ) > 0) {
-      return num.toString();
-    } else {
-      return "0" + num.toString();
-    }
-  }
-
-
-  calculateDuration = (start, end) => {
-    total = end - start;
-    return toDoubleDigit(total / HOUR_IN_MILLISECONDS >> 0) + ":"
-            + toDoubleDigit((total % HOUR_IN_MILLISECONDS) / MINUTE_IN_MILLISECONDS >> 0) + ":"
-            + toDoubleDigit(((total % HOUR_IN_MILLISECONDS) % MINUTE_IN_MILLISECONDS) / SECOND_IN_MILLISECONDS >> 0);
-  }*/
 
   handlePress = () => {
       console.log("Button was pressed");
       console.log(description);
+
+      InputValidation(start.date,end.date);
+      SplitEvent();
+      //might need to loop through timeslots_dispatch
       dispatch({
         type: ADD_SCHEDULE,
         start: start.date.getTime(),
         end: end.date.getTime(),
         description: description,
-        // TODO: change after splitEvent function implementation
         id: start.date.getTime(),
       });
       console.log("Dispatched to store: " + JSON.stringify(schedule));
+      // Add timeslots to firebase
       sendScheduleEvent();
+      // Back to Schedule
       props.navigation.navigate('Schedule');
   }
 
-  const start = useInput(new Date())
-  const end = useInput(new Date())
+  InputValidation = (s,e) => {
+      console.log(s);
+      console.log(e);
+      //Set seconds to 0 for start and end
+      s.setSeconds(0);
+      e.setSeconds(0);
+      //TODO:Set Time Zone
+      // - access user time zone from firebase
+      // - event.toString() expected output format: Tue Aug 19 1975 23:15:30 GMT+0200 (CEST)
+
+
+      //Check if start < end, otherwise, alert
+      if (s.getTime() < e.getTime()){
+        original_timeslot.start = s.getTime();
+        original_timeslot.end = e.getTime();
+      }
+  }
+  SplitEvent = () => {
+  // TODO: if the events is overnight, divide the event
+  // using original_timeslot to check
+  // save the result to timeslots and timeslots_dispatch
+  }
+
+  //TODO: Coordinate with Event
+  // need to consider various cases
+  // access user event list
+  // go through all the event
+  // cases:
+  //    event.start_date - event.end_date not overlap with timeslot => NO NEED TO CHANGE
+  //    event.start_date - event.end_date overlap with timeslot (3 cases)
+  //        event finalize
+  //        event update
+  //
 
     return (
       <View>

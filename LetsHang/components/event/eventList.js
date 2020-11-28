@@ -14,7 +14,7 @@ import { setEvent, addEvent, removeEvent, editCurEvent} from '../../actions/edit
 class EventList extends Component{
 	constructor(props) {
     super(props);
-    this.state = {eventPair:[], curEvent: {}};
+    this.state = {eventPair:[], curEvent: {},};
     //this.getUserData = this.getUserData.bind(this);
 
     this.subscriber = firestore()
@@ -52,7 +52,7 @@ class EventList extends Component{
     // logic for ifDecidedButton and ifFinalizedButton
     // exist not Ready
     if(eventData.membersNotReady && eventData.membersNotReady.length){
-      this.handleNotReadyMember();
+      this.computeTime();
       if(eventData.hostID == userID){
         console.log("host: exist not Ready");
         this.setState({curEvent: {eventID: eventID, eventInfo: eventData, ifUser: true, 
@@ -325,8 +325,9 @@ class EventList extends Component{
   }
 
   // use redux add schedule
-  clickReadyButton = async() => {
-    
+  clickReadyButton = async(eventID) => {
+    const data = await functions().httpsCallable('setReadyForEvent')({event_id: eventID});
+    console.log("You have been ready");
   }
 
   clickNotReadyButton = async() => {
@@ -396,7 +397,7 @@ class EventList extends Component{
               <View style={{flexDirection: 'row' }}>
                 <View style={{flex: 1}}>             
                   <Button title="Ready" type="outline" onPress={()=>{
-                                                                 ;}}
+                                                    this.clickReadyButton(i.eventID);}}
                     titleStyle= {{ color: 'black'}} 
                     buttonStyle={{ borderColor: 'grey', borderRadius: 0 }} 
                     containerStyle={{ backgroundColor: 'white' }}/>

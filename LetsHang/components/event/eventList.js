@@ -326,7 +326,7 @@ class EventList extends Component{
 
   // use redux add schedule
   clickReadyButton = async() => {
-
+    
   }
 
   clickNotReadyButton = async() => {
@@ -368,7 +368,7 @@ class EventList extends Component{
          <Text> Event List</Text>
           {eventList.map(i =>
             <View key={i.eventID}>
-            <ListItem bottomDivider onPress=
+            <ListItem key={i.eventID} bottomDivider onPress=
               {()=>{
                 if(i.ifUser){
                   this.props.navigation.navigate('EventDetailHost', {eventID: i.eventID});

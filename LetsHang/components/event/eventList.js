@@ -14,32 +14,156 @@ import { setEvent, addEvent, removeEvent, editCurEvent} from '../../actions/edit
 class EventList extends Component{
 	constructor(props) {
     super(props);
-    this.state = {eventPair:[], eventIDs: []};
+    this.state = {eventPair:[], curEvent: {},};
     //this.getUserData = this.getUserData.bind(this);
-    console.log("Hello0");
-    this.getEventIDs();
 
     this.subscriber = firestore()
         .collection('events')
         .onSnapshot(snapshot => {
+          var eventList = [];
+          //console.log(snapshot);
           snapshot.forEach(doc => {
-            console.log(doc.data());
+            var curEvent = doc.data();
+            var curEventID = doc.ref._documentPath._parts[1];
+            var ifmembers = curEvent.members.filter(curM=>curM===firebase.auth().currentUser.uid);
+            if(ifmembers&&ifmembers.length){
+              this.getCurEvent(curEvent, curEventID);
+              eventList.push(this.state.curEvent);
+            }
           });
+          console.log("Fetch Event List");
+          console.log(eventList);
+          this.setState({eventPair:eventList}, () => {                              
+            //console.log(this.state.eventPair);
+          });
+          
+          //console.log(this.props.eventList);
+          this.props.reduxSetEvent(eventList);
     });
                      
   }
 
-
-  componentDidMount() {
+  /*componentDidMount() {
     this.getEvent();
+  }*/
+ 
+  getCurEvent = async(eventData, eventID) => {
+    const userID = firebase.auth().currentUser.uid;
+    // logic for ifDecidedButton and ifFinalizedButton
+    // exist not Ready
+    if(eventData.membersNotReady && eventData.membersNotReady.length){
+      this.computeTime();
+      if(eventData.hostID == userID){
+        console.log("host: exist not Ready");
+        this.setState({curEvent: {eventID: eventID, eventInfo: eventData, ifUser: true, 
+        ifDecidedButton: true, ifFinalizedButton: false}});
+      }
+      else{
+        console.log("member: exist not Ready");
+        this.setState({curEvent: {eventID: eventID, eventInfo: eventData, ifUser: false, 
+        ifDecidedButton: true, ifFinalizedButton: false}});
+      }
+    }
+    // no not Ready
+    else{
+      //no not Ready, final time
+      if(eventData.finalTime !== 0){
+        if(eventData.hostID == userID){
+          console.log("host: no not Ready, final time");
+          this.setState({curEvent: {eventID: eventID, eventInfo: eventData, ifUser: true, 
+            ifDecidedButton: false, ifFinalizedButton: false}});
+        }
+        else{
+          console.log("member: no not Ready, final time");
+          this.setState({curEvent: {eventID: eventID, eventInfo: eventData, ifUser: false, 
+            ifDecidedButton: false, ifFinalizedButton: false}});
+        }
+      }
+      //no not Ready, no final time
+      else{
+        var ifFinalizedButton = false; //ifFinalizedButton = endpoints if the membersReady == all members;
+        // not not Ready, no final time, all members ready
+        if(ifFinalizedButton){
+          if(eventData.hostID == userID){
+            console.log("host: not not Ready, no final time, all members ready");
+            this.setState({curEvent: {eventID: eventID, eventInfo: eventData, ifUser: true, 
+            ifDecidedButton: false, ifFinalizedButton: true}});
+          }
+          else{
+            console.log("member: not not Ready, no final time, all members ready");
+            this.setState({curEvent: {eventID: eventID, eventInfo: eventData, ifUser: false, 
+            ifDecidedButton: false, ifFinalizedButton: false}});
+          }
+        }
+        // no notReady, no final time, not all members ready
+        else{
+          // no not Ready, no final time, some members ready
+          if(eventData.membersReady && eventData.membersReady.length){
+            var ifReady = eventData.membersReady.filter(uid=> uid===userID);
+            // no not Ready, no final time, some members ready, the current user is ready
+            if(ifReady && ifReady.length){
+              if(eventData.hostID == userID){
+                console.log("host: no not Ready, no final time, some members ready, the current user is ready");
+                this.setState({curEvent: {eventID: eventID, eventInfo: eventData, ifUser: true, 
+                  ifDecidedButton: false, ifFinalizedButton: false}});
+              }
+              else{
+                console.log("member: no not Ready, no final time, some members ready, the current user is ready");
+                this.setState({curEvent: {eventID: eventID, eventInfo: eventData, ifUser: false, 
+                  ifDecidedButton: false, ifFinalizedButton: false}});
+              }
+            }
+            // no not Ready, no final time, some members ready, the current user is not ready
+            else{
+              if(eventData.hostID == userID){
+                console.log("host: no not Ready, no final time, some members ready, the current user is not ready");
+                this.setState({curEvent: {eventID: eventID, eventInfo: eventData, ifUser: true, 
+                  ifDecidedButton: true, ifFinalizedButton: false}});
+              }
+              else{
+                console.log("member: no not Ready, no final time, some members ready, the current user is not ready");
+                this.setState({curEvent: {eventID: eventID, eventInfo: eventData, ifUser: false, 
+                  ifDecidedButton: true, ifFinalizedButton: false}});
+              }
+            }
+          }
+          //no not Ready, no final time, no members ready
+          else{
+            // no not Ready, no final time, no members ready, exist invitees
+            if(eventData.invitees&&eventData.invitees.length){
+              if(eventData.hostID == userID){
+                console.log("host: no not Ready, no final time, no members ready, exist invitees");
+                this.setState({curEvent: {eventID: eventID, eventInfo: eventData, ifUser: true, 
+                  ifDecidedButton: false, ifFinalizedButton: false}});
+              }
+              else{
+                console.log("member: no not Ready, no final time, no members ready, exist invitees");
+                this.setState({curEvent: {eventID: eventID, eventInfo: eventData, ifUser: false, 
+                  ifDecidedButton: false, ifFinalizedButton: false}});
+              }
+            }
+            // no not Ready, no final time, no members ready, no invitees
+            else{
+              this.computeTime();
+              if(eventData.hostID == userID){
+                console.log("host: no not Ready, no final time, no members ready, no invitees");
+                this.setState({curEvent: {eventID: eventID, eventInfo: eventData, ifUser: true, 
+                  ifDecidedButton: true, ifFinalizedButton: false}});
+              }
+              else{
+                console.log("member: no not Ready, no final time, no members ready, no invitees");
+                this.setState({curEvent: {eventID: eventID, eventInfo: eventData, ifUser: false, 
+                  ifDecidedButton: true, ifFinalizedButton: false}});
+              }
+            }
+          }
+        }
+      }
+    }
+    // End of logic for Buttons
   }
 
-  getEventIDs = async() => {
-    const data = await functions().httpsCallable('getUserData')({});
-    console.log("Data is fetched(eventID)");
-    var eventIDs = data.data.data.events;
-    this.setState({eventIDs:eventIDs});
-  }
+/*
 	getEvent = async() => {
     //Get the event IDs of all events
 		const data = await functions().httpsCallable('getUserData')({});
@@ -189,9 +313,10 @@ class EventList extends Component{
     }
     //console.log(eventList);
 	}
+*/
 
   // use redux replace schedule
-  modifyReadyMember = async() => {
+  handleNotReadyMember = async() => {
 
   }
 
@@ -200,8 +325,9 @@ class EventList extends Component{
   }
 
   // use redux add schedule
-  clickReadyButton = async() => {
-
+  clickReadyButton = async(eventID) => {
+    const data = await functions().httpsCallable('setReadyForEvent')({event_id: eventID});
+    console.log("You have been ready");
   }
 
   clickNotReadyButton = async() => {
@@ -243,7 +369,7 @@ class EventList extends Component{
          <Text> Event List</Text>
           {eventList.map(i =>
             <View key={i.eventID}>
-            <ListItem bottomDivider onPress=
+            <ListItem key={i.eventID} bottomDivider onPress=
               {()=>{
                 if(i.ifUser){
                   this.props.navigation.navigate('EventDetailHost', {eventID: i.eventID});
@@ -271,7 +397,7 @@ class EventList extends Component{
               <View style={{flexDirection: 'row' }}>
                 <View style={{flex: 1}}>             
                   <Button title="Ready" type="outline" onPress={()=>{
-                                                                 ;}}
+                                                    this.clickReadyButton(i.eventID);}}
                     titleStyle= {{ color: 'black'}} 
                     buttonStyle={{ borderColor: 'grey', borderRadius: 0 }} 
                     containerStyle={{ backgroundColor: 'white' }}/>

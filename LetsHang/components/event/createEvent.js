@@ -64,7 +64,7 @@ class CreateEvent extends Component{
       });
       
       var createdEventID = data.data.event_id;
-      this.generateEventPair(createdEventID);
+      //this.generateEventPair(createdEventID);
       console.log("Event is created");
   }
 

@@ -6,9 +6,10 @@ exports.createEvent = functions.https.onCall(async (data, context) => {
     //data parameters (all required): 
     // event_name: event's name
     // description: (could be empty) description of event
+    // duration: duration of event in minutes
     // invitees: (could be empty) list of friend IDs to add to event
-    // start_date: start date in format YYYY-MM-DD
-    // end_date: end date in format YYYY-MM-DD
+    // start_date: start date in milliseconds
+    // end_date: end date in milliseconds
     if (!context.auth) {
         functions.logger.info("Unauthenticated user");
         return {text: "Unauthenticated user"};
@@ -23,10 +24,10 @@ exports.createEvent = functions.https.onCall(async (data, context) => {
                     hostID: context.auth.uid,
                     invitees: data.invitees,
                     members: [context.auth.uid], //host + friends who have accepted the invite
-                    startDate: data.start_date, //in format YYYY-MM-DD
-                    endDate: data.end_date, //in format YYYY-MM-DD
-                    schedules: [],
-                    commonSchedule: {},
+                    startDate: data.start_date, //in milliseconds
+                    endDate: data.end_date, //in milliseconds
+                    duration: data.duration, //duration of event in minutes
+                    commonSchedule: [],
                     computedTime: 0, //earliest possible time that members can meet at
                     decidedTime: 0, //time that host has decided to meet at
                     finalTime: 0, //final time that host has decided to meet at after evaluating availability
@@ -96,8 +97,8 @@ exports.updateEvent = functions.https.onCall(async (data, context) => {
     /*{
         name: ,
         description: , 
-        startDate: , (in format YYYY-MM-DD)
-        endDate: , (in format YYYY-MM-DD)
+        startDate: , (in milliseconds)
+        endDate: , (in milliseconds)
     }*/
     if (!context.auth) {
         functions.logger.info("Unauthenticated user");
@@ -743,9 +744,25 @@ exports.computeNextEarliestAvailableTime = functions.https.onCall(async (data, c
             const eventSchedule = eventData.commonSchedule;
             const eventStartTime = eventData.start_date;
             const eventEndTime = eventData.end_date;
+            const eventDuration = eventData.duration*60*1000; //convert from minutes to ms
 
             for(var i = 0; i < eventSchedule.length; i++){ 
-                if(i == 0 && eventSchedule[i].start != eventStartTime && eventData.computedTime != eventStartTime){
+                if(i == eventSchedule.length - 1){
+                    if(eventData.computedTime != eventSchedule[i].end && (eventEndTime - eventSchedule[i].end) >= eventDuration){
+                        await admin.firestore().collection('events').doc(data.event_id).update({
+                          computedTime: eventSchedule[i].end,
+                        });
+
+                        console.log("Time computed");
+                        return {
+                            text: "Earliest time computed, check computedTime field",
+                            computedTime: eventSchedule[i].end,
+                        };  
+                    }
+                    break;
+                }
+
+                if(i == 0 && eventSchedule[i].start != eventStartTime && eventData.computedTime != eventStartTime && (eventSchedule[i].start - eventStartTime) >= eventDuration){
                     await admin.firestore().collection('events').doc(data.event_id).update({
                       computedTime: eventStartTime,
                     });
@@ -757,7 +774,7 @@ exports.computeNextEarliestAvailableTime = functions.https.onCall(async (data, c
                     };
                 }
 
-                if(eventData.computedTime != eventSchedule[i].end){
+                if(eventData.computedTime != eventSchedule[i].end && (eventSchedule[i+1].start - eventSchedule[i].end) >= eventDuration){
                     await admin.firestore().collection('events').doc(data.event_id).update({
                       computedTime: eventSchedule[i].end,
                     });
@@ -769,7 +786,6 @@ exports.computeNextEarliestAvailableTime = functions.https.onCall(async (data, c
                     };
                 }
             }
-
 
             await admin.firestore().collection('events').doc(data.event_id).update({
               computedTime: eventEndTime,

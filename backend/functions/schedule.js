@@ -349,14 +349,14 @@ exports.addEventToSchedule = functions.https.onCall(async (data, context) => {
   let uid = data.uid;
   let timeslot = data.timeslot;
   if (!uid) {
-    return {status: "not ok", message: "No uid provided\n"};
+    return {status: "not ok", text: "No uid provided\n"};
   } else if (!timeslot) {
-    return {status: "not ok", message: "No event timeslot provided\n"};
+    return {status: "not ok", text: "No event timeslot provided\n"};
   } else {
     try {
       const result = await schedules.doc(uid).withConverter(scheduleConverter).get();
       if (!result.exists) {
-        return {status: "not ok", message: "No schedule found for user with uid " + uid + "\n"};
+        return {status: "not ok", text: "No schedule found for user with uid " + uid + "\n"};
       }
 
       let schedule = result.data();
@@ -367,7 +367,7 @@ exports.addEventToSchedule = functions.https.onCall(async (data, context) => {
       return {status: "ok"};
     } catch (error) {
       functions.logger.error(error.message);
-      return {status: "not ok", message: error.message};
+      return {status: "not ok", text: error.message};
     }
   }
 });

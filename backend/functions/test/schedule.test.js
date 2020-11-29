@@ -5,7 +5,7 @@ const sinon = require('sinon');
 
 describe('Schedule Functions', () => {
   describe('Offline Tests', () => {
-    let functions, adminInitStub, adminFirestoreStub, getStub, addStub, updateStub, addSchedule, getSchedule, schedulesStub, testOffline;
+    let functions, adminInitStub, adminFirestoreStub, getStub, addStub, updateStub, addSchedule, getSchedule, removeSchedule, addEventToSchedule, schedulesStub, testOffline;
 
     before(() => {
       getStub = sinon.stub();
@@ -39,6 +39,7 @@ describe('Schedule Functions', () => {
       addSchedule = testOffline.wrap(functions.addSchedule);
       getSchedule = testOffline.wrap(functions.getSchedule);
       removeSchedule = testOffline.wrap(functions.removeSchedule);
+      addEventToSchedule = testOffline.wrap(functions.addEventToSchedule);
     });
 
     after(() => {
@@ -172,10 +173,90 @@ describe('Schedule Functions', () => {
         assert(!result.text);
       });
     });
+
+    describe('addEventToSchedule', () => {
+      let dataStub, scheduleStub, addTimeslotStub;
+
+      before(() => {
+        dataStub = sinon.stub();
+        constructorStub = sinon.stub();
+        addTimeslotStub = sinon.stub();
+        scheduleStub = {
+          addTimeslot: addTimeslotStub
+        };
+      });
+
+      afterEach(() => {
+        getStub.resetHistory();
+        addStub.resetHistory();
+        dataStub.resetHistory();
+        addTimeslotStub.resetHistory();
+      });
+
+      it('should fail when uid or timeslot is not provided', async () => {
+        let result = await addEventToSchedule({}, null);
+        assert(getStub.notCalled);
+        assert(addStub.notCalled);
+        assert(result.status == "not ok");
+        assert(result.text == "No uid provided\n");
+
+        result = await addEventToSchedule({uid: 1}, null);
+        assert(getStub.notCalled);
+        assert(addStub.notCalled);
+        assert(result.status == "not ok");
+        assert(result.text == "No event timeslot provided\n");
+      });
+
+      it('should fail when firestore get() throws an error', async () => {
+        getStub.rejects({message: "get test error"});
+        let result = await addEventToSchedule({uid: 1, timeslot: {start: 3, end: 4}}, null);
+        assert(getStub.calledOnce);
+        assert(addStub.notCalled);
+        assert(result.status == "not ok");
+        assert(result.text == "get test error");
+      });
+
+      it('should fail if no schedule is found by get()', async () => {
+        getStub.resolves({exists: false});
+        let result = await addEventToSchedule({uid: 1, timeslot: {start: 3, end: 4}}, null);
+        assert(getStub.calledOnce);
+        assert(addStub.notCalled);
+        assert(result.status == "not ok");
+        assert(result.text == "No schedule found for user with uid 1\n");
+      });
+
+      it('should fail when firestore set() throws an error', async () => {
+        getStub.resolves({exists: true, data: dataStub});
+        addStub.rejects({message: "add test error"});
+        dataStub.returns(scheduleStub);
+
+        let result = await addEventToSchedule({uid: 1, timeslot: {start: 3, end: 4}}, null);
+        console.log(result.text);
+        assert(getStub.calledOnce);
+        assert(addStub.calledOnce);
+        assert(dataStub.calledOnce);
+        assert(result.status == "not ok");
+        assert(result.text == "add test error");
+      });
+
+      it('should succeed if both get() and set() execute without error', async () => {
+        getStub.resolves({exists: true, data: dataStub});
+        addStub.resolves();
+        dataStub.returns(scheduleStub);
+
+        let result = await addEventToSchedule({uid: 1, timeslot: {start: 3, end: 4}}, null);
+        console.log(result.text);
+        assert(getStub.calledOnce);
+        assert(addStub.calledOnce);
+        assert(dataStub.calledOnce);
+        assert(result.status == "ok");
+        assert(!result.text);
+      });
+    });
   });
 
   describe('Online Tests', () => {
-    let functions, addScheduleOnline, getScheduleOnline, removeScheduleOnline, testOnline;
+    let functions, addSchedule, getSchedule, removeSchedule, testOnline;
 
     before(() => {
       testOnline = require('firebase-functions-test')({
@@ -186,9 +267,10 @@ describe('Schedule Functions', () => {
 
       functions = require('../index.js');
 
-      addScheduleOnline = testOnline.wrap(functions.addSchedule);
-      getScheduleOnline = testOnline.wrap(functions.getSchedule);
-      removeScheduleOnline = testOnline.wrap(functions.removeSchedule);
+      addSchedule = testOnline.wrap(functions.addSchedule);
+      getSchedule = testOnline.wrap(functions.getSchedule);
+      removeSchedule = testOnline.wrap(functions.removeSchedule);
+      addEventToSchedule = testOnline.wrap(functions.addEventToSchedule);
     })
 
     after(() => {
@@ -197,11 +279,11 @@ describe('Schedule Functions', () => {
     });
 
     it('should get the same schedule it added', async () => {
-      let result = await addScheduleOnline({timeslots: [{start: 3, end: 4, description: "test"}]}, {auth: {uid: "2"}});
+      let result = await addSchedule({timeslots: [{start: 3, end: 4, description: "test"}]}, {auth: {uid: "2"}});
       assert(result.status == "ok");
       assert(!result.text);
 
-      result = await getScheduleOnline(null, {auth: {uid: "2"}});
+      result = await getSchedule(null, {auth: {uid: "2"}});
       assert(result.status == "ok");
       assert(!result.text);
       assert(result.schedule);
@@ -212,12 +294,33 @@ describe('Schedule Functions', () => {
       assert(result.schedule.timeslots[0].description == 'test');
     });
 
-    it('should find an empty schedule after removing the schedule', async () => {
-      let result = await removeScheduleOnline(null, {auth: {uid: "2"}});
+    it('should get a modified schedule after adding a timeslot to that schedule', async () => {
+      let result = await addEventToSchedule({uid: "2", timeslot: {start: 5, end: 6, description: "new"}});
+      console.log(result.status);
+      console.log(result.text);
       assert(result.status == "ok");
       assert(!result.text);
 
-      result = await getScheduleOnline(null, {auth: {uid: "2"}});
+      result = await getSchedule(null, {auth: {uid: "2"}});
+      assert(result.status == "ok");
+      assert(!result.text);
+      assert(result.schedule);
+      assert(result.schedule.timeslots);
+      assert(result.schedule.timeslots.length == 2);
+      assert(result.schedule.timeslots[0].start == 3);
+      assert(result.schedule.timeslots[0].end == 4);
+      assert(result.schedule.timeslots[0].description == 'test');
+      assert(result.schedule.timeslots[1].start == 5);
+      assert(result.schedule.timeslots[1].end == 6);
+      assert(result.schedule.timeslots[1].description == 'new');
+    });
+
+    it('should find an empty schedule after removing the schedule', async () => {
+      let result = await removeSchedule(null, {auth: {uid: "2"}});
+      assert(result.status == "ok");
+      assert(!result.text);
+
+      result = await getSchedule(null, {auth: {uid: "2"}});
       assert(result.status == "ok");
       assert(!result.text);
       assert(result.schedule);

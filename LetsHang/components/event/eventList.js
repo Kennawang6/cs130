@@ -14,7 +14,7 @@ import { setEvent, addEvent, removeEvent, editCurEvent} from '../../actions/edit
 class EventList extends Component{
 	constructor(props) {
     super(props);
-    this.state = {eventPair:[], curEvent: {},};
+    this.state = {eventPair:[], curEvent: {}, timeZoneString: ""};
     //this.getUserData = this.getUserData.bind(this);
 
     this.subscriber = firestore()
@@ -44,8 +44,20 @@ class EventList extends Component{
   }
 
   /*componentDidMount() {
-    this.getEvent();
+    //this.getEvent();
   }*/
+
+  getUserTimeZone = async() => {
+    const data = await functions().httpsCallable('getUserData')({});
+    var timeZone = data.data.data.timeZone;
+    if(timeZone<-12||timeZone>12){
+      timeZone = 0;
+    }
+    var timeZoneString = timeZone.toString();
+    console.log(timeZoneString);
+    this.setState({timeZoneString: timeZoneString});
+  }
+
  
   getCurEvent = async(eventData, eventID) => {
     const userID = firebase.auth().currentUser.uid;
@@ -339,14 +351,15 @@ class EventList extends Component{
   }
 
 	render() {
-    var eventList = this.props.eventList;
+    //var eventList = this.props.eventList;
+    var eventList = this.state.eventPair;
     if(eventList && eventList.length){
       return(
         <View>
           <View>
-          <ListItem bottomDivider onPress={()=>{
+          <ListItem bottomDivider onPress={()=>this.getUserTimeZone().then(()=>{
                 this.props.reduxEditCurEvent({curEvent: {friendInvited: []}});
-                this.props.navigation.navigate('CreateEvent');}}>
+                this.props.navigation.navigate('CreateEvent', {timeZoneString: this.state.timeZoneString});})}>
             <Icon name='add' />
             <ListItem.Content>
               <ListItem.Title>Create Event</ListItem.Title>
@@ -423,9 +436,9 @@ class EventList extends Component{
       return (
         <View>
           <View>
-          <ListItem bottomDivider onPress={()=>{
+          <ListItem bottomDivider onPress={()=>this.getUserTimeZone().then(()=>{
                 this.props.reduxEditCurEvent({curEvent: {friendInvited: []}});
-                this.props.navigation.navigate('CreateEvent');}}>
+                this.props.navigation.navigate('CreateEvent', {timeZoneString: this.state.timeZoneString});})}>
             <Icon name='add' />
             <ListItem.Content>
               <ListItem.Title>Create Event</ListItem.Title>

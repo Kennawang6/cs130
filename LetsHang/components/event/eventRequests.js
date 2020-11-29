@@ -65,7 +65,7 @@ class EventRequests extends Component{
   	var eventInfo = await functions().httpsCallable('getEvent')({event_id: eventID});
   	var eventPair = [];
   	eventPair.push({eventID: eventID, eventInfo: eventInfo.data.event_data, ifUser: false});
-    this.props.reduxAddEvent(eventPair[0]);
+    //this.props.reduxAddEvent(eventPair[0]);
   }
   rejectEventRequest = async(eventID) => {
     const data = await functions().httpsCallable('declineEventInvite')({event_id: eventID});
@@ -91,9 +91,8 @@ class EventRequests extends Component{
                                   justifyContent: 'space-around'}}>
                       <Icon onPress={() => {
                         this.acceptEventRequest(i.eventID); 
-                        alert("You are now the member of the event!");
-                        this.props.navigation.navigate('EventList');}} color="green" name="done" />
-                      <Icon onPress={() => {this.rejectEventRequest(i.eventID); this.props.navigation.navigate('EventList');}} color="red" name="clear" />
+                        alert("You are now the member of the event!");}} color="green" name="done" />
+                      <Icon onPress={() => {this.rejectEventRequest(i.eventID);}} color="red" name="clear" />
                     </View>
                   </ListItem>
                 </View>

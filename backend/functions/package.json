@@ -6,7 +6,10 @@
     "shell": "firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
-    "logs": "firebase functions:log"
+    "logs": "firebase functions:log",
+    "test-online": "npx mocha --ignore test/offline.test.js",
+    "test-offline": "npx mocha --ignore test/online.test.js",
+    "test-all": "npx mocha --ignore test/online.test.js; npx mocha --ignore test/offline.test.js"
   },
   "engines": {
     "node": "12"

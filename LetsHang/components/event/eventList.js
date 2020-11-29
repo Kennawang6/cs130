@@ -14,7 +14,7 @@ import { setEvent, addEvent, removeEvent, editCurEvent} from '../../actions/edit
 class EventList extends Component{
 	constructor(props) {
     super(props);
-    this.state = {eventPair:[], curEvent: {},};
+    this.state = {eventPair:[], curEvent: {}, timeZoneString: ""};
     //this.getUserData = this.getUserData.bind(this);
 
     this.subscriber = firestore()
@@ -24,6 +24,8 @@ class EventList extends Component{
           //console.log(snapshot);
           snapshot.forEach(doc => {
             var curEvent = doc.data();
+            //console.log(curEvent);
+            //console.log(curEvent.commonSchedule);
             var curEventID = doc.ref._documentPath._parts[1];
             var ifmembers = curEvent.members.filter(curM=>curM===firebase.auth().currentUser.uid);
             if(ifmembers&&ifmembers.length){
@@ -44,8 +46,20 @@ class EventList extends Component{
   }
 
   /*componentDidMount() {
-    this.getEvent();
+    //this.getEvent();
   }*/
+
+  getUserTimeZone = async() => {
+    const data = await functions().httpsCallable('getUserData')({});
+    var timeZone = data.data.data.timeZone;
+    if(timeZone<-12||timeZone>12){
+      timeZone = 0;
+    }
+    var timeZoneString = timeZone.toString();
+    console.log(timeZoneString);
+    this.setState({timeZoneString: timeZoneString});
+  }
+
  
   getCurEvent = async(eventData, eventID) => {
     const userID = firebase.auth().currentUser.uid;
@@ -144,7 +158,9 @@ class EventList extends Component{
             }
             // no not Ready, no final time, no members ready, no invitees
             else{
-              this.computeTime();
+              if(eventData.decidedTime === 0){
+                this.computeTime();
+              }
               if(eventData.hostID == userID){
                 console.log("host: no not Ready, no final time, no members ready, no invitees");
                 this.setState({curEvent: {eventID: eventID, eventInfo: eventData, ifUser: true, 
@@ -317,11 +333,12 @@ class EventList extends Component{
 
   // use redux replace schedule
   handleNotReadyMember = async() => {
+    // call computeNextEarliestAvailableTime and setEventTime
 
   }
 
   computeTime = async() => {
-
+    // call computeNextEarliestAvailableTime and setEventTime
   }
 
   // use redux add schedule
@@ -330,23 +347,31 @@ class EventList extends Component{
     console.log("You have been ready");
   }
 
-  clickNotReadyButton = async() => {
-
+  clickNotReadyButton = async(eventID) => {
+    const data = await functions().httpsCallable('setNotReadyForEvent')({event_id: eventID});
+    console.log("You select not ready");
   }
 
-  clickFinalizeButton = async() => {
+  clickFinalizeButton = async(eventID, members) => {
+    // add the logic of adding the event to all the members in the schedule
+
+
+    
+    const data = await functions().httpsCallable('finalizeEventTime')({event_id: eventID});
+    console.log("The event has been finalized");
 
   }
 
 	render() {
-    var eventList = this.props.eventList;
+    //var eventList = this.props.eventList;
+    var eventList = this.state.eventPair;
     if(eventList && eventList.length){
       return(
         <View>
           <View>
-          <ListItem bottomDivider onPress={()=>{
+          <ListItem bottomDivider onPress={()=>this.getUserTimeZone().then(()=>{
                 this.props.reduxEditCurEvent({curEvent: {friendInvited: []}});
-                this.props.navigation.navigate('CreateEvent');}}>
+                this.props.navigation.navigate('CreateEvent', {timeZoneString: this.state.timeZoneString});})}>
             <Icon name='add' />
             <ListItem.Content>
               <ListItem.Title>Create Event</ListItem.Title>
@@ -387,7 +412,7 @@ class EventList extends Component{
             {i.ifFinalizedButton?
               <View>
               <Button title="Finalized" type="outline" onPress={()=>{
-                                                               ;}}
+                                                         this.clickFinalizeButton(i.eventID, i.eventInfo.members);}}
                 titleStyle= {{ color: 'black'}} 
                 buttonStyle={{ borderColor: 'grey', borderRadius: 0 }} 
                 containerStyle={{ backgroundColor: 'white' }}/>
@@ -404,7 +429,7 @@ class EventList extends Component{
                 </View>
                 <View style={{flex: 1}}>
                   <Button title="Not Ready" type="outline" onPress={()=>{
-                                                                 ;}}
+                                                      this.clickNotReadyButton(i.eventID);}}
                     titleStyle= {{ color: 'black'}} 
                     buttonStyle={{ borderColor: 'grey', borderRadius: 0 }} 
                     containerStyle={{ backgroundColor: 'white' }}/>
@@ -423,9 +448,9 @@ class EventList extends Component{
       return (
         <View>
           <View>
-          <ListItem bottomDivider onPress={()=>{
+          <ListItem bottomDivider onPress={()=>this.getUserTimeZone().then(()=>{
                 this.props.reduxEditCurEvent({curEvent: {friendInvited: []}});
-                this.props.navigation.navigate('CreateEvent');}}>
+                this.props.navigation.navigate('CreateEvent', {timeZoneString: this.state.timeZoneString});})}>
             <Icon name='add' />
             <ListItem.Content>
               <ListItem.Title>Create Event</ListItem.Title>

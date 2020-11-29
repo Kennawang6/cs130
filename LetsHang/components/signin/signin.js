@@ -10,6 +10,7 @@ import React, { Component } from 'react';
 //import { useState, useEffect } from 'react';
 import auth from '@react-native-firebase/auth';
 import {
+  ImageBackground,
   SafeAreaView,
   StyleSheet,
   ScrollView,
@@ -102,20 +103,32 @@ export default class Signin extends Component<Props>{
   render() {
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>Let's Hang</Text>
+        <View style={styles.container1}>
+          <ImageBackground source={require('../icon.jpg')} style={styles.image}>
+            <Text style={styles.text}>Let's Hang</Text>
+          </ImageBackground>
+        </View>
         
         {!firebase.apps.length && (
           <Text style={styles.instructions}>
             {`\nYou currently have no Firebase apps registered, this most likely means you've not downloaded your project credentials. Visit the link below to learn more. \n\n ${firebaseCredentials}`}
           </Text>
         )}
-
+        <View style={styles.button}>
         <GoogleSigninButton
           style={{width: 192, height: 48}}
           size={GoogleSigninButton.Size.Wide}
           color={GoogleSigninButton.Color.Dark}
           onPress={() => this.onGoogleButtonPress().then(()=>this.addUserData())}
         />
+        </View>
+        <View style={styles.black}>
+        <Text> </Text>
+        <Text> </Text>
+        <Text> </Text>
+        <Text> </Text>
+        <Text> </Text>
+        </View>
       </View>
 
     );

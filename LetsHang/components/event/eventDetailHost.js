@@ -64,7 +64,7 @@ class EventDetailHost extends Component{
         if(this.state.thisEvent&&this.state.thisEvent.length){
         return (
             <View>
-              <View>
+              <View bottomDivider>
                 <ListItem bottomDivider onPress={()=>this.props.navigation.navigate('EditEventName', 
                                 {eventID: this.state.eventID, eventName: this.state.thisEvent[0].eventInfo.name})}>
                   <ListItem.Content>
@@ -80,6 +80,12 @@ class EventDetailHost extends Component{
                     <ListItem.Subtitle>{this.state.thisEvent[0].eventInfo.description}</ListItem.Subtitle>
                   </ListItem.Content>
                   <ListItem.Chevron size={30} color="#808080"/>
+                </ListItem>
+                <ListItem bottomDivider>
+                   <ListItem.Content>
+                    <ListItem.Title>Duration</ListItem.Title>
+                    <ListItem.Subtitle>{this.state.thisEvent[0].eventInfo.duration} minutes</ListItem.Subtitle>
+                  </ListItem.Content>
                 </ListItem>
               </View>
               <View>

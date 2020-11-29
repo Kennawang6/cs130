@@ -36,6 +36,10 @@ class Schedule {
     })
     return {timeslots: serializedTimeslots};
   }
+
+  addTimeslot(timeslot) {
+    this.timeslots.push(new Timeslot(timeslot.start, timeslot.end, timeslot.description));
+  }
 }
 
 var scheduleConverter = {
@@ -331,6 +335,41 @@ exports.removeSchedule = functions.https.onCall(async (data, context) => {
     } catch (error) {
       functions.logger.error("could empty schedule of user with id " + id + ", error: " + error.message + "\n");
       return {status: "not ok", text: error.message};
+    }
+  }
+});
+
+exports.addEventToSchedule = functions.https.onCall(async (data, context) => {
+  // data parameters:
+  // uid: string
+  // timeslot: Timeslot
+  // returns:
+  // ok/not ok status
+  // error message if not ok
+  let uid = data.uid;
+  let timeslot = data.timeslot;
+  if (!uid) {
+    return {status: "not ok", message: "No uid provided\n"};
+  } else if (!timeslot) {
+    return {status: "not ok", message: "No event timeslot provided\n"};
+  } else {
+    try {
+      const result = await schedules.doc(uid).withConverter(scheduleConverter).get();
+      if (!result.exists) {
+        return {status: "not ok", message: "No schedule found for user with uid " + uid + "\n"};
+      }
+
+      let schedule = result.data();
+      console.log(schedule);
+      schedule.addTimeslot(timeslot);
+      console.log(schedule);
+
+      await schedules.doc(uid).withConverter(scheduleConverter).set(schedule);
+
+      return {status: "ok"};
+    } catch (error) {
+      functions.logger.error(error.message);
+      return {status: "not ok", message: error.message};
     }
   }
 });

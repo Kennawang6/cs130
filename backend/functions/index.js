@@ -21,3 +21,4 @@ exports.removeFriend = friend.removeFriend;
 exports.addSchedule = schedule.addSchedule;
 exports.getSchedule = schedule.getSchedule;
 exports.removeSchedule = schedule.removeSchedule;
+exports.addEventToSchedule = schedule.addEventToSchedule;

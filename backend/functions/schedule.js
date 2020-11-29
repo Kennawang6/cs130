@@ -36,6 +36,10 @@ class Schedule {
     })
     return {timeslots: serializedTimeslots};
   }
+
+  addTimeslot(timeslot) {
+    this.timeslots.push(new Timeslot(timeslot.start, timeslot.end, timeslot.description));
+  }
 }
 
 var scheduleConverter = {
@@ -134,7 +138,7 @@ exports.addTimeslotToSchedule = functions.https.onCall(async (data, context) => 
             functions.logger.info("Hello to " + context.auth.uid);
 
             const getScheduleInfo = await admin.firestore().collection('schedules').doc(context.auth.uid).get();
-            
+
             if(!getScheduleInfo.exists){
                 console.log("User schedule does not exist");
                 return {text: "User schedule does not exist"};
@@ -151,7 +155,7 @@ exports.addTimeslotToSchedule = functions.https.onCall(async (data, context) => 
                 console.log("Error, start time later than end time");
                 return {text: "Error, start time later than end time"};
             }
-            
+
             var finalTimeslots = [];
             var newTimeslotAdded = false;
 
@@ -205,7 +209,7 @@ exports.addTimeslotToScheduleandCombine = functions.https.onCall(async (data, co
             functions.logger.info("Hello to " + context.auth.uid);
 
             const getScheduleInfo = await admin.firestore().collection('schedules').doc(context.auth.uid).get();
-            
+
             if(!getScheduleInfo.exists){
                 console.log("User schedule does not exist");
                 return {text: "User schedule does not exist"};
@@ -225,7 +229,7 @@ exports.addTimeslotToScheduleandCombine = functions.https.onCall(async (data, co
                 console.log("Error, start time later than end time");
                 return {text: "Error, start time later than end time"};
             }
-            
+
             var finalTimeslots = [];
             var newTimeslot = {};
             var newTimeslotStarted = false;
@@ -330,6 +334,39 @@ exports.removeSchedule = functions.https.onCall(async (data, context) => {
       return {status: "ok"};
     } catch (error) {
       functions.logger.error("could empty schedule of user with id " + id + ", error: " + error.message + "\n");
+      return {status: "not ok", text: error.message};
+    }
+  }
+});
+
+exports.addEventToSchedule = functions.https.onCall(async (data, context) => {
+  // data parameters:
+  // uid: string
+  // timeslot: Timeslot
+  // returns:
+  // ok/not ok status
+  // error message if not ok
+  let uid = data.uid;
+  let timeslot = data.timeslot;
+  if (!uid) {
+    return {status: "not ok", text: "No uid provided\n"};
+  } else if (!timeslot) {
+    return {status: "not ok", text: "No event timeslot provided\n"};
+  } else {
+    try {
+      const result = await schedules.doc(uid).withConverter(scheduleConverter).get();
+      if (!result.exists) {
+        return {status: "not ok", text: "No schedule found for user with uid " + uid + "\n"};
+      }
+
+      let schedule = result.data();
+      schedule.addTimeslot(timeslot);
+
+      await schedules.doc(uid).withConverter(scheduleConverter).set(schedule);
+
+      return {status: "ok"};
+    } catch (error) {
+      functions.logger.error(error.message);
       return {status: "not ok", text: error.message};
     }
   }

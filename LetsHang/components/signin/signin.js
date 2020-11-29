@@ -87,7 +87,6 @@ type Props = {};
 export default class Signin extends Component<Props>{
 
   onGoogleButtonPress = async() => {
-
     // Get the users ID token
     const { idToken } = await GoogleSignin.signIn();
     // Create a Google credential with the token

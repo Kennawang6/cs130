@@ -3,6 +3,10 @@ import {View, Text, Button, TouchableOpacity, Alert, ScrollView} from 'react-nat
 import functions from '@react-native-firebase/functions';
 import { Avatar, ListItem, Icon, Divider } from 'react-native-elements';
 import styles from './styles';
+import Spinner from 'react-native-loading-spinner-overlay';
+
+import { connect } from 'react-redux';
+import { saveFriends, acceptFriend, removeFriend, rejectFriend } from '../../actions/editFriendsList'
 
 class NoFriends extends Component{
     constructor(props) {
@@ -12,7 +16,7 @@ class NoFriends extends Component{
     render() {
         return (
         <View>
-            <Text>{console.log("friends list is not undefined")}</Text>
+            <Text>{console.log("friends list is not undefined1")}</Text>
             <Divider style={{ margin: 15, }} />
             <Text style={{fontSize: 16, textAlign:'center', textAlignVertical:'center',
                             backgroundColor:'white', height: 60}}>
@@ -31,6 +35,7 @@ class HaveFriends extends Component{
 
     getFriendInfo(person){
         this.props.navigation.navigate( 'Friend Info', {
+           person: person,
            photo: person.photoURL,
            name: person.name,
            email: person.email,
@@ -72,7 +77,8 @@ class FriendsList extends Component{
         this.state = {
           text: "",
           friendsToAdd: [],
-          friends: []
+          friends: [],
+          spinner: false
         };
         this.addOrSeeRequests = this.addOrSeeRequests.bind(this);
     }
@@ -91,14 +97,38 @@ class FriendsList extends Component{
         this.setState({text: data.data.text,
                        friendsToAdd: data.data.friendsToAdd,
                        friends: data.data.friends}, () => {
-            console.log(this.state.text);
-            console.log(this.state.friends);
-            console.log(this.state.friendsToAdd);
+            this.setState({ spinner: false });
+
+            let friends = [];
+            if (Array.isArray(this.state.friends))
+                for (let friend of this.state.friends)
+                    friends.push(friend);
+
+            let friendRequests = [];
+            if (Array.isArray(this.state.friendsToAdd))
+                for (let request of this.state.friendsToAdd)
+                    friendRequests.push(request);
+
+            this.props.reduxSaveFriends(friends, friendRequests);
         });
+
+
     }
 
     componentDidMount() {
+        this.setState({ spinner: true });
         this.getFriendData();
+    }
+
+    componentDidUpdate(prevProps) {
+        console.log('Should I update?');
+        console.log("new friends length: ", this.props.friends.length);
+        console.log("old friends length: ", prevProps.friends.length);
+        if (this.props.friends.length !== prevProps.friends.length ||
+            this.props.friendRequests.length !== prevProps.friendRequests.length){
+            console.log('Re-rendering...');
+            this.getFriendData();
+        }
     }
 
     render() {
@@ -114,6 +144,15 @@ class FriendsList extends Component{
 
         return (
         <View>
+            {this.state.spinner === true &&
+                  <View style={styles.loading}>
+                  <Spinner
+                    visible={this.state.spinner}
+                    textContent={'Loading...'}
+                    textStyle={styles.spinnerTextStyle}
+                  />
+                  </View>
+            }
             <View>
               {
                 list.map((item, i) => (
@@ -145,4 +184,19 @@ class FriendsList extends Component{
     }
 }
 
-export default FriendsList;
+
+const mapStateToProps = (state) => {
+    return {
+        friends: state.friendsListReducer.friends,
+        friendRequests: state.friendsListReducer.friendRequests,
+}};
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        reduxSaveFriends:(friends, friendRequests) => dispatch(saveFriends(friends, friendRequests)),
+        reduxAcceptFriend:(friend) => dispatch(acceptFriend(friend)),
+        reduxRemoveFriend:(friend) => dispatch(removeFriend(friend)),
+        reduxRejectFriend:(friend) => dispatch(rejectFriend(friend)),
+}};
+
+export default connect(mapStateToProps, mapDispatchToProps)(FriendsList);

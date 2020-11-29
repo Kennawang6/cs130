@@ -111,7 +111,7 @@ exports.updateUserData = functions.https.onCall(async (data, context) => {
     }
 });
 
-exports.getUserName = functions.https.onCall(async (data, context) => {
+exports.getUserInfo = functions.https.onCall(async (data, context) => {
   // data parameters:
   // uid: string
   // returns:
@@ -124,10 +124,10 @@ exports.getUserName = functions.https.onCall(async (data, context) => {
   } else {
     try {
       const userRecord = await admin.auth().getUser(uid);
-      if (!userRecord.displayName) {
-        return {text: "User does not have a name", email: userRecord.email};
+      if (!userRecord) {
+        return {text: "User does not exist"};
       } else {
-        return {name: userRecord.displayName};
+        return {data: userRecord};
       }
     } catch (error) {
       functions.logger.error(error.message);

@@ -1,41 +1,141 @@
-import React, { Component } from 'react';
-import { StyleSheet, View} from 'react-native';
+import React, { Component, useState, useEffect } from 'react';
+import { StyleSheet, View, ScrollView} from 'react-native';
 import auth from '@react-native-firebase/auth';
 import functions from '@react-native-firebase/functions';
 import { Input, Text, ListItem } from 'react-native-elements';
 import Icon from 'react-native-elements';
 import { Button } from 'react-native-elements';
 
+import {SET_EVENT, ADD_EVENT, REMOVE_EVENT, CUR_EVENT} from '../../actions/types'
+import { useSelector, useDispatch } from 'react-redux';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { connect } from 'react-redux';
 import { setEvent, addEvent, removeEvent, editCurEvent} from '../../actions/editEvent';
 
-class CreateEvent extends Component{
-  constructor(props) {
-      super(props);
-      this.state = { eventName: "", eventDescription: "", startDate: null, endDate:null, timeZoneString:""};
-  }
-  componentDidMount(){
-    this.getUserTimeZone();
-  }
-  
-  getUserTimeZone = async() => {
-    const data = await functions().httpsCallable('getUserData')({});
-    var timeZone = data.data.data.timeZone;
-    if(timeZone<-12||timeZone>12){
-      timeZone = 0;
+
+const CreateEvent = props => {
+  //const [timeZoneString, setTimeZoneString] = useState(props.route.params.timeZoneString);
+  const [timeZoneString, setTimeZoneString] = useState(props.route.params.timeZoneString);
+  const curEvent = useSelector(state => state.eventReducer);
+  const dispatch = useDispatch();
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [durationS, setDurationS] = useState('');
+  function useInput() {
+      const [date, setDate] = useState(new Date());
+      const [mode, setMode] = useState('date');
+      const [show, setShow] = useState(false);
+
+      const showMode = (currentMode) => {
+          setShow(true);
+          setMode(currentMode);
+      };
+      const showDatepicker = () => {
+        showMode('date');
+      };
+      const showTimepicker = () => {
+        showMode('time');
+      };
+
+      const onChange = (event, selectedDate) => {
+          const currentDate = selectedDate || date
+          setShow(Platform.OS === 'ios');
+          setDate(currentDate);
+      }
+      return {
+          date,
+          showDatepicker,
+          showTimepicker,
+          show,
+          mode,
+          onChange
+      }
+  };
+
+
+  const createEvent = async() => {
+    var ifValidCreate = true;
+
+    // check name
+    if(name == ''){
+      ifValidCreate = false;
+      alert("Invalid Name: Name can not be empty");
     }
-    var timeZoneString = timeZone.toString();
-    console.log(timeZoneString);
-    this.setState({timeZoneString: timeZoneString});
-  }
 
-  handleTimeZone = (newTimeString) => {
-    this.setState({timeZoneString: newTimeString}, () => {                       
-        console.log(this.state.timeZoneString);
-    });
-  }
+    // check time zone
+    if(timeZoneString==''){
+      ifValidCreate = false;
+      alert("Invalid Time Zone: Time zone should range from -12 to 12");
+    }
 
-  setTimeZone = async(newTime) =>{
+    var timeZone;
+    if(ifValidCreate){
+      timeZone = parseInt(timeZoneString, 10);
+      if(timeZone < -12 || timeZone>12){
+        ifValidCreate = false;
+        alert("Invalid Time Zone: Time zone should range from -12 to 12");
+      }
+      else{
+        setTimeZone(timeZone);
+      }
+    }
+    
+    //check start and end date
+    
+
+    var startDate = start.date.getTime();
+    var endDate = end.date.getTime();
+    
+    if(endDate<=startDate){
+      ifValidCreate = false;
+      alert("End Date must be after the Start Date");
+    }
+    
+    //check duration
+    var duration;
+    if(durationS==''){
+      ifValidCreate = false;
+      alert("Duration can not be empty");
+    }
+    else{
+      duration = parseInt(durationS, 10);
+      if(duration<=0){
+        ifValidCreate = false;
+        alert("Duration(minutes) must be a positive number");
+      }
+    }
+
+    //get invitees list
+    var invitees = [];
+    var friendInvited = curEvent.curEvent.friendInvited;
+    for (var i = friendInvited.length - 1; i >= 0; i--) {
+      invitees.push(friendInvited[i].uid);
+    }
+
+
+    if(ifValidCreate){
+      console.log(name);
+      console.log(description);
+      console.log(timeZone);
+      console.log(startDate);
+      console.log(endDate);
+      console.log(duration);
+      console.log(invitees);
+      const data = await functions().httpsCallable('createEvent')({
+        event_name: name,
+        description: description,
+        invitees: invitees,
+        duration: duration,
+        start_date: startDate,
+        end_date: endDate
+      });
+      console.log("event is created");
+      props.navigation.navigate('EventList');
+    }
+    
+  };
+
+  const setTimeZone = async(newTime) =>{
     const data = await functions().httpsCallable('updateUserData')({
       userData: {
         timeZone: newTime
@@ -44,66 +144,85 @@ class CreateEvent extends Component{
     console.log("Time Zone is set");
   }
 
-  createEvent = async() =>{
-      var eventName = this.state.eventName;
-      var eventDescription = this.state.eventDescription;
-      var invitees = [];
-      var startDate = this.state.startDate;
-      var endDate = this.state.endDate;
-      var friendInvited = this.props.curEvent.friendInvited;
-      for (var i = friendInvited.length - 1; i >= 0; i--) {
-        invitees.push(friendInvited[i].uid);
-      }
-      
-      const data = await functions().httpsCallable('createEvent')({
-          event_name: eventName,
-          description: eventDescription,
-          invitees: invitees,
-          start_date: startDate,
-          end_date: endDate
-      });
-      
-      var createdEventID = data.data.event_id;
-      this.generateEventPair(createdEventID);
-      console.log("Event is created");
-  }
+  const start = useInput(new Date());
+  const end = useInput(new Date());
+  var startDate = start.date.toDateString();
+  var endDate = end.date.toDateString();
 
-  generateEventPair = async(eventID) => {
-    var eventPair = [];
-    var eventInfo = await functions().httpsCallable('getEvent')({event_id: eventID});
-    
-    eventPair.push({eventID: eventID, eventInfo: eventInfo.data.event_data, ifUser: true});
-    
-    this.props.reduxAddEvent(eventPair[0]);
-  }
-
-  render() {
-    return (
-      <View>
+  return (
+    <View>
+      <ScrollView>
         <View>
           <Text>Event Name</Text>
           <Input
-            placeholder='Event Name'
-            onChangeText={name => this.setState({ eventName: name })}
-        />
-        <Text>Event Description (Optional)</Text>
-          <Input
-            placeholder='Event Description'
-            onChangeText={description => this.setState({ eventDescription: description })}
-        />
-        <Text>Your Time Zone</Text>
-          <Input
-            placeholder={this.state.timeZoneString}
-            value={this.state.timeZoneString}
-            onChangeText={this.handleTimeZone}
-        />
+            placeholder=''
+            onChangeText={name => {
+              setName(name);         
+            }}
+          />
         </View>
         <View>
+          <Text>Event Description(Optional)</Text>
+          <Input
+            placeholder=''
+            onChangeText={des => {
+              setDescription(des);         
+            }}
+          />
+        </View>
+        
+        <View>
+          <Text>Your Time Zone</Text>
+          <Input
+            placeholder={timeZoneString}
+            value={timeZoneString}
+            onChangeText={ts => {setTimeZoneString(ts);}}
+          />
+        </View>
+
+        <View>
+          <Button onPress={start.showDatepicker} title = {"Start Date: "+startDate}>
+          </Button>
+          {start.show && (
+            <DateTimePicker
+              testID="startDateTimePicker"
+              value={start.date}
+              mode={start.mode}
+              display="default"
+              onChange={start.onChange}
+            />
+          )}
+        </View>
+        <View>
+          <Button onPress={end.showDatepicker} title = {"End Date: "+endDate}>
+          </Button>
+          {end.show && (
+          <DateTimePicker
+            testID="endDateTimePicker"
+            value={end.date}
+            mode={end.mode}
+            display="default"
+            onChange={end.onChange}
+          />
+        )}
+        </View>
+
+        <View>
+          <Text>Duration (minutes)</Text>
+          <Input
+            placeholder={durationS}
+            value={durationS}
+            onChangeText={ds => {setDurationS(ds);}}
+          />
+        </View>
+
+        <View>
         <Text> Friends Invited </Text>
+        <ScrollView>
         {
-          this.props.curEvent.friendInvited.map(i =>
-            <View>
-              <ListItem key={i} bottomDivider>
+          curEvent.curEvent.friendInvited.map(i =>
+            <View key={i.email}>
+              <ListItem bottomDivider>
                 <ListItem.Content>
                   <ListItem.Title>{i.email}</ListItem.Title>
                 </ListItem.Content>
@@ -111,44 +230,27 @@ class CreateEvent extends Component{
             </View>
           )
         }
+        </ScrollView>
         </View>
         <View>
         <Button
             title="Invite Friends"
-            onPress={()=>this.props.navigation.navigate('InviteFriend')}
+            onPress={()=>props.navigation.navigate('InviteFriend')}
         />
         </View>
         <Text></Text>
+
         <View>
-        <Button
-            title="Create Event"
-            onPress={()=>{
-              var timeZone = parseInt(this.state.timeZoneString, 10);
-              if(timeZone >= -12 && timeZone<=12){
-                this.setTimeZone(timeZone);
-                this.createEvent();
-                this.props.navigation.navigate('EventList');
-              }
-              else{
-                alert("Invalid Input: Time zone should range from -12 to 12");
-              }
-              
-            }}
-        />
+          <Button onPress={createEvent} title="Create Event">
+          </Button>
         </View>
-      </View>
+      </ScrollView>
+    </View>
+      
     );
-  }
+
 }
 
+export default CreateEvent;
 
-const mapStateToProps = (state) => {return {curEvent:state.eventReducer.curEvent, eventList: state.eventReducer.eventList}};
 
-const mapDispatchToProps = (dispatch) => {
-  return{
-    reduxAddEvent:(event) => dispatch(addEvent(event)),
-    reduxRemoveEvent: (eventID) => dispatch(removeEvent(eventID)),
-    reduxEditCurEvent: (event) => dispatch(editCurEvent(event)),
-}};
-
-export default connect(mapStateToProps, mapDispatchToProps)(CreateEvent);

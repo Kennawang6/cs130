@@ -138,7 +138,7 @@ exports.addTimeslotToSchedule = functions.https.onCall(async (data, context) => 
             functions.logger.info("Hello to " + context.auth.uid);
 
             const getScheduleInfo = await admin.firestore().collection('schedules').doc(context.auth.uid).get();
-            
+
             if(!getScheduleInfo.exists){
                 console.log("User schedule does not exist");
                 return {text: "User schedule does not exist"};
@@ -155,7 +155,7 @@ exports.addTimeslotToSchedule = functions.https.onCall(async (data, context) => 
                 console.log("Error, start time later than end time");
                 return {text: "Error, start time later than end time"};
             }
-            
+
             var finalTimeslots = [];
             var newTimeslotAdded = false;
 
@@ -209,7 +209,7 @@ exports.addTimeslotToScheduleandCombine = functions.https.onCall(async (data, co
             functions.logger.info("Hello to " + context.auth.uid);
 
             const getScheduleInfo = await admin.firestore().collection('schedules').doc(context.auth.uid).get();
-            
+
             if(!getScheduleInfo.exists){
                 console.log("User schedule does not exist");
                 return {text: "User schedule does not exist"};
@@ -229,7 +229,7 @@ exports.addTimeslotToScheduleandCombine = functions.https.onCall(async (data, co
                 console.log("Error, start time later than end time");
                 return {text: "Error, start time later than end time"};
             }
-            
+
             var finalTimeslots = [];
             var newTimeslot = {};
             var newTimeslotStarted = false;
@@ -360,9 +360,7 @@ exports.addEventToSchedule = functions.https.onCall(async (data, context) => {
       }
 
       let schedule = result.data();
-      console.log(schedule);
       schedule.addTimeslot(timeslot);
-      console.log(schedule);
 
       await schedules.doc(uid).withConverter(scheduleConverter).set(schedule);
 

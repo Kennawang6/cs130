@@ -10,6 +10,7 @@ import firestore from '@react-native-firebase/firestore';
 
 import { connect } from 'react-redux';
 import { setEvent, addEvent, removeEvent, editCurEvent} from '../../actions/editEvent';
+import { addScheduleEvent, replaceSchedule, removeScheduleEvent} from '../../actions/editSchedule';
 
 class EventList extends Component{
 	constructor(props) {
@@ -331,12 +332,6 @@ class EventList extends Component{
 	}
 */
 
-  // use redux replace schedule
-  handleNotReadyMember = async() => {
-    // call computeNextEarliestAvailableTime and setEventTime
-
-  }
-
   computeTime = async() => {
     // call computeNextEarliestAvailableTime and setEventTime
   }
@@ -352,11 +347,18 @@ class EventList extends Component{
     console.log("You select not ready");
   }
 
-  clickFinalizeButton = async(eventID, members) => {
+  clickFinalizeButton = async(eventID, eventInfo) => {
     // add the logic of adding the event to all the members in the schedule
+    var members = eventInfo.members;
+    var description = eventInfo.description;
+    var start = eventInfo.decidedTime;
+    var end = start + eventInfo.duration*60000;
+    for(var i=0; i<members.length; i++){
+      const data = await functions().httpsCallable('addEventToSchedule')({uid: members[i], timeslot: {start: start, end:end, description: description,}});
+    }
+    this.props.addScheduleEvent({description: description, start:start, end: end, id: start});
 
-
-    
+    //finalized
     const data = await functions().httpsCallable('finalizeEventTime')({event_id: eventID});
     console.log("The event has been finalized");
 
@@ -412,7 +414,7 @@ class EventList extends Component{
             {i.ifFinalizedButton?
               <View>
               <Button title="Finalized" type="outline" onPress={()=>{
-                                                         this.clickFinalizeButton(i.eventID, i.eventInfo.members);}}
+                                                         this.clickFinalizeButton(i.eventID, i.eventInfo);}}
                 titleStyle= {{ color: 'black'}} 
                 buttonStyle={{ borderColor: 'grey', borderRadius: 0 }} 
                 containerStyle={{ backgroundColor: 'white' }}/>
@@ -476,10 +478,11 @@ class EventList extends Component{
 	}
 }
 
-const mapStateToProps = (state) => {return {curEvent:state.eventReducer.curEvent, eventList: state.eventReducer.eventList}};
+const mapStateToProps = (state) => {return {curEvent:state.eventReducer.curEvent, eventList: state.eventReducer.eventList, scheduledEvents: state.scheduleReducer.scheduledEvents}};
 
 const mapDispatchToProps = (dispatch) => {
   return{
+    addScheduleEvent: (schedule) => dispatch(addScheduleEvent(schedule)),
     reduxSetEvent:(eventPair) => dispatch(setEvent(eventPair)),
     reduxAddEvent:(event) => dispatch(addEvent(event)),
     reduxRemoveEvent: (eventID) => dispatch(removeEvent(eventID)),

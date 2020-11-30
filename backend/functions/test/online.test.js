@@ -31,7 +31,7 @@ describe('Online Tests', () => {
       addEventToSchedule = testOnline.wrap(functions.addEventToSchedule);
     });
     it('should get the same schedule it added', async () => {
-      let result = await addSchedule({timeslots: [{start: 3, end: 4, description: "test"}]}, {auth: {uid: "2"}});
+      let result = await addSchedule({timeslots: [{start: 3, end: 4, id: 3, description: "test"}]}, {auth: {uid: "2"}});
       assert(result.status == "ok");
       assert(!result.text);
 
@@ -47,7 +47,7 @@ describe('Online Tests', () => {
     });
 
     it('should get a modified schedule after adding a timeslot to that schedule', async () => {
-      let result = await addEventToSchedule({uid: "2", timeslot: {start: 5, end: 6, description: "new"}});
+      let result = await addEventToSchedule({uid: "2", timeslot: {start: 5, end: 6, id: 5, description: "new"}});
       console.log(result.status);
       console.log(result.text);
       assert(result.status == "ok");
@@ -61,9 +61,11 @@ describe('Online Tests', () => {
       assert(result.schedule.timeslots.length == 2);
       assert(result.schedule.timeslots[0].start == 3);
       assert(result.schedule.timeslots[0].end == 4);
+      assert(result.schedule.timeslots[0].id == 3);
       assert(result.schedule.timeslots[0].description == 'test');
       assert(result.schedule.timeslots[1].start == 5);
       assert(result.schedule.timeslots[1].end == 6);
+      assert(result.schedule.timeslots[1].id == 5);
       assert(result.schedule.timeslots[1].description == 'new');
     });
 

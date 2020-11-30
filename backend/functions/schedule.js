@@ -6,25 +6,51 @@ class Timeslot {
   // start: int
   // end: int
   // description: string
-  // availability: integer
-  constructor(start, end, description = "", availability = 1) {
+  // id: int
+  constructor(start, end, id, description = "") {
     this.start = start;
     this.end = end;
+    this.id = id;
     this.description = description;
-    this.availability = availability;
   }
 
   serialize() {
-    return {start: this.start, end: this.end, description: this.description, availability: this.availability};
+    return {start: this.start, end: this.end, id: this.id, description: this.description};
+  }
+
+  static compare(timeslot1, timeslot2) {
+    // parameters:
+    // timeslot1: Timeslot
+    // timeslot2: Timeslot
+    // returns:
+    // -1: timeslot1 is entirely before timeslot2
+    // 0: timeslot1 and timeslot2 intersect
+    // 1: timeslot1 is entirely after timeslot2
+    if (timeslot1.end < timeslot2.start) {
+      return -1;
+    } else if (timeslot1.start > timeslot2.end) {
+        return 1;
+    } else {
+      return 0;
+    }
+  }
+
+  static merge(timeslot1, timeslot2) {
+    // merges 2 timeslots and returns the result
+    let start = min(timeslot1.start, timeslot2.start);
+    let end = max(timeslot2.end, timeslot2.end);
+    let id = min(timeslot1.id, timeslot2.id);
+    let description = timeslot1.description + ", " + timeslot2.description;
+    return new Timeslot(start, end, id, description);
   }
 }
 
 class Schedule {
-  // timeslots: list of objects with start and end fields (like Timeslot)
+  // timeslots: array of objects with start and end fields (like Timeslot)
   constructor (timeslotList = []) {
     let timeslots = [];
     timeslotList.forEach((timeslot) => {
-      timeslots.push(new Timeslot(timeslot.start, timeslot.end, timeslot.description, timeslot.availability));
+      timeslots.push(new Timeslot(timeslot.start, timeslot.end, timeslot.id, timeslot.description));
     });
     this.timeslots = timeslots;
   }
@@ -37,8 +63,39 @@ class Schedule {
     return {timeslots: serializedTimeslots};
   }
 
-  addTimeslot(timeslot) {
-    this.timeslots.push(new Timeslot(timeslot.start, timeslot.end, timeslot.description));
+  addTimeslot(newTimeslot) {
+    // parameters:
+    // newTimeslot: Timeslot
+    // inserts the newTimeslot in order
+    // if newTimeslot intersects in time with another timeslot in the array,
+    // this function merges the two and inserts the merged timeslot
+    let result = [], newTimeslotAdded = false;
+    this.timeslots.sort(Timeslot.compare);
+
+    for (let currentTimeslot of this.timeslots) {
+      if (newTimeslotAdded) {
+      } else {
+        switch (Timeslot.compare(newTimeslot, currentTimeslot)) {
+          case -1:
+            result.push(newTimeslot);
+            result.push(currentTimeslot);
+            newTimeslotAdded = true;
+            break;
+          case 0:
+            result.push(Timeslot.merge(newTimeslot, currentTimeslot));
+            newTimeslotAdded = true;
+            break;
+          case 1:
+            result.push(currentTimeslot);
+            break;
+        }
+      }
+    }
+    if (!newTimeslotAdded) {
+      result.push(newTimeslot);
+    }
+
+    this.timeslots = result;
   }
 }
 
@@ -128,6 +185,7 @@ exports.addTimeslotToSchedule = functions.https.onCall(async (data, context) => 
     //  timeslot: {
     //      start: <milliseconds since 1970/01/01, which can be found using Date.getTime>
     //      end: <end time in same format>,
+    //      id: <id>,
     //      description: <description>
     //  }
     if (!context.auth) {
@@ -164,6 +222,7 @@ exports.addTimeslotToSchedule = functions.https.onCall(async (data, context) => 
                 finalTimeslots.push({
                   start: data.timeslot.start,
                   end: data.timeslot.end,
+                  id: data.timeslot.id,
                   description: data.timeslot.description,
                 });
                 finalTimeslots.push(scheduleTimeslot);
@@ -177,6 +236,7 @@ exports.addTimeslotToSchedule = functions.https.onCall(async (data, context) => 
               finalTimeslots.push({
                 start: data.timeslot.start,
                 end: data.timeslot.end,
+                id: data.timeslot.id,
                 description: data.timeslot.description,
               });
             }
@@ -199,6 +259,7 @@ exports.addTimeslotToScheduleandCombine = functions.https.onCall(async (data, co
     //  timeslot: {
     //      start: <milliseconds since 1970/01/01, which can be found using Date.getTime>
     //      end: <end time in same format>,
+    //      id: <id>,
     //      description: <description>
     //  }
     if (!context.auth) {
@@ -236,6 +297,7 @@ exports.addTimeslotToScheduleandCombine = functions.https.onCall(async (data, co
             var newTimeslotEnded = false;
             newTimeslot.description = data.timeslot.description;
             newTimeslot.start = data.timeslot.start;
+            newTimeslot.id = data.timeslot.id;
 
             for(const scheduleTimeslot of scheduleData.timeslots){
               const scheduleTimeslotStartTime = scheduleTimeslot.start;
@@ -364,7 +426,7 @@ exports.addEventToSchedule = functions.https.onCall(async (data, context) => {
       }
 
       let schedule = result.data();
-      schedule.addTimeslot(timeslot);
+      schedule.addTimeslot(new Timeslot(timeslot.start, timeslot.end, timeslot.id, timeslot.description));
 
       await schedules.doc(uid).withConverter(scheduleConverter).set(schedule);
 

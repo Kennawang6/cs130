@@ -179,7 +179,7 @@ describe('Offline Tests', () => {
       });
 
       it('should fail when get() throws an error', async () => {
-        getStub.rejects();
+        getStub.rejects({message: "error"});
         let result = await addTimeslotToSchedule(null, {auth: {uid: "1"}});
         assert(getStub.calledOnce);
         assert(dataStub.notCalled);
@@ -231,7 +231,7 @@ describe('Offline Tests', () => {
       it ('should fail when update() throws an error', async () => {
         getStub.resolves({exists: true, data: dataStub});
         dataStub.returns({timeslots: []});
-        updateStub.rejects();
+        updateStub.rejects({message: "error"});
         let result = await addTimeslotToSchedule({timeslot: {start: 0, end: 1, description: "test"}}, {auth: {uid: "1"}});
         assert(getStub.calledOnce);
         assert(dataStub.calledOnce);
@@ -276,7 +276,7 @@ describe('Offline Tests', () => {
       });
 
       it('should fail when get() throws an error', async () => {
-        getStub.rejects();
+        getStub.rejects({message: "error"});
         let result = await addTimeslotToScheduleandCombine(null, {auth: {uid: "1"}});
         assert(getStub.calledOnce);
         assert(dataStub.notCalled);
@@ -328,7 +328,7 @@ describe('Offline Tests', () => {
       it ('should fail when update() throws an error', async () => {
         getStub.resolves({exists: true, data: dataStub});
         dataStub.returns({timeslots: []});
-        updateStub.rejects();
+        updateStub.rejects({message: "error"});
         let result = await addTimeslotToScheduleandCombine({timeslot: {start: 0, end: 1, description: "test"}}, {auth: {uid: "1"}});
         assert(getStub.calledOnce);
         assert(dataStub.calledOnce);
@@ -421,6 +421,23 @@ describe('Offline Tests', () => {
         assert(setStub.notCalled);
         assert(result.status == "not ok");
         assert(result.text == "No event timeslot provided\n");
+      });
+
+      it('should fail when timeslot is incorrectly formatted', async () => {
+        let result = await addEventToSchedule({uid: 1, timeslot: {start: "text", end: 2}}, null);
+        assert(result.status == "not ok");
+        assert(result.text == "Time format incorrect, check endpoint specification for details");
+
+        result = await addEventToSchedule({uid: 1, timeslot: {start: 1, end: "text"}}, null);
+        assert(result.status == "not ok");
+        assert(result.text == "Time format incorrect, check endpoint specification for details");
+
+        result = await addEventToSchedule({uid: 1, timeslot: {start: 2, end: 1}}, null);
+        assert(result.status == "not ok");
+        assert(result.text == "Start time later than end time");
+
+        assert(getStub.notCalled);
+        assert(setStub.notCalled);
       });
 
       it('should fail when firestore get() throws an error', async () => {

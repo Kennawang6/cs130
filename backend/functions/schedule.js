@@ -352,6 +352,10 @@ exports.addEventToSchedule = functions.https.onCall(async (data, context) => {
     return {status: "not ok", text: "No uid provided\n"};
   } else if (!timeslot) {
     return {status: "not ok", text: "No event timeslot provided\n"};
+  } else if (isNaN(timeslot.start) || isNaN(timeslot.end)) { // TODO test cases
+    return {status: "not ok", text: "Time format incorrect, check endpoint specification for details"};
+  } else if (timeslot.start > timeslot.end) {
+    return {status: "not ok", text: "Start time later than end time"};
   } else {
     try {
       const result = await schedules.doc(uid).withConverter(scheduleConverter).get();

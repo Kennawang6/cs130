@@ -3,7 +3,7 @@ import { StyleSheet, View, ScrollView} from 'react-native';
 import auth from '@react-native-firebase/auth';
 import functions from '@react-native-firebase/functions';
 import { Input, Text, ListItem } from 'react-native-elements';
-import Icon from 'react-native-elements';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import { Button } from 'react-native-elements';
 
 import {SET_EVENT, ADD_EVENT, REMOVE_EVENT, CUR_EVENT} from '../../actions/types'
@@ -181,8 +181,19 @@ const CreateEvent = props => {
         </View>
 
         <View>
-          <Button onPress={start.showDatepicker} title = {"Start Date: "+startDate}>
-          </Button>
+          <Button type="outline" onPress={start.showDatepicker} 
+                title = {" Start Date:"+ startDate}
+                titleStyle= {{ color: 'black'}} 
+                buttonStyle={{ borderColor: 'grey', borderRadius: 0 }} 
+                containerStyle={{ backgroundColor: 'white' }}
+                icon={
+                  <Icon
+                    name="calendar"
+                    size={15}
+                  />
+                }
+          />
+          
           {start.show && (
             <DateTimePicker
               testID="startDateTimePicker"
@@ -192,10 +203,20 @@ const CreateEvent = props => {
               onChange={start.onChange}
             />
           )}
-        </View>
-        <View>
-          <Button onPress={end.showDatepicker} title = {"End Date: "+endDate}>
-          </Button>
+        
+          <Button type="outline" onPress={end.showDatepicker} 
+                title = {" End Date:"+endDate}
+                titleStyle= {{ color: 'black'}} 
+                buttonStyle={{ borderColor: 'grey', borderRadius: 0 }} 
+                containerStyle={{ backgroundColor: 'white' }}
+                icon={
+                  <Icon
+                    name="calendar"
+                    size={15}
+                  />
+                }
+          />
+          
           {end.show && (
           <DateTimePicker
             testID="endDateTimePicker"

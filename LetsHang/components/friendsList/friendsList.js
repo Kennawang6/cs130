@@ -4,6 +4,9 @@ import functions from '@react-native-firebase/functions';
 import { Avatar, ListItem, Icon, Divider } from 'react-native-elements';
 import styles from './styles';
 import Spinner from 'react-native-loading-spinner-overlay';
+import firebase from '@react-native-firebase/app';
+import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
 
 import { connect } from 'react-redux';
 import { saveFriends, acceptFriend, removeFriend, rejectFriend } from '../../actions/editFriendsList'
@@ -16,7 +19,7 @@ class NoFriends extends Component{
     render() {
         return (
         <View>
-            <Text>{console.log("friends list is not undefined1")}</Text>
+            <Text>{console.log("friends list is not undefined")}</Text>
             <Divider style={{ margin: 15, }} />
             <Text style={{fontSize: 16, textAlign:'center', textAlignVertical:'center',
                             backgroundColor:'white', height: 60}}>
@@ -76,43 +79,42 @@ class FriendsList extends Component{
         super(props);
         this.state = {
           text: "",
-          friendsToAdd: [],
-          friends: [],
           spinner: false
         };
         this.addOrSeeRequests = this.addOrSeeRequests.bind(this);
+
+        this.subscriber = firestore()
+            .collection('users')
+            .doc(firebase.auth().currentUser.uid)
+            .onSnapshot(documentSnapshot => {
+              console.log("Fetch friends and friend requests");
+              let oldFriendListSize = this.props.friends.length;
+              let newFriendListSize = documentSnapshot._data.friends.length;
+              let oldFriendRequestsSize = this.props.friendRequests.length;
+              let newFriendRequestsSize = documentSnapshot._data.friendsToAdd.length;
+              if (oldFriendListSize !== newFriendListSize || oldFriendRequestsSize !== newFriendRequestsSize){
+                console.log("Friends List or requests size has changed")
+                this.getFriendData();
+              }
+        });
     }
 
      addOrSeeRequests(location){
-        this.props.navigation.navigate(location, {
-            friendsToAdd: this.state.friendsToAdd,
-            navigation: this.props.navigation
-        });
+        this.props.navigation.navigate(location);
      }
 
     getFriendData = async() => {
         const data = await functions().httpsCallable('getFriendsList')({});
         console.log("Friends list is fetched");
         console.log(data);
-        this.setState({text: data.data.text,
-                       friendsToAdd: data.data.friendsToAdd,
-                       friends: data.data.friends}, () => {
+        let friends = data.data.friends;
+        let friendRequests = data.data.friendsToAdd;
+        this.setState({text: data.data.text,}, () => {
             this.setState({ spinner: false });
 
-            let friends = [];
-            if (Array.isArray(this.state.friends))
-                for (let friend of this.state.friends)
-                    friends.push(friend);
-
-            let friendRequests = [];
-            if (Array.isArray(this.state.friendsToAdd))
-                for (let request of this.state.friendsToAdd)
-                    friendRequests.push(request);
-
+        if (Array.isArray(friends) && Array.isArray(friendRequests))
             this.props.reduxSaveFriends(friends, friendRequests);
         });
-
-
     }
 
     componentDidMount() {
@@ -121,14 +123,7 @@ class FriendsList extends Component{
     }
 
     componentDidUpdate(prevProps) {
-        console.log('Should I update?');
-        console.log("new friends length: ", this.props.friends.length);
-        console.log("old friends length: ", prevProps.friends.length);
-        if (this.props.friends.length !== prevProps.friends.length ||
-            this.props.friendRequests.length !== prevProps.friendRequests.length){
-            console.log('Re-rendering...');
-            this.getFriendData();
-        }
+        console.log('Re-rendering... in friends list');
     }
 
     render() {
@@ -166,15 +161,15 @@ class FriendsList extends Component{
                 ))
               }
             </View>
-            {(Array.isArray(this.state.friends) && this.state.friends.length < 1) &&
+            {(Array.isArray(this.props.friends) && this.props.friends.length < 1) &&
                 <NoFriends />
             }
-            {(Array.isArray(this.state.friends)) &&
-                <HaveFriends friends={this.state.friends}
-                             friendsToAdd={this.state.friendsToAdd}
+            {(Array.isArray(this.props.friends)) &&
+                <HaveFriends friends={this.props.friends}
+                             friendsToAdd={this.props.friendRequests}
                              navigation={this.props.navigation}/>
             }
-            {(Array.isArray(this.state.friends) == false) &&
+            {(Array.isArray(this.props.friends) == false) &&
                 <View>
                     <Text>{console.log("friends list is undefined")} {this.state.text}</Text>
                 </View>

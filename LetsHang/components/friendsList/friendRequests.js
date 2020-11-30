@@ -52,13 +52,12 @@ class FriendRequests extends Component{
     }
 
     componentDidUpdate(prevProps) {
-        console.log("Re-rendering...");
-        console.log(this.props.friendRequests);
+        console.log("Re-rendering... in friend requests");
     }
 
     render() {
         const friendsToAdd = this.props.friendRequests.map(i =>
-            <View key={i.uid} bottomDivider style = {{padding: 1,}}>
+            <View key={i.email} bottomDivider style = {{padding: 1,}}>
                 <ListItem>
                     <Avatar
                         size="medium"

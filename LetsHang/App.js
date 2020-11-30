@@ -216,7 +216,7 @@ function LoginApp() {
       <Tab.Navigator>
         <Tab.Screen name="Schedule" component={ScheduleStackScreen} />
         <Tab.Screen name="Event" component={EventStackScreen} />
-        <Tab.Screen name="Friend's List" component={FriendsListStackScreen} />
+        <Tab.Screen name="Friends List" component={FriendsListStackScreen} />
         <Tab.Screen name="Profile" component={ProfileStackScreen} />
       </Tab.Navigator>
     );

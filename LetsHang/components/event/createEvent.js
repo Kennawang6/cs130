@@ -129,6 +129,11 @@ const CreateEvent = props => {
         start_date: startDate,
         end_date: endDate
       });
+      const data1 = await functions().httpsCallable('addUserScheduleToEvent')({event_id: data.data.event_id});
+      console.log(data1);
+      //console.log(data.data.event_id);
+      const data2 = await functions().httpsCallable('computeNextEarliestAvailableTime')({event_id: data.data.event_id});
+      console.log(data2);
       console.log("event is created");
       props.navigation.navigate('EventList');
     }

@@ -7,6 +7,7 @@ import { Input } from 'react-native-elements';
 import { Icon } from 'react-native-elements'
 import { Button, ListItem, Divider } from 'react-native-elements';
 import firestore from '@react-native-firebase/firestore';
+import moment from 'moment/min/moment-with-locales';
 
 import { connect } from 'react-redux';
 import { setEvent, addEvent, removeEvent, editCurEvent} from '../../actions/editEvent';
@@ -46,9 +47,9 @@ class EventList extends Component{
                      
   }
 
-  /*componentDidMount() {
-    //this.getEvent();
-  }*/
+  componentDidMount() {
+    this.getUserTimeZone();
+  }
 
   getUserTimeZone = async() => {
     const data = await functions().httpsCallable('getUserData')({});
@@ -165,7 +166,7 @@ class EventList extends Component{
             }
             // no not Ready, no final time, no members ready, no invitees
             else{
-              if(eventData.decidedTime === 0){
+              if(eventData.decidedTime == 0){
                 this.setDecidedTime(eventID, eventData.computedTime);
               }
               if(eventData.hostID == userID){
@@ -421,7 +422,13 @@ class EventList extends Component{
                 }}>
               <ListItem.Content>
                 <ListItem.Title>{i.eventInfo.name}</ListItem.Title>
-                <ListItem.Subtitle>{i.ifUser?"Host":"Member"} @Meeting time: {i.eventInfo.decidedTime===0?"--": i.eventInfo.decidedTime.toString()}</ListItem.Subtitle>
+                <ListItem.Subtitle>{i.ifUser?"Host":"Member"} @Meeting time: {i.eventInfo.decidedTime===0||this.state.timeZoneString===""?
+                                                      "--": new Date(i.eventInfo.decidedTime+3600000*parseInt(this.state.timeZoneString,10)).getFullYear() + "-" +
+                                                      ("0" + (new Date(i.eventInfo.decidedTime+3600000*parseInt(this.state.timeZoneString,10)).getMonth() + 1)).slice(-2) + "-" +
+                                                      ("0"+new Date(i.eventInfo.decidedTime+3600000*parseInt(this.state.timeZoneString,10)).getDate()).slice(-2) + " " +
+                                                      ("0" + new Date(i.eventInfo.decidedTime+3600000*parseInt(this.state.timeZoneString,10)).getHours()).slice(-2) + ":" + 
+                                                      ("0" + new Date(i.eventInfo.decidedTime+3600000*parseInt(this.state.timeZoneString,10)).getMinutes()).slice(-2)
+                                                      } @Duration: {i.eventInfo.duration} minutes</ListItem.Subtitle>
               </ListItem.Content>
               <ListItem.Chevron size={30} color="#808080"/>
             </ListItem>
@@ -452,8 +459,7 @@ class EventList extends Component{
                 </View>
               </View>
               :<View></View>}
-              <Button title="recompute time" onPress={()=>{this.reComputeTime(i.eventID)}}>
-              </Button>
+              
           </View>)}
           </ScrollView>
           </View>

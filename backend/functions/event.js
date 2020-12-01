@@ -602,7 +602,7 @@ exports.addUserScheduleToEvent = functions.https.onCall(async (data, context) =>
 
             var finalTimeslots = [];
 
-            for(member in eventData.members){
+            for(const member of eventData.members){
                 const getScheduleInfo = await admin.firestore().collection('schedules').doc(member).get();
                 if(!getScheduleInfo.exists){
                     console.log("User schedule does not exist for ", member);
@@ -610,7 +610,7 @@ exports.addUserScheduleToEvent = functions.https.onCall(async (data, context) =>
                 }
                 const scheduleData = getScheduleInfo.data();
                 
-                var userTimeSlots = [];
+                var userTimeslots = [];
                 //cut out only the part of the User scedule between start time and end time
                 if(!isNaN(eventStartTime) && !isNaN(eventEndTime)){
                     for(const scheduleTimeslot of scheduleData.timeslots){
@@ -618,24 +618,24 @@ exports.addUserScheduleToEvent = functions.https.onCall(async (data, context) =>
                         const scheduleTimeslotEndTime = scheduleTimeslot.end;
 
                         if(scheduleTimeslotStartTime < eventStartTime && scheduleTimeslotEndTime > eventStartTime){
-                            userTimeSlots.push({
+                            userTimeslots.push({
                                 start: eventData.start_date,
                                 end: scheduleTimeslot.end,
                             });
                         } else if(scheduleTimeslotEndTime > eventEndTime && scheduleTimeslotStartTime < eventEndTime){
-                            userTimeSlots.push({
+                            userTimeslots.push({
                                 start: scheduleTimeslot.start,
                                 end: eventData.end_date,
                             });
                         } else {
-                            userTimeSlots.push(scheduleTimeslot);
+                            userTimeslots.push(scheduleTimeslot);
                         }
                     }
                 }
 
                 var i = 0, j = 0; //for interating through finalTimeslots and userTimeslots respectively
                 //combine Event and User schedules
-                for(j = 0; j < userTimeSlots.length; j++){
+                for(j = 0; j < userTimeslots.length; j++){
                     var combinedTimeslots = JSON.parse(JSON.stringify(finalTimeslots));
                     var newTimeslotStarted = false;
                     var newTimeslotEnded = false;

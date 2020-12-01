@@ -60,11 +60,13 @@ class EventRequests extends Component{
 
   acceptEventRequest = async(eventID) => {
   	const data = await functions().httpsCallable('acceptEventInvite')({event_id: eventID});
+    const data1 = await functions().httpsCallable('addUserScheduleToEvent')({event_id: eventID});
+    const data2 = await functions().httpsCallable('computeNextEarliestAvailableTime')({event_id: eventID});
   	console.log("accept");
   	console.log(data);
-  	var eventInfo = await functions().httpsCallable('getEvent')({event_id: eventID});
-  	var eventPair = [];
-  	eventPair.push({eventID: eventID, eventInfo: eventInfo.data.event_data, ifUser: false});
+  	//var eventInfo = await functions().httpsCallable('getEvent')({event_id: eventID});
+  	//var eventPair = [];
+  	//eventPair.push({eventID: eventID, eventInfo: eventInfo.data.event_data, ifUser: false});
     //this.props.reduxAddEvent(eventPair[0]);
   }
   rejectEventRequest = async(eventID) => {

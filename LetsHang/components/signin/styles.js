@@ -4,9 +4,25 @@ export default StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
+    
    },
+  container1: {
+    flex: 1,
+    flexDirection: "column"
+  },
+  image: {
+    flex: 1,
+    resizeMode: "cover",
+    justifyContent: "center"
+  },
+  text: {
+    color: "white",
+    fontSize: 42,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginTop: 200,
+    backgroundColor: 'transparent'
+  },
   title: {
       color: "#000000",
       fontSize: 30,
@@ -31,14 +47,13 @@ export default StyleSheet.create({
         paddingLeft: 16
     },
     button: {
-        backgroundColor: '#788eec',
-        marginLeft: 30,
-        marginRight: 30,
-        marginTop: 20,
-        height: 48,
-        borderRadius: 5,
+        backgroundColor: 'black',
         alignItems: "center",
-        justifyContent: 'center'
+        justifyContent: 'center',
+    },
+    black:{
+        color: 'black',
+        backgroundColor: 'black'
     },
     buttonTitle: {
         color: 'white',

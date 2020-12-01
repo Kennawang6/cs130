@@ -107,8 +107,8 @@ class FriendsList extends Component{
         const data = await functions().httpsCallable('getFriendsList')({});
         console.log("Friends list is fetched");
         console.log(data);
-        let friends = data.data.friends;
-        let friendRequests = data.data.friendsToAdd;
+        let friends = data.data.friends.sort((a, b) => a.name.localeCompare(b.name));
+        let friendRequests = data.data.friendsToAdd.sort((a, b) => a.name.localeCompare(b.name));
         this.setState({text: data.data.text,}, () => {
             this.setState({ spinner: false });
 

@@ -37,9 +37,9 @@ class Timeslot {
 
   static merge(timeslot1, timeslot2) {
     // merges 2 timeslots and returns the result
-    let start = min(timeslot1.start, timeslot2.start);
-    let end = max(timeslot2.end, timeslot2.end);
-    let id = min(timeslot1.id, timeslot2.id);
+    let start = Math.min(timeslot1.start, timeslot2.start);
+    let end = Math.max(timeslot2.end, timeslot2.end);
+    let id = Math.min(timeslot1.id, timeslot2.id);
     let description = timeslot1.description + ", " + timeslot2.description;
     return new Timeslot(start, end, id, description);
   }

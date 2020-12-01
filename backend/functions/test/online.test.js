@@ -4,7 +4,7 @@ const assert = require('assert');
 const sinon = require('sinon');
 
 describe('Online Tests', () => {
-  let functions, testOnline, uid1, uid2, user1Context, user2Context;
+  let functions, testOnline, uid1, uid2, user1Context, user2Context, eventId;
 
   before(() => {
     testOnline = require('firebase-functions-test')({
@@ -174,21 +174,23 @@ describe('Online Tests', () => {
   });
 
   describe('Schedule Functions', () => {
-    let addSchedule, getSchedule, removeSchedule, addEventToSchedule;
+    let addSchedule, getSchedule, addTimeslotToSchedule, addTimeslotToScheduleandCombine, removeSchedule, addEventToSchedule;
 
     before(() => {
       addSchedule = testOnline.wrap(functions.addSchedule);
       getSchedule = testOnline.wrap(functions.getSchedule);
+      addTimeslotToSchedule = testOnline.wrap(functions.addTimeslotToSchedule);
+      addTimeslotToScheduleandCombine = testOnline.wrap(functions.addTimeslotToScheduleandCombine);
       removeSchedule = testOnline.wrap(functions.removeSchedule);
       addEventToSchedule = testOnline.wrap(functions.addEventToSchedule);
     });
     
     it('should get the same schedule it added', async () => {
-      let result = await addSchedule({timeslots: [{start: 3, end: 4, id: 3, description: "test"}]}, {auth: {uid: "2"}});
+      let result = await addSchedule({timeslots: [{start: 3, end: 4, id: 3, description: "test"}]}, user1Context);
       assert(result.status == "ok");
       assert(!result.text);
 
-      result = await getSchedule(null, {auth: {uid: "2"}});
+      result = await getSchedule(null, user1Context);
       assert(result.status == "ok");
       assert(!result.text);
       assert(result.schedule);
@@ -199,12 +201,69 @@ describe('Online Tests', () => {
       assert(result.schedule.timeslots[0].description == 'test');
     });
 
-    it('should get a modified schedule after adding a timeslot to that schedule', async () => {
-      let result = await addEventToSchedule({uid: "2", timeslot: {start: 5, end: 6, id: 5, description: "new"}});
+    it('should add timeslot to schedule in order', async () => {
+      let result = await addSchedule({timeslots: [
+        {start: 1, end: 2, id: 1, description: "before"}, 
+        {start: 8, end: 10, id: 8, description: "after"}
+      ]}, user2Context);
       assert(result.status == "ok");
       assert(!result.text);
 
-      result = await getSchedule(null, {auth: {uid: "2"}});
+      result = await addTimeslotToSchedule({timeslot: {start: 5, end: 6, id: 5, description: "new"}}, user2Context);
+      assert(result.text);
+      assert(result.text == "Successfully updated schedule with new timeslot");
+
+      result = await getSchedule(null, user2Context);
+      assert(result.status == "ok");
+      assert(!result.text);
+      assert(result.schedule);
+      assert(result.schedule.timeslots);
+      assert(result.schedule.timeslots.length == 3);
+      assert(result.schedule.timeslots[0].start == 1);
+      assert(result.schedule.timeslots[0].end == 2);
+      assert(result.schedule.timeslots[0].id == 1);
+      assert(result.schedule.timeslots[0].description == 'before');
+      assert(result.schedule.timeslots[1].start == 5);
+      assert(result.schedule.timeslots[1].end == 6);
+      assert(result.schedule.timeslots[1].id == 5);
+      assert(result.schedule.timeslots[1].description == 'new');
+      assert(result.schedule.timeslots[2].start == 8);
+      assert(result.schedule.timeslots[2].end == 10);
+      assert(result.schedule.timeslots[2].id == 8);
+      assert(result.schedule.timeslots[2].description == 'after');
+    });
+
+    it('should add timeslot to schedule in order and combine overlapping timeslots', async () => {
+      let result = await addTimeslotToScheduleandCombine({timeslot: {start: 9, end: 11, id: 9, description: "combine"}}, user2Context);
+      assert(result.text);
+      assert(result.text == "Successfully updated schedule with new timeslot");
+
+      result = await getSchedule(null, user2Context);
+      assert(result.status == "ok");
+      assert(!result.text);
+      assert(result.schedule);
+      assert(result.schedule.timeslots);
+      assert(result.schedule.timeslots.length == 3);
+      assert(result.schedule.timeslots[0].start == 1);
+      assert(result.schedule.timeslots[0].end == 2);
+      assert(result.schedule.timeslots[0].id == 1);
+      assert(result.schedule.timeslots[0].description == 'before');
+      assert(result.schedule.timeslots[1].start == 5);
+      assert(result.schedule.timeslots[1].end == 6);
+      assert(result.schedule.timeslots[1].id == 5);
+      assert(result.schedule.timeslots[1].description == 'new');
+      assert(result.schedule.timeslots[2].start == 8);
+      assert(result.schedule.timeslots[2].end == 11);
+      assert(result.schedule.timeslots[2].id == 8);
+      assert(result.schedule.timeslots[2].description == 'combine, after');
+    });
+
+    it('should get a modified schedule after adding an event to that schedule', async () => {
+      let result = await addEventToSchedule({uid: uid1, timeslot: {start: 5, end: 6, id: 5, description: "new"}});
+      assert(result.status == "ok");
+      assert(!result.text);
+
+      result = await getSchedule(null, user1Context);
       assert(result.status == "ok");
       assert(!result.text);
       assert(result.schedule);
@@ -221,11 +280,11 @@ describe('Online Tests', () => {
     });
     
     it('should merge overlapping timeslots when adding event to schedule', async () => {
-      let result = await addEventToSchedule({uid: "2", timeslot: {start: 5, end: 7, id: 5, description: "merge"}}, {});
+      let result = await addEventToSchedule({uid: uid1, timeslot: {start: 5, end: 7, id: 5, description: "merge"}}, {});
       assert(result.status == "ok");
       assert(!result.text);
 
-      result = await getSchedule(null, {auth: {uid: "2"}});
+      result = await getSchedule(null, user1Context);
       assert(result.status == "ok");
       assert(!result.text);
       assert(result.schedule);
@@ -242,11 +301,22 @@ describe('Online Tests', () => {
     });
 
     it('should find an empty schedule after removing the schedule', async () => {
-      let result = await removeSchedule(null, {auth: {uid: "2"}});
+      let result = await removeSchedule(null, user1Context);
+      assert(result.status == "ok");
+      assert(!result.text);
+      
+      result = await removeSchedule(null, user2Context);
       assert(result.status == "ok");
       assert(!result.text);
 
-      result = await getSchedule(null, {auth: {uid: "2"}});
+      result = await getSchedule(null, user1Context);
+      assert(result.status == "ok");
+      assert(!result.text);
+      assert(result.schedule);
+      assert(result.schedule.timeslots);
+      assert(result.schedule.timeslots.length == 0);
+
+      result = await getSchedule(null, user2Context);
       assert(result.status == "ok");
       assert(!result.text);
       assert(result.schedule);

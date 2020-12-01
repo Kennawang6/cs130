@@ -37,8 +37,9 @@ class Timeslot {
 
   static merge(timeslot1, timeslot2) {
     // merges 2 timeslots and returns the result
+    console.log("merge " + timeslot1 + " " + timeslot2);
     let start = Math.min(timeslot1.start, timeslot2.start);
-    let end = Math.max(timeslot2.end, timeslot2.end);
+    let end = Math.max(timeslot1.end, timeslot2.end);
     let id = Math.min(timeslot1.id, timeslot2.id);
     let description = timeslot1.description + ", " + timeslot2.description;
     return new Timeslot(start, end, id, description);
@@ -74,6 +75,7 @@ class Schedule {
 
     for (let currentTimeslot of this.timeslots) {
       if (newTimeslotAdded) {
+        result.push(currentTimeslot);
       } else {
         switch (Timeslot.compare(newTimeslot, currentTimeslot)) {
           case -1:
@@ -82,7 +84,7 @@ class Schedule {
             newTimeslotAdded = true;
             break;
           case 0:
-            result.push(Timeslot.merge(newTimeslot, currentTimeslot));
+            result.push(Timeslot.merge(currentTimeslot, newTimeslot));
             newTimeslotAdded = true;
             break;
           case 1:

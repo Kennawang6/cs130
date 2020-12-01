@@ -117,6 +117,12 @@ class EventDetailMember extends Component{
                     <ListItem.Subtitle>{this.state.thisEvent[0].eventInfo.description}</ListItem.Subtitle>
                   </ListItem.Content>
                 </ListItem>
+                <ListItem bottomDivider>
+                   <ListItem.Content>
+                    <ListItem.Title>Duration</ListItem.Title>
+                    <ListItem.Subtitle>{this.state.thisEvent[0].eventInfo.duration} minutes</ListItem.Subtitle>
+                  </ListItem.Content>
+                </ListItem>
             </View>
 
             <Text> </Text>

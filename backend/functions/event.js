@@ -597,8 +597,8 @@ exports.addUserScheduleToEvent = functions.https.onCall(async (data, context) =>
             }
 
             const eventData = getEventInfo.data();
-            const eventStartTime = eventData.start_date;
-            const eventEndTime = eventData.end_date;
+            const eventStartTime = eventData.startDate;
+            const eventEndTime = eventData.endDate;
 
             var finalTimeslots = [];
 
@@ -742,11 +742,23 @@ exports.computeNextEarliestAvailableTime = functions.https.onCall(async (data, c
 
             const eventData = getEventInfo.data();
             const eventSchedule = eventData.commonSchedule;
-            const eventStartTime = eventData.start_date;
-            const eventEndTime = eventData.end_date;
+            const eventStartTime = eventData.startDate;
+            const eventEndTime = eventData.endDate;
             const eventDuration = eventData.duration*60*1000; //convert from minutes to ms
 
-            for(var i = 0; i < eventSchedule.length; i++){ 
+            if (eventSchedule.length == 0) {
+              await admin.firestore().collection('events').doc(data.event_id).update({
+                computedTime: eventStartTime
+              });
+
+              console.log("Time computed");
+              return {
+                  text: "Earliest time computed, check computedTime field",
+                  computedTime: eventStartTime
+              };
+            }
+
+            for(var i = 0; i < eventSchedule.length; i++){
                 if(i == eventSchedule.length - 1){
                     if(eventData.computedTime != eventSchedule[i].end && (eventEndTime - eventSchedule[i].end) >= eventDuration){
                         await admin.firestore().collection('events').doc(data.event_id).update({

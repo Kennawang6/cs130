@@ -365,9 +365,10 @@ class EventList extends Component{
   clickFinalizeButton = async(eventID, eventInfo) => {
     // add the logic of adding the event to all the members in the schedule
     var members = eventInfo.members;
-    var description = eventInfo.description;
+    var description = eventInfo.name;
     var start = eventInfo.decidedTime;
     var end = start + eventInfo.duration*60000;
+
     for(var i=0; i<members.length; i++){
       const data = await functions().httpsCallable('addEventToSchedule')({uid: members[i], timeslot: {start: start, end:end, description: description, id: start}});
     }

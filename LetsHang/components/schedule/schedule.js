@@ -19,7 +19,7 @@ import { addScheduleEvent, replaceSchedule, removeScheduleEvent} from '../../act
 const windowHeight = Dimensions.get('window').height;
 
 class Schedule extends Component{
-    // TODO: modify to snapshot
+    // TODO: change to snapshot
     constructor(props) {
         super(props);
         this.state = {
@@ -31,7 +31,6 @@ class Schedule extends Component{
 
     componentDidMount() {
       this.getScheduleData();
-      
     }
 
     /*componentDidUpdate(prevProps, prevState) {
@@ -113,12 +112,6 @@ class Schedule extends Component{
               let startTime = moment(start_string).format('LT').toString()
               let endTime = moment(end_string.end).format('LT').toString()
 
-              //let startTime = moment(event.start).format('LT').toString()
-              //let duration = event.duration.split(':')
-              //let seconds = parseInt(duration[0]) * 3600 + parseInt(duration[1]) * 60 + parseInt(duration[2])
-              //let endTime = moment(event.start).add(seconds, 'seconds').format('LT').toString()
-              //let endTime = moment(event.end).format('LT').toString()
-
               return (
                 <View key={j}>
                   <TouchableOpacity style={styles.event} onPress={()=>this.props.navigation.navigate('EditSchedule',{'start': event.start,'end':event.end,'description':event.description})}>
@@ -161,12 +154,6 @@ class Schedule extends Component{
               var end_string =  e_year + "-" + e_month + "-" + e_date + " " + e_hours + ":" + e_minutes + ":" + e_seconds;
               let startTime = moment(start_string).format('LT').toString()
               let endTime = moment(end_string.end).format('LT').toString();
-
-              //let startTime = moment(event.start).format('LT').toString()
-              //let duration = event.duration.split(':')
-              //let seconds = parseInt(duration[0]) * 3600 + parseInt(duration[1]) * 60 + parseInt(duration[2])
-              //let endTime = moment(event.start).add(seconds, 'seconds').format('LT').toString()
-              //let endTime = moment(event.end).format('LT').toString()
 
               return (
                 <View key={j}>

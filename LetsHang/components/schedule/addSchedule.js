@@ -64,7 +64,8 @@ const addSchedule = props => {
               timeslot: {
                 description: description,
                 start: start.date.getTime(),
-                end: end.date.getTime()
+                end: end.date.getTime(),
+                id: start.date.getTime()
                 }
       });
       console.log("addTimeslotToSchedule function has been called");
@@ -75,8 +76,11 @@ const addSchedule = props => {
   handlePress = () => {
       console.log("Button was pressed");
       console.log(description);
+      original_timeslot.start = start.date;
+      original_timeslot.end = end.date;
 
-      InputValidation(start.date,end.date);
+      InputValidation(original_timeslot.start,original_timeslot.end);
+      /*
       SplitEvent();
       //might need to loop through timeslots_dispatch
       dispatch({
@@ -84,21 +88,26 @@ const addSchedule = props => {
         start: start.date.getTime(),
         end: end.date.getTime(),
         description: description,
-        id: start.date.getTime(),
+        id: start.date.getTime()
       });
       console.log("Dispatched to store: " + JSON.stringify(schedule));
       // Add timeslots to firebase
       sendScheduleEvent();
       // Back to Schedule
       props.navigation.navigate('Schedule');
+      */
   }
 
   InputValidation = (s,e) => {
-      console.log(s);
-      console.log(e);
+      console.log('Input Validation');
+      console.log(timeslot.start.toString());
+      console.log(timeslot.end.toString());
+      //TODO:Check START and END time
       //Set seconds to 0 for start and end
       s.setSeconds(0);
       e.setSeconds(0);
+      console.log(timeslot.start.toString());
+      console.log(timeslot.end.toString());
       //TODO:Set Time Zone
       // - access user time zone from firebase
       // - event.toString() expected output format: Tue Aug 19 1975 23:15:30 GMT+0200 (CEST)

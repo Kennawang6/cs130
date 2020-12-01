@@ -12,10 +12,29 @@ class AddFriend extends Component{
         super(props);
         this.state = {
             text: "",
+            email: "",
+            friendsAdded: [],
             friendsEmail: "",
             spinner: false
         };
         this.sendFriendRequest = this.sendFriendRequest.bind(this);
+    }
+
+    componentDidMount() {
+        this.setState({ spinner: true });
+        for (const friend of this.props.friends)
+            this.state.friendsAdded.push(friend.email);
+        console.log(this.state.friendsAdded);
+        this.getUserData();
+        this.setState({ spinner: false });
+    }
+
+    getUserData = async() => {
+        const data = await functions().httpsCallable('getUserData')({});
+        console.log("User's email is fetched");
+        let ownEmail = data.data.data.email;
+        this.setState({ email: ownEmail });
+        console.log(this.state.email);
     }
 
     sendFriendRequest = async() => {
@@ -31,7 +50,12 @@ class AddFriend extends Component{
         console.log("Button was pressed");
         console.log(this.state.friendsEmail);
         this.setState({ spinner: true });
-        this.sendFriendRequest();
+        if (this.state.friendsEmail === this.state.email)
+            this.notifyUser("You cannot add yourself");
+        else if (this.state.friendsAdded.includes(this.state.friendsEmail))
+            this.notifyUser("Friend already added")
+        else
+            this.sendFriendRequest();
     }
 
     notifyUser = (text) => {

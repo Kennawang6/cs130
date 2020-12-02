@@ -19,31 +19,39 @@ import Spinner from 'react-native-loading-spinner-overlay';
 
 // CONST
 const windowHeight = Dimensions.get('window').height;
-
+const monthName = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+/*
+const timeZoneList = {-12: '',-11:'',-10:'',-9:'',-8:'',
+                      -7:'',-6:'',-5:'',-4:'',-3:'',
+                      -2:'',-1:'',0:'',1:'',2:'',
+                      3:'',4:'',5:'',6:'',7:'',
+                      8:'',9:'',10:'',11:'',12:''}*/
 class Schedule extends Component{
     constructor(props) {
         super(props);
         this.state = {
           timeslots: [],
-          displaySchedule: [],
           ifLoading: true,
           timeZoneLoading: true,
-          timeZone: null
+          timeZone: 0
         };
 
         this.subscriber = firestore().collection('schedules').onSnapshot(snapshot => {
             console.log('snapshot');
            // console.log(snapshot);
+
+
             var curUser = firebase.auth().currentUser.uid;
             //console.log('curUser');
             //console.log(curUser);
 
             var existInFirebase = false;
-            this.setState({ifLoading:true});
+            this.setState({ifLoading:true,timeZoneLoading:true});
+
             snapshot.forEach(doc => {
                 var curTimeslots = doc.data();
-                console.log('curTimeslots')
-                console.log(curTimeslots.timeslots);
+                //console.log('curTimeslots')
+                //console.log(curTimeslots.timeslots);
                 var curID = doc.ref._documentPath._parts[1];
                 //console.log('curID');
                 //console.log(curID);
@@ -60,16 +68,20 @@ class Schedule extends Component{
                       console.log("state.timeslots");
                       console.log(this.state.timeslots);
                     });
+
                 }
             });
 
             if(!existInFirebase){
                 this.getScheduleData();
             }
+
+
         });
     }
 
     // access user timezone
+
     componentDidMount() {
         this.getUserTimeZone();
     }
@@ -79,9 +91,10 @@ class Schedule extends Component{
         const data = await functions().httpsCallable('getUserData')({});
         var timeZone = data.data.data.timeZone;
         if(timeZone<-12||timeZone>12){
-          timeZone = null;
+          timeZone = 0;
         }
         this.setState({timeZone: timeZone, timeZoneLoading:false});
+        //this.splitEvent();
      }
 
     /*
@@ -118,26 +131,136 @@ class Schedule extends Component{
           }
         })
         //this.test();
-    }
 
-    /*
-    //test redux
-    test = () =>{
-        console.log("Try redux");
-        console.log(this.props.scheduledEvents);
-    }*/
+    }
+    leapYear = (year) =>{
+        var result;
+        if (year/400){
+          result = true
+        }
+        else if(year/100){
+          result = false
+        }
+        else if(year/4){
+          result= true
+        }
+        else{
+          result= false
+        }
+        return result
+     }
+
+    splitEvent = () =>{
+        //TODO: Handle Split Events here
+        console.log('splitEvent');
+        var displaySchedule = [];
+        for(var i=0; i<this.state.timeslots.length; i++){
+            var event = this.state.timeslots[i];
+            console.log(i+':');
+            var s = new Date(event.start);
+            console.log('s');
+            console.log('gmt+8')
+            console.log(s.toString());
+            console.log('gmt')
+            console.log(s.toUTCString());
+            console.log('this.state.timeZone')
+            console.log(this.state.timeZone)
+            // - format: 'July 20, 1969 00:20:00 UTC+07:00'
+            var s_year = s.getUTCFullYear();
+            var s_month = s.getUTCMonth()+1;
+            var s_date = s.getUTCDate();
+            var s_hours = s.getUTCHours() + this.state.timeZone;
+/*
+            var e = new Date(event.end);
+            console.log('e')
+            console.log(e.toString());
+            console.log(e.toUTCString());
+            var e_year = s.getUTCFullYear();
+            var e_month = s.getUTCMonth()+1;
+            var e_date = s.getUTCDate();
+            var e_hours = s.getUTCHours() + this.state.timeZone;*/
+            //while()
+            //{
+            if(s_hours>=24){
+                s_hours -= 24;
+                //Handle Feb
+                if(this.leapYear(s_year)&&s_month==2&&s_date==29){ // check if leap year and at the end of Feb
+                    s_month += 1;
+                    s_date = 1;
+                }else if(s_month==2&&s_date==28){
+                    s_month += 1;
+                    s_date = 1;
+                //Handle Dec
+                }else if(s_month==12&&s_date==31){
+                    s_year += 1;
+                    s_month = 1;
+                    s_date = 1;
+                //Handle Mon, Mar, May, July, Aug, Oct
+                }else if((s_month==1||s_month==3||s_month==5||s_month==7||s_month==8||s_month==10)&&s_date==31){
+                    s_month += 1;
+                    s_date = 1;
+                }else if((s_month==4||s_month==6||s_month==9||s_month==11)&&s_date==30){
+                    s_month += 1;
+                    s_date = 1;
+                }else{
+                    s_date = 1;
+                }
+            }//else if(s_hours<0)
+            if (this.state.timeZone>=10){
+                var start_string = monthName[s_month-1] + ' ' + s_date + ', ' + s_year + ' ' + s_hours + ':' + s.getMinutes() + ':00 UTC+' + this.state.timeZone + ':00';
+                //var end_string = monthName[e.getMonth()] + ' ' + e.getDate() + ', ' + e.getFullYear() + ' ' + e.getHours() + ':' + e.getMinutes() + ':00 UTC+' + this.state.timeZone + ':00';
+            }else if (this.state.timeZone>=0){
+                var start_string = monthName[s_month-1] + ' ' + s_date + ', ' + s_year + ' ' + s_hours + ':' + s.getMinutes() + ':00 UTC+0' + this.state.timeZone + ':00';
+                //var end_string = monthName[e.getMonth()] + ' ' + e.getDate() + ', ' + e.getFullYear() + ' ' + e.getHours() + ':' + e.getMinutes() + ':00 UTC+0' + this.state.timeZone + ':00';
+            }else if (this.state.timeZone > -10){
+                var start_string = monthName[s_month-1] + ' ' + s_date + ', ' + s_year + ' ' + s_hours + ':' + s.getMinutes() + ':00 UTC-0' + Math.abs(this.state.timeZone) + ':00';
+                //var end_string = monthName[e.getMonth()] + ' ' + e.getDate() + ', ' + e.getFullYear() + ' ' + e.getHours() + ':' + e.getMinutes() + ':00 UTC-0' + Math.abs(this.state.timeZone) + ':00';
+            }else{
+                var start_string = monthName[s_month-1] + ' ' + s_date + ', ' + s_year + ' ' + s_hours + ':' + s.getMinutes() + ':00 UTC' + this.state.timeZone + ':00';
+                //var end_string = monthName[e.getMonth()] + ' ' + e.getDate() + ', ' + e.getFullYear() + ' ' + e.getHours() + ':' + e.getMinutes() + ':00 UTC' + this.state.timeZone + ':00';
+            }
+            console.log(start_string)
+            //console.log(end_string)
+
+            /*
+            if(this.state.timeZone>=0){
+            var timeZoneStr  = 'GMT' + this.state.timeZone;
+            }else{
+            var timeZoneStr  = 'GMT' + this.state.timeZone;
+            }*/
+
+
+/*
+            var s_date = s.getUTCDate();
+            var s_date = s.getUTCDate();
+            //console.log(this.state.timeZone);
+            var s_hours = s.getUTCHours() + this.state.timeZone;
+            var e_hours = e.getUTCHours() + this.state.timeZone;
+            console.log(s_hours);
+            console.log(e_hours);
+
+            var s_minutes = ("0" + s.getMinutes()).slice(-2);
+            var e_minutes = ("0" + e.getMinutes()).slice(-2);
+            if(s_hours<12){
+              var startTime = s_hours + ":" + s_minutes + ' AM';
+            }else{
+              var startTime = s_hours-12 + ":" + s_minutes + ' PM';
+            }
+            if(e_hours<12){
+              var endTime = e_hours + ":" + e_minutes + ' AM';
+            }else{
+              var endTime = e_hours-12 + ":" + e_minutes + ' PM';
+            }
+            displaySchedule.push(event);
+            //}// end while*/
+        }// end for
+        console.log('displaySchedule');
+        console.log(displaySchedule);
+    }
 
 
     render() {
       //console.log('in render');
-      //TODO: Handle Split Events here
-
-      const displayEvents = [];
-      for(var i=0;i++;i<this.props.scheduledEvents.length){
-
-
-      }
-
 
       if(this.state.ifLoading||this.state.timeZoneLoading){
         return(
@@ -166,16 +289,23 @@ class Schedule extends Component{
               var e_minutes = ("0" + e.getMinutes()).slice(-2);
               //console.log(this.state.timeZone);
               var s_hours = s.getUTCHours() + this.state.timeZone;
+              var e_hours = e.getUTCHours() + this.state.timeZone;
+              //console.log(s.getHours());
+              //console.log(e.getHours());
+              //console.log(s.getUTCHours());
+              //console.log(e.getUTCHours());
               //console.log(s_hours);
-              if(s.getHours()<12){
-                var startTime = s.getHours() + ":" + s_minutes + ' AM';
+              //console.log(e_hours);
+
+              if(s_hours<12){
+                var startTime = s_hours + ":" + s_minutes + ' AM';
               }else{
-                var startTime = s.getHours()-12 + ":" + s_minutes + ' PM';
+                var startTime = s_hours-12 + ":" + s_minutes + ' PM';
               }
-              if(e.getHours()<12){
-                var endTime = e.getHours() + ":" + e_minutes + ' AM';
+              if(e_hours<12){
+                var endTime = e_hours + ":" + e_minutes + ' AM';
               }else{
-                var endTime = e.getHours()-12 + ":" + e_minutes + ' PM';
+                var endTime = e_hours-12 + ":" + e_minutes + ' PM';
               }
               //console.log(start_string);
               //console.log(startTime);
@@ -217,16 +347,23 @@ class Schedule extends Component{
               var e_minutes = ("0" + e.getMinutes()).slice(-2);
               //console.log(this.state.timeZone);
               var s_hours = s.getUTCHours() + this.state.timeZone;
+              var e_hours = e.getUTCHours() + this.state.timeZone;
+              //console.log(s.getHours());
+              //console.log(e.getHours());
+              //console.log(s.getUTCHours());
+              //console.log(e.getUTCHours());
               //console.log(s_hours);
-              if(s.getHours()<12){
-                var startTime = s.getHours() + ":" + s_minutes + ' AM';
+              //console.log(e_hours);
+
+              if(s_hours<12){
+                var startTime = s_hours + ":" + s_minutes + ' AM';
               }else{
-                var startTime = s.getHours()-12 + ":" + s_minutes + ' PM';
+                var startTime = s_hours-12 + ":" + s_minutes + ' PM';
               }
-              if(e.getHours()<12){
-                var endTime = e.getHours() + ":" + e_minutes + ' AM';
+              if(e_hours<12){
+                var endTime = e_hours + ":" + e_minutes + ' AM';
               }else{
-                var endTime = e.getHours()-12 + ":" + e_minutes + ' PM';
+                var endTime = e_hours-12 + ":" + e_minutes + ' PM';
               }
               //console.log(start_string);
               //console.log(startTime);

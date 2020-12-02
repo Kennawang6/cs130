@@ -1,10 +1,11 @@
 import React, { Component, useState, useEffect } from 'react';
-import { Button, View, Platform, Text, TextInput, TouchableOpacity} from 'react-native';
+import { View, Platform, ScrollView, TextInput, TouchableOpacity} from 'react-native';
+import { Button, Input, Text } from 'react-native-elements';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import functions from '@react-native-firebase/functions';
 import { useSelector, useDispatch } from 'react-redux';
 import { addScheduleEvent } from '../../actions/editSchedule'
-import { ADD_SCHEDULE } from '../../actions/types'
+import { ADD_SCHEDULE, REMOVE_SCHEDULE } from '../../actions/types'
 import styles from './styles';
 
 const SECOND_IN_MILLISECONDS = 1000;
@@ -21,12 +22,28 @@ const HOUR_IN_MILLISECONDS = 60 * MINUTE_IN_MILLISECONDS;
 
 const editSchedule = props => {
   const event = props.route.params;
-  const schedule = useSelector(state => state.scheduleReducer);
+  //const schedule = useSelector( state  => state.scheduleReducer);
+  var schedule = [];
   const dispatch = useDispatch();
   const [description, setDescription] = useState('');
 
-  function useInput() {
-      const [date, setDate] = useState(new Date());
+  const getScheduleData = async() => {
+      const data = await functions().httpsCallable('getSchedule')({});
+      console.log("Schedule is fetched");
+      console.log(data.data);
+      // check if the user contains schedules on firebase
+      if (data.data.status=='ok'){
+          schedule.concat(data.data.schedule.timeslots);
+          console.log(JSON.stringify(schedule));
+      }
+  }
+
+  useEffect(() => {
+     getScheduleData();
+  }, [])
+
+  function useInput(dateInput) {
+      const [date, setDate] = useState(dateInput);
       const [mode, setMode] = useState('date');
       const [show, setShow] = useState(false);
 
@@ -56,139 +73,150 @@ const editSchedule = props => {
       }
   }
 
-  const sendScheduleEvent = async() => {
-      /*const data = await functions().httpsCallable('addSchedule')(
-        {timeslots:[{
-          description: description,
-          start: start.date.getTime(),
-          end: end.date.getTime()}]}
-      );*/
-      const data = await functions().httpsCallable('addTimeslotToSchedule')({
-              timeslot: {
-                description: description,
-                start: start.date.getTime(),
-                end: end.date.getTime()}
-      });
-      console.log("addTimeslotToSchedule function has been called");
-      console.log(data);
-      alert('Event added to schedule.');
-  }
+  const sendEditEvent = async() => {
+        const data_remove = await functions().httpsCallable('removeSchedule')({});
+        console.log("removeSchedule function has been called in sendEditEvent");
+        console.log(data_remove);
+        const newSchedule = schedule.filter((event) => event.id!== action.eventID).concat({
+              start: start.date.getTime(),
+              end: end.date.getTime(),
+              description: description,
+              id: start.date.getTime(),
+           })
+        await console.log("await after remove: " + JSON.stringify(newSchedule));
 
-  /*
-  toDoubleDigit = (num) => {
-    if ((num / 10 >> 0 ) > 0) {
-      return num.toString();
-    } else {
-      return "0" + num.toString();
+        const data = await functions().httpsCallable('addSchedule')({
+          timeslots: newSchedule
+        });
+        console.log("addSchedule function has been called");
+        console.log(data);
+        props.navigation.navigate('Schedule');
     }
-  }
 
+    const sendRemoveEvent = async() => {
+          const data_remove = await functions().httpsCallable('removeSchedule')({});
+          console.log("removeSchedule function has been called");
+          console.log(data_remove);
 
-  calculateDuration = (start, end) => {
-    total = end - start;
-    return toDoubleDigit(total / HOUR_IN_MILLISECONDS >> 0) + ":"
-            + toDoubleDigit((total % HOUR_IN_MILLISECONDS) / MINUTE_IN_MILLISECONDS >> 0) + ":"
-            + toDoubleDigit(((total % HOUR_IN_MILLISECONDS) % MINUTE_IN_MILLISECONDS) / SECOND_IN_MILLISECONDS >> 0);
-  }*/
+          const data = await functions().httpsCallable('addSchedule')({
+            timeslots: schedule.filter((event) => event.id!== action.eventID)
+          });
+          console.log("addSchedule function has been called");
+          console.log(data);
+          props.navigation.navigate('Schedule');
+      }
 
-  handleEditPress = () => {
-      console.log("Button was pressed");
-      console.log(description);
-      dispatch({
-        type: ADD_SCHEDULE,
-        start: start.date.getTime(),
-        end: end.date.getTime(),
-        description: description,
-        // TODO: change after splitEvent function implementation
-        id: start.date.getTime(),
-      });
-      console.log("Dispatched to store: " + JSON.stringify(schedule));
-      sendScheduleEvent();
-      props.navigation.navigate('Schedule');
-  }
-
-  handleRemovePress = () => {
+    handleEditPress = () => {
         console.log("Button was pressed");
         console.log(description);
+        dispatch({
+          type: REMOVE_SCHEDULE,
+          eventID: event.id,
+        });
         dispatch({
           type: ADD_SCHEDULE,
           start: start.date.getTime(),
           end: end.date.getTime(),
           description: description,
-          // TODO: change after splitEvent function implementation
           id: start.date.getTime(),
         });
-        console.log("Dispatched to store: " + JSON.stringify(schedule));
-        sendScheduleEvent();
-        props.navigation.navigate('Schedule');
+        //console.log("Dispatched to store: " + JSON.stringify(schedule));
+        sendEditEvent();
     }
+
+    handleRemovePress = () => {
+          console.log("Button was pressed");
+          console.log(description);
+          dispatch({
+            type: REMOVE_SCHEDULE,
+            eventID: event.id,
+          });
+          //console.log("Dispatched to store: " + JSON.stringify(schedule));
+          sendRemoveEvent();
+      }
+
   const start = useInput(new Date(event.start))
   const end = useInput(new Date(event.end))
 
+  var startDate = start.date.toDateString();
+  var s_minutes = ("0" + start.date.getMinutes()).slice(-2);
+  var startTime = start.date.getHours() + ":" + s_minutes;
+  var endDate = end.date.toDateString();
+  var e_minutes = ("0" + end.date.getMinutes()).slice(-2);
+  var endTime = end.date.getHours() + ":" + e_minutes;
+
     return (
       <View>
-        <TextInput style = {styles.input}
-          underlineColorAndroid = "transparent"
-          placeholder = {event.description}
-          placeholderTextColor = "#1f44f4"
-          autoCapitalize = "none"
-          onChangeText={(value) => {
-                         setDescription(value);
-                         //setSearching(value == '' ? false : true) // value is latest
-                       }}
-        />
-        <Text>Start</Text>
+      <ScrollView>
         <View>
-          <TouchableOpacity onPress={start.showDatepicker}>
-            <Text>{start.date.toDateString()}</Text>
-          </TouchableOpacity>
-        </View>
-        <View>
-          <TouchableOpacity onPress={start.showTimepicker}>
-            <Text>{start.date.toTimeString()}</Text>
-          </TouchableOpacity>
-        </View>
-        {start.show && (
-          <DateTimePicker
-            testID="startDateTimePicker"
-            value={start.date}
-            mode={start.mode}
-            is24Hour={true}
-            display="default"
-            onChange={start.onChange}
+          <Text>Description</Text>
+          <Input
+            placeholder={event.description}
+            onChangeText={value => {
+              setDescription(value);
+            }}
           />
-        )}
-        <Text>End</Text>
-        <View>
-          <TouchableOpacity onPress={end.showDatepicker}>
-            <Text>{end.date.toDateString()}</Text>
-          </TouchableOpacity>
         </View>
         <View>
-          <TouchableOpacity onPress={end.showTimepicker}>
-            <Text>{end.date.toTimeString()}</Text>
-          </TouchableOpacity>
-        </View>
-        {end.show && (
-          <DateTimePicker
-            testID="endDateTimePicker"
-            value={end.date}
-            mode={end.mode}
-            is24Hour={true}
-            display="default"
-            onChange={end.onChange}
+          <Text>Start</Text>
+          <Button type="outline" onPress={start.showDatepicker}
+                title = {startDate}
+                titleStyle= {{ color: 'black'}}
+                buttonStyle={{ borderColor: 'grey', borderRadius: 0 }}
+                containerStyle={{ backgroundColor: 'white' }}
           />
-        )}
-        <TouchableOpacity
-          style = {styles.buttonStyle}
-          onPress = {handleEditPress}>
-          <Text style = {styles.submitButtonText}> Update Event </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style = {styles.buttonStyle}
-          onPress = {handleRemovePress}>
-          <Text style = {styles.submitButtonText}> Remove Event </Text>
-        </TouchableOpacity>
+          <Button type="outline" onPress={start.showTimepicker}
+              title = {startTime}
+              titleStyle= {{ color: 'black'}}
+              buttonStyle={{ borderColor: 'grey', borderRadius: 0 }}
+              containerStyle={{ backgroundColor: 'white' }}
+          />
+          {start.show && (
+            <DateTimePicker
+              testID="startDateTimePicker"
+              value={start.date}
+              mode={start.mode}
+              is24Hour={true}
+              display="default"
+              onChange={start.onChange}
+            />
+          )}
+          </View>
+          <Text></Text>
+          <View>
+          <Text>End</Text>
+          <Button type="outline" onPress={end.showDatepicker}
+                title = {endDate}
+                titleStyle= {{ color: 'black'}}
+                buttonStyle={{ borderColor: 'grey', borderRadius: 0 }}
+                containerStyle={{ backgroundColor: 'white' }}
+          />
+          <Button type="outline" onPress={end.showTimepicker}
+              title = {endTime}
+              titleStyle= {{ color: 'black'}}
+              buttonStyle={{ borderColor: 'grey', borderRadius: 0 }}
+              containerStyle={{ backgroundColor: 'white' }}
+          />
+          {end.show && (
+            <DateTimePicker
+              testID="endDateTimePicker"
+              value={end.date}
+              mode={end.mode}
+              is24Hour={true}
+              display="default"
+              onChange={end.onChange}
+            />
+          )}
+        </View>
+        <Text></Text>
+        <View>
+          <Button onPress={handleEditPress} title="Update Event"></Button>
+        </View>
+        <Text></Text>
+        <View>
+          <Button onPress={handleRemovePress} title="Remove Event"></Button>
+        </View>
+      </ScrollView>
       </View>
     );
     /*

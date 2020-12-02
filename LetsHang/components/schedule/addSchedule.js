@@ -128,6 +128,23 @@ const addSchedule = props => {
 
   }
 
+    leapYear = (year) =>{
+        var result;
+        if (year/400){
+          result = true
+        }
+        else if(year/100){
+          result = false
+        }
+        else if(year/4){
+          result= true
+        }
+        else{
+          result= false
+        }
+        return result
+     }
+
   InputValidation = (s,e) => {
       console.log('Input Validation');
       //Check description not empty
@@ -141,35 +158,131 @@ const addSchedule = props => {
           if (s.getTime() >= e.getTime()){ //
              alert('End time should be larger than start time.');
           }else{
-              //Set seconds to 0 for start and end
-              s.setSeconds(0);
-              e.setSeconds(0);
-              //Set Time Zone
-              // - format: 'July 20, 69 00:20:18 UTC+07:00'
-              // - access user time zone from firebase
-              subscribe(); // get UserTimeZone
-              if (timeZone>=10){
-                var start_string = monthName[s.getMonth()] + ' ' + s.getDate() + ', ' + s.getFullYear() + ' ' + s.getHours() + ':' + s.getMinutes() + ':00 UTC+' + timeZone + ':00';
-                var end_string = monthName[e.getMonth()] + ' ' + e.getDate() + ', ' + e.getFullYear() + ' ' + e.getHours() + ':' + e.getMinutes() + ':00 UTC+' + timeZone + ':00';
-              }else if (timeZone>=0){
-                var start_string = monthName[s.getMonth()] + ' ' + s.getDate() + ', ' + s.getFullYear() + ' ' + s.getHours() + ':' + s.getMinutes() + ':00 UTC+0' + timeZone + ':00';
-                var end_string = monthName[e.getMonth()] + ' ' + e.getDate() + ', ' + e.getFullYear() + ' ' + e.getHours() + ':' + e.getMinutes() + ':00 UTC+0' + timeZone + ':00';
-              }else if (timeZone > -10){
-                var start_string = monthName[s.getMonth()] + ' ' + s.getDate() + ', ' + s.getFullYear() + ' ' + s.getHours() + ':' + s.getMinutes() + ':00 UTC-0' + Math.abs(timeZone) + ':00';
-                var end_string = monthName[e.getMonth()] + ' ' + e.getDate() + ', ' + e.getFullYear() + ' ' + e.getHours() + ':' + e.getMinutes() + ':00 UTC-0' + Math.abs(timeZone) + ':00';
-              }else{
-                var start_string = monthName[s.getMonth()] + ' ' + s.getDate() + ', ' + s.getFullYear() + ' ' + s.getHours() + ':' + s.getMinutes() + ':00 UTC' + timeZone + ':00';
-                var end_string = monthName[e.getMonth()] + ' ' + e.getDate() + ', ' + e.getFullYear() + ' ' + e.getHours() + ':' + e.getMinutes() + ':00 UTC' + timeZone + ':00';
-              }
-              console.log(start_string)
-              console.log(end_string)
-              var temp_s = new Date(start_string);
-              var temp_e = new Date(end_string);
-              timeslot.start = temp_s.getTime();
-              timeslot.id = temp_s.getTime();
-              timeslot.end = temp_e.getTime();
-              console.log(timeslot);
-              inputInvalidFormat = false;
+            //Set seconds to 0 for start and end
+            s.setSeconds(0);
+            e.setSeconds(0);
+            //Set Time Zone
+            // - format: 'July 20, 69 00:20:18 UTC+07:00'
+            // - access user time zone from firebase
+            subscribe(); // get UserTimeZone
+            var s_year = s.getUTCFullYear();
+            var s_month = s.getUTCMonth()+1;
+            var s_date = s.getUTCDate();
+            var s_hours = s.getUTCHours() + timeZone;
+
+            console.log('e')
+            console.log(e.toString());
+            //console.log(e.toUTCString());
+            var e_year = e.getUTCFullYear();
+            var e_month = e.getUTCMonth()+1;
+            var e_date = e.getUTCDate();
+            var e_hours = e.getUTCHours() + timeZone;
+            //while()
+            //{
+            if(s_hours>=24){
+                s_hours -= 24;
+                //Handle Feb
+                if(leapYear(s_year)&&s_month==2&&s_date==29){ // check if leap year and at the end of Feb
+                    s_month += 1;
+                    s_date = 1;
+                }else if(s_month==2&&s_date==28){
+                    s_month += 1;
+                    s_date = 1;
+                //Handle Dec
+                }else if(s_month==12&&s_date==31){
+                    s_year += 1;
+                    s_month = 1;
+                    s_date = 1;
+                //Handle Mon, Mar, May, July, Aug, Oct
+                }else if((s_month==1||s_month==3||s_month==5||s_month==7||s_month==8||s_month==10)&&s_date==31){
+                    s_month += 1;
+                    s_date = 1;
+                }else if((s_month==4||s_month==6||s_month==9||s_month==11)&&s_date==30){
+                    s_month += 1;
+                    s_date = 1;
+                }else{
+                    s_date += 1;
+                }
+            }else if(s_hours<0){
+                s_hours += 24;
+                if(s_month==1&&s_date==1){
+                    s_year -= 1;
+                    s_month = 12;
+                    s_date = 31;
+                }else if((s_month==2||s_month==4||s_month==6||s_month==8||s_month==9||s_month==11)&&s_date==1){
+                    s_month -= 1;
+                    s_date = 31;
+                }else if((s_month==3||s_month==5||s_month==7||s_month==10||s_month==12)&&s_date==1){
+                    s_month -= 1;
+                    s_date = 30;
+                }else{
+                    s_date -= 1;
+                }
+            }
+
+            if(e_hours>=24){
+                e_hours -= 24;
+                //Handle Feb
+                if(leapYear(e_year)&&e_month==2&&e_date==29){ // check if leap year and at the end of Feb
+                    e_month += 1;
+                    e_date = 1;
+                }else if(e_month==2&&e_date==28){
+                    e_month += 1;
+                    e_date = 1;
+                //Handle Dec
+                }else if(e_month==12&&e_date==31){
+                    e_year += 1;
+                    e_month = 1;
+                    e_date = 1;
+                //Handle Mon, Mar, May, July, Aug, Oct
+                }else if((e_month==1||e_month==3||e_month==5||e_month==7||e_month==8||e_month==10)&&e_date==31){
+                    e_month += 1;
+                    e_date = 1;
+                }else if((e_month==4||e_month==6||e_month==9||e_month==11)&&e_date==30){
+                    e_month += 1;
+                    e_date = 1;
+                }else{
+                    e_date += 1;
+                }
+            }else if(e_hours<0){
+                e_hours += 24;
+                if(e_month==1&&e_date==1){
+                    e_year -= 1;
+                    e_month = 12;
+                    e_date = 31;
+                }else if((e_month==2||e_month==4||e_month==6||e_month==8||e_month==9||e_month==11)&&e_date==1){
+                    e_month -= 1;
+                    e_date = 31;
+                }else if((e_month==3||e_month==5||e_month==7||e_month==10||e_month==12)&&e_date==30){
+                    e_month -= 1;
+                    e_date = 30;
+                }else{
+                     e_date -= 1;
+                 }
+            }
+            if (timeZone>=10){
+                var start_string = monthName[s_month-1] + ' ' + s_date + ', ' + s_year + ' ' + s_hours +':' + s.getUTCMinutes() + ':00 UTC+' + timeZone + ':00';
+                var end_string = monthName[e_month-1] + ' ' + e_date + ', ' + e_year + ' ' + e_hours +':' + e.getUTCMinutes() + ':00 UTC+' + timeZone + ':00';
+            }else if (timeZone>=0){
+                var start_string = monthName[s_month-1] + ' ' + s_date + ', ' + s_year + ' ' + s_hours +':' + s.getUTCMinutes() + ':00 UTC+0' + timeZone + ':00';
+                var end_string = monthName[e_month-1] + ' ' + e_date + ', ' + e_year + ' ' + e_hours +':' + e.getUTCMinutes() + ':00 UTC+0' + timeZone + ':00';
+            }else if (timeZone > -10){
+                var start_string = monthName[s_month-1] + ' ' + s_date + ', ' + s_year + ' ' + s_hours +':' + s.getUTCMinutes() + ':00 UTC-0' + Math.abs(timeZone) + ':00';
+                var end_string = monthName[e_month-1] + ' ' + e_date + ', ' + e_year + ' ' + e_hours +':' + e.getUTCMinutes() + ':00 UTC-0' + Math.abs(timeZone) + ':00';
+            }else{
+                var start_string = monthName[s_month-1] + ' ' + s_date + ', ' + s_year + ' ' + s_hours +':' + s.getUTCMinutes() + ':00 UTC' + timeZone + ':00';
+                var end_string = monthName[e_month-1] + ' ' + e_date + ', ' + e_year + ' ' + e_hours +':' + e.getUTCMinutes() + ':00 UTC' + timeZone + ':00';
+            }
+
+            console.log(start_string)
+            console.log(end_string)
+            var temp_s = new Date(start_string);
+            var temp_e = new Date(end_string);
+            timeslot.start = temp_s.getTime();
+            timeslot.id = temp_s.getTime();
+            timeslot.end = temp_e.getTime();
+            console.log(timeslot);
+            inputInvalidFormat = false;
           }
       }
   }

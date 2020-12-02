@@ -28,5 +28,16 @@ exports.addEventToSchedule = schedule.addEventToSchedule;
 // event endpoints
 exports.createEvent = event.createEvent;
 exports.getEvent = event.getEvent;
+exports.updateEvent = event.updateEvent;
+exports.getUsersInEvent = event.getUsersInEvent;
+exports.setEventTime = event.setEventTime;
+exports.finalizeEventTime = event.finalizeEventTime;
+exports.setReadyForEvent = event.setReadyForEvent;
+exports.setNotReadyForEvent = event.setNotReadyForEvent;
+exports.inviteToEvent = event.inviteToEvent;
+exports.acceptEventInvite = event.acceptEventInvite;
+exports.declineEventInvite = event.declineEventInvite;
+exports.removeFromEvent = event.removeFromEvent;
+exports.leaveEvent = event.leaveEvent;
 exports.addUserScheduleToEvent = event.addUserScheduleToEvent;
 exports.computeNextEarliestAvailableTime = event.computeNextEarliestAvailableTime;

@@ -8,6 +8,9 @@ import firebase from '@react-native-firebase/app';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 
+import TouchableScale from 'react-native-touchable-scale'; // https://github.com/kohver/react-native-touchable-scale
+import LinearGradient from 'react-native-linear-gradient'; // Only if no expo
+
 import { connect } from 'react-redux';
 import { saveFriends, acceptFriend, removeFriend, rejectFriend } from '../../actions/editFriendsList'
 
@@ -48,14 +51,20 @@ class HaveFriends extends Component{
 
     render() {
         const friends = this.props.friends.map(i =>
-            <View key={i.uid} bottomDivider style = {{padding: 1,}}>
-              <ListItem onPress={() => this.getFriendInfo(i)}>
+            <View key={i.email} bottomDivider style = {{padding: 1,}}>
+              <ListItem onPress={() => this.getFriendInfo(i)}
+                Component={TouchableScale}
+                friction={90} //
+                tension={100} // These props are passed to the parent component (here TouchableScale)
+                activeScale={0.95} //
+              >
                 <Avatar
-                  size="medium"
+                  size="small"
                   rounded
                   source={{uri: i.photoURL}} />
                 <ListItem.Content>
-                  <ListItem.Title>{i.name}</ListItem.Title>
+                  <ListItem.Title style={{ color: 'black' }}>{i.name}</ListItem.Title>
+                  <ListItem.Subtitle>{i.email}</ListItem.Subtitle>
                 </ListItem.Content>
                 <ListItem.Chevron size={30} color="#808080"/>
               </ListItem>
@@ -87,14 +96,16 @@ class FriendsList extends Component{
             .collection('users')
             .doc(firebase.auth().currentUser.uid)
             .onSnapshot(documentSnapshot => {
-              console.log("Fetch friends and friend requests");
-              let oldFriendListSize = this.props.friends.length;
-              let newFriendListSize = documentSnapshot._data.friends.length;
-              let oldFriendRequestsSize = this.props.friendRequests.length;
-              let newFriendRequestsSize = documentSnapshot._data.friendsToAdd.length;
-              if (oldFriendListSize !== newFriendListSize || oldFriendRequestsSize !== newFriendRequestsSize){
-                console.log("Friends List or requests size has changed")
-                this.getFriendData();
+              if (documentSnapshot._data) {
+                  console.log("Fetch friends and friend requests");
+                  let oldFriendListSize = this.props.friends.length;
+                  let newFriendListSize = documentSnapshot._data.friends.length;
+                  let oldFriendRequestsSize = this.props.friendRequests.length;
+                  let newFriendRequestsSize = documentSnapshot._data.friendsToAdd.length;
+                  if (oldFriendListSize !== newFriendListSize || oldFriendRequestsSize !== newFriendRequestsSize){
+                    console.log("Friends List or requests size has changed")
+                    this.getFriendData();
+                }
               }
         });
     }
@@ -124,6 +135,10 @@ class FriendsList extends Component{
 
     componentDidUpdate(prevProps) {
         console.log('Re-rendering... in friends list');
+    }
+
+    componentWillUnmount() {
+        this.subscriber();
     }
 
     render() {

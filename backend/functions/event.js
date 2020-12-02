@@ -577,7 +577,6 @@ exports.leaveEvent = functions.https.onCall(async (data, context) => {
         }
     }
 });
-
 exports.addUserScheduleToEvent = functions.https.onCall(async (data, context) => {
     //This function updates the event with all of its members' schedules at once
     //data parameters (all required):
@@ -719,7 +718,6 @@ exports.addUserScheduleToEvent = functions.https.onCall(async (data, context) =>
         }
     }
 });
-
 
 
 exports.computeNextEarliestAvailableTime = functions.https.onCall(async (data, context) => {

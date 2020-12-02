@@ -30,6 +30,7 @@ class Schedule extends Component{
           timeZoneLoading: true,
           timeZone: null
         };
+
         this.subscriber = firestore().collection('schedules').onSnapshot(snapshot => {
             console.log('snapshot');
            // console.log(snapshot);
@@ -38,6 +39,7 @@ class Schedule extends Component{
             //console.log(curUser);
 
             var existInFirebase = false;
+            this.setState({ifLoading:true});
             snapshot.forEach(doc => {
                 var curTimeslots = doc.data();
                 console.log('curTimeslots')
@@ -52,11 +54,11 @@ class Schedule extends Component{
                     console.log(this.props.scheduledEvents)
 
                     this.setState({
-                      displaySchedule: curTimeslots.timeslots,
+                      timeslots: curTimeslots.timeslots,
                       ifLoading: false
                     },() => {
-                    console.log("state.displaySchedule");
-                    console.log(this.state.displaySchedule);
+                      console.log("state.timeslots");
+                      console.log(this.state.timeslots);
                     });
                 }
             });
@@ -82,8 +84,7 @@ class Schedule extends Component{
         this.setState({timeZone: timeZone, timeZoneLoading:false});
      }
 
-     //TODO: Double check this part
-
+    /*
     componentDidUpdate(prevProps, prevState) {
       // only update chart if the data has changed
       if(prevProps.scheduleEvents !== this.props.scheduleEvents){
@@ -91,17 +92,6 @@ class Schedule extends Component{
         console.log(this.state.ifLoading);
         this.getScheduleData();
       }
-    }
-    /*
-    componentDidUpdate(prevProps) {
-        //console.log('Should I update?');
-        //console.log("new friends length: ", this.props.friends.length);
-        //console.log("old friends length: ", prevProps.friends.length);
-        if (this.props.scheduledEvents != prevProps.scheduledEvents){
-            this.setState({ifLoading: true});
-            console.log('Re-rendering...');
-            this.getScheduleData();
-        }
     }*/
 
     getScheduleData = async() => {
@@ -112,13 +102,11 @@ class Schedule extends Component{
         if (data.data.status=='ok'){
             this.props.replaceSchedule(data.data.schedule.timeslots);
             this.setState({
-                displaySchedule: data.data.schedule.timeslots
+                timeslots: data.data.schedule.timeslots
             },() => {
-              console.log("state.displaySchedule");
-              console.log(this.state.displaySchedule);
+              console.log("state.timeslots");
+              console.log(this.state.timeslots);
             });
-            
-            console.log(this.state.displaySchedule);
         }else{
             console.log('initialize')
             const data_initialized = await functions().httpsCallable('addSchedule')({timeslots:[]});
@@ -126,7 +114,7 @@ class Schedule extends Component{
         this.setState({ifLoading: false});
         this.setState((prevState)=>{
           return{
-            displaySchedule: this.state.displaySchedule
+            timeslots: this.state.timeslots
           }
         })
         //this.test();

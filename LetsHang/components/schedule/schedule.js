@@ -350,21 +350,25 @@ class Schedule extends Component{
 
               if(s_hours<12){
                   var startTime = s_hours + ":" + s_minutes + ' AM';
+              }else if(s_hours<24){
+                  var startTime = s_hours-12 + ":" + s_minutes + ' PM';
               }else{
-                  if(s_hours-12==12){
-                    var startTime = "00:" + s_minutes + ' AM';
+                  if(s_hours-24<12){
+                    var startTime = s_hours-24 + ":" + s_minutes + ' AM';
                   }else{
-                    var startTime = s_hours-12 + ":" + s_minutes + ' PM';
+                    var startTime = s_hours-36 + ":" + s_minutes + ' PM';
                   }
               }
 
               if(e_hours<12){
                   var endTime = e_hours + ":" + e_minutes + ' AM';
+              }else if(e_hours<24){
+                  var endTime = e_hours-12 + ":" + e_minutes + ' PM';
               }else{
-                  if(e_hours-12==12){
-                     var endTime = "00:" + e_minutes + ' AM';
+                  if(e_hours-24<12){
+                     var endTime = e_hours-24 + ":" + e_minutes + ' AM';
                   }else{
-                     var endTime = e_hours-12 + ":" + e_minutes + ' PM';
+                     var endTime = e_hours-36 + ":" + e_minutes + ' PM';
                   }
               }
               console.log(startTime);
@@ -415,21 +419,25 @@ class Schedule extends Component{
 
               if(s_hours<12){
                   var startTime = s_hours + ":" + s_minutes + ' AM';
+              }else if(s_hours<24){
+                  var startTime = s_hours-12 + ":" + s_minutes + ' PM';
               }else{
-                  if(s_hours-12 ==12){
-                    var startTime = "00:" + s_minutes + ' AM';
+                  if(s_hours-24<12){
+                    var startTime = s_hours-24 + ":" + s_minutes + ' AM';
                   }else{
-                    var startTime = s_hours-12 + ":" + s_minutes + ' PM';
+                    var startTime = s_hours-36 + ":" + s_minutes + ' PM';
                   }
               }
 
               if(e_hours<12){
                   var endTime = e_hours + ":" + e_minutes + ' AM';
+              }else if(e_hours<24){
+                  var endTime = e_hours-12 + ":" + e_minutes + ' PM';
               }else{
-                  if(e_hours-12==12){
-                     var endTime = "00:" + e_minutes + ' AM';
+                  if(e_hours-24<12){
+                     var endTime = e_hours-24 + ":" + e_minutes + ' AM';
                   }else{
-                     var endTime = e_hours-12 + ":" + e_minutes + ' PM';
+                     var endTime = e_hours-36 + ":" + e_minutes + ' PM';
                   }
               }
               console.log(startTime);

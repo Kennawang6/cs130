@@ -31,7 +31,7 @@ const editSchedule = props => {
   var inputOverlap = true;
   var eventConflict = true;
   var timeslot = {'start':0, 'end':0, 'id':0, 'description':''}
-  //var timeslots = [];
+  var timeslots = [];
 
   // snapshot to get user's timezone
     var subscribe = firestore().collection("users").onSnapshot(snapshot => {
@@ -47,6 +47,18 @@ const editSchedule = props => {
           console.log('timeZone');
           console.log(timeZone);
     });
+    var subscribeSchedule = firestore().collection("schedules").onSnapshot(snapshot => {
+          var curUser = firebase.auth().currentUser.uid;
+          snapshot.forEach(doc => {
+              var userInfo = doc.data();
+              var curID = doc.ref._documentPath._parts[1];
+              if (curID==curUser){
+                  timeslots = userInfo.timeslots;
+              }
+          });
+          console.log('timeslots');
+          console.log(timeslots);
+    });
 
   const event = props.route.params;
   //const schedule = useSelector( state  => state.scheduleReducer);
@@ -60,8 +72,11 @@ const editSchedule = props => {
       console.log(data.data);
       // check if the user contains schedules on firebase
       if (data.data.status=='ok'){
-          schedule.concat(data.data.schedule.timeslots);
-          console.log(JSON.stringify(schedule));
+          //schedule.concat(data.data.schedule.timeslots);
+          //console.log(JSON.stringify(schedule));
+          timeslots = data.data.schedule.timeslots;
+          console.log('timeslots')
+          console.log(timeslots)
       }
   }
 
@@ -124,6 +139,7 @@ const editSchedule = props => {
         const data_remove = await functions().httpsCallable('removeSchedule')({});
         console.log("removeSchedule function has been called in sendEditEvent");
         console.log(data_remove);
+        /*
         const newSchedule = schedule.filter((event) => event.id!== action.eventID).concat({
               start: timeslot.start,
               end: timeslot.end,
@@ -131,14 +147,16 @@ const editSchedule = props => {
               id: timeslot.id,
            })
         await console.log("await after remove: " + JSON.stringify(newSchedule));
+        */
 
         const data = await functions().httpsCallable('addSchedule')({
-          timeslots: newSchedule
+          timeslots: timeslots
         });
         console.log("addSchedule function has been called");
         console.log(data);
 
-        //updateEvents();
+        updateEvents();
+
         props.navigation.navigate('Schedule');
     }
 
@@ -148,58 +166,167 @@ const editSchedule = props => {
           console.log(data_remove);
 
           const data = await functions().httpsCallable('addSchedule')({
-            timeslots: schedule.filter((event) => event.id!== action.eventID)
+            timeslots: timeslots
           });
           console.log("addSchedule function has been called");
           console.log(data);
 
-          //updateEvents();
+          updateEvents();
+
           props.navigation.navigate('Schedule');
       }
 
+    leapYear = (year) =>{
+        var result;
+        if (year/400){
+          result = true
+        }
+        else if(year/100){
+          result = false
+        }
+        else if(year/4){
+          result= true
+        }
+        else{
+          result= false
+        }
+        return result
+     }
+
     inputValidation = (s,e) => {
           console.log('Input Validation');
-          //Check description not empty
-          if(description == ""){
-            alert('Description should not be empty.');
+
+          console.log(s.toString());
+          console.log(e.toString());
+          //Check START and END time
+          // - Check if start < end, otherwise, alert
+          if (s.getTime() >= e.getTime()){ //
+             alert('End time should be larger than start time.');
           }else{
-              console.log(s.toString());
-              console.log(e.toString());
-              //Check START and END time
-              // - Check if start < end, otherwise, alert
-              if (s.getTime() >= e.getTime()){ //
-                 alert('End time should be larger than start time.');
-              }else{
-                  //Set seconds to 0 for start and end
-                  s.setSeconds(0);
-                  e.setSeconds(0);
-                  //Set Time Zone
-                  // - format: 'July 20, 69 00:20:18 UTC+07:00'
-                  // - access user time zone from firebase
-                  subscribe(); // get UserTimeZone
-                  if (timeZone>=10){
-                    var start_string = monthName[s.getMonth()] + ' ' + s.getDate() + ', ' + s.getFullYear() + ' ' + s.getHours() + ':' + s.getMinutes() + ':00 UTC+' + timeZone + ':00';
-                    var end_string = monthName[e.getMonth()] + ' ' + e.getDate() + ', ' + e.getFullYear() + ' ' + e.getHours() + ':' + e.getMinutes() + ':00 UTC+' + timeZone + ':00';
-                  }else if (timeZone>=0){
-                    var start_string = monthName[s.getMonth()] + ' ' + s.getDate() + ', ' + s.getFullYear() + ' ' + s.getHours() + ':' + s.getMinutes() + ':00 UTC+0' + timeZone + ':00';
-                    var end_string = monthName[e.getMonth()] + ' ' + e.getDate() + ', ' + e.getFullYear() + ' ' + e.getHours() + ':' + e.getMinutes() + ':00 UTC+0' + timeZone + ':00';
-                  }else if (timeZone > -10){
-                    var start_string = monthName[s.getMonth()] + ' ' + s.getDate() + ', ' + s.getFullYear() + ' ' + s.getHours() + ':' + s.getMinutes() + ':00 UTC-0' + Math.abs(timeZone) + ':00';
-                    var end_string = monthName[e.getMonth()] + ' ' + e.getDate() + ', ' + e.getFullYear() + ' ' + e.getHours() + ':' + e.getMinutes() + ':00 UTC-0' + Math.abs(timeZone) + ':00';
-                  }else{
-                    var start_string = monthName[s.getMonth()] + ' ' + s.getDate() + ', ' + s.getFullYear() + ' ' + s.getHours() + ':' + s.getMinutes() + ':00 UTC' + timeZone + ':00';
-                    var end_string = monthName[e.getMonth()] + ' ' + e.getDate() + ', ' + e.getFullYear() + ' ' + e.getHours() + ':' + e.getMinutes() + ':00 UTC' + timeZone + ':00';
-                  }
-                  console.log(start_string)
-                  console.log(end_string)
-                  var temp_s = new Date(start_string);
-                  var temp_e = new Date(end_string);
-                  timeslot.start = temp_s.getTime();
-                  timeslot.id = temp_s.getTime();
-                  timeslot.end = temp_e.getTime();
-                  console.log(timeslot);
-                  inputInvalidFormat = false;
-              }
+            //Set seconds to 0 for start and end
+            s.setSeconds(0);
+            e.setSeconds(0);
+            //Set Time Zone
+            // - format: 'July 20, 69 00:20:18 UTC+07:00'
+            // - access user time zone from firebase
+            subscribe(); // get UserTimeZone
+            var s_year = s.getUTCFullYear();
+            var s_month = s.getUTCMonth()+1;
+            var s_date = s.getUTCDate();
+            var s_hours = s.getUTCHours() + timeZone;
+
+            console.log('e')
+            console.log(e.toString());
+            //console.log(e.toUTCString());
+            var e_year = e.getUTCFullYear();
+            var e_month = e.getUTCMonth()+1;
+            var e_date = e.getUTCDate();
+            var e_hours = e.getUTCHours() + timeZone;
+            //while()
+            //{
+            if(s_hours>=24){
+                s_hours -= 24;
+                //Handle Feb
+                if(leapYear(s_year)&&s_month==2&&s_date==29){ // check if leap year and at the end of Feb
+                    s_month += 1;
+                    s_date = 1;
+                }else if(s_month==2&&s_date==28){
+                    s_month += 1;
+                    s_date = 1;
+                //Handle Dec
+                }else if(s_month==12&&s_date==31){
+                    s_year += 1;
+                    s_month = 1;
+                    s_date = 1;
+                //Handle Mon, Mar, May, July, Aug, Oct
+                }else if((s_month==1||s_month==3||s_month==5||s_month==7||s_month==8||s_month==10)&&s_date==31){
+                    s_month += 1;
+                    s_date = 1;
+                }else if((s_month==4||s_month==6||s_month==9||s_month==11)&&s_date==30){
+                    s_month += 1;
+                    s_date = 1;
+                }else{
+                    s_date += 1;
+                }
+            }else if(s_hours<0){
+                s_hours += 24;
+                if(s_month==1&&s_date==1){
+                    s_year -= 1;
+                    s_month = 12;
+                    s_date = 31;
+                }else if((s_month==2||s_month==4||s_month==6||s_month==8||s_month==9||s_month==11)&&s_date==1){
+                    s_month -= 1;
+                    s_date = 31;
+                }else if((s_month==3||s_month==5||s_month==7||s_month==10||s_month==12)&&s_date==1){
+                    s_month -= 1;
+                    s_date = 30;
+                }else{
+                    s_date -= 1;
+                }
+            }
+
+            if(e_hours>=24){
+                e_hours -= 24;
+                //Handle Feb
+                if(leapYear(e_year)&&e_month==2&&e_date==29){ // check if leap year and at the end of Feb
+                    e_month += 1;
+                    e_date = 1;
+                }else if(e_month==2&&e_date==28){
+                    e_month += 1;
+                    e_date = 1;
+                //Handle Dec
+                }else if(e_month==12&&e_date==31){
+                    e_year += 1;
+                    e_month = 1;
+                    e_date = 1;
+                //Handle Mon, Mar, May, July, Aug, Oct
+                }else if((e_month==1||e_month==3||e_month==5||e_month==7||e_month==8||e_month==10)&&e_date==31){
+                    e_month += 1;
+                    e_date = 1;
+                }else if((e_month==4||e_month==6||e_month==9||e_month==11)&&e_date==30){
+                    e_month += 1;
+                    e_date = 1;
+                }else{
+                    e_date += 1;
+                }
+            }else if(e_hours<0){
+                e_hours += 24;
+                if(e_month==1&&e_date==1){
+                    e_year -= 1;
+                    e_month = 12;
+                    e_date = 31;
+                }else if((e_month==2||e_month==4||e_month==6||e_month==8||e_month==9||e_month==11)&&e_date==1){
+                    e_month -= 1;
+                    e_date = 31;
+                }else if((e_month==3||e_month==5||e_month==7||e_month==10||e_month==12)&&e_date==30){
+                    e_month -= 1;
+                    e_date = 30;
+                }else{
+                     e_date -= 1;
+                 }
+            }
+            if (timeZone>=10){
+                var start_string = monthName[s_month-1] + ' ' + s_date + ', ' + s_year + ' ' + s_hours +':' + s.getUTCMinutes() + ':00 UTC+' + timeZone + ':00';
+                var end_string = monthName[e_month-1] + ' ' + e_date + ', ' + e_year + ' ' + e_hours +':' + e.getUTCMinutes() + ':00 UTC+' + timeZone + ':00';
+            }else if (timeZone>=0){
+                var start_string = monthName[s_month-1] + ' ' + s_date + ', ' + s_year + ' ' + s_hours +':' + s.getUTCMinutes() + ':00 UTC+0' + timeZone + ':00';
+                var end_string = monthName[e_month-1] + ' ' + e_date + ', ' + e_year + ' ' + e_hours +':' + e.getUTCMinutes() + ':00 UTC+0' + timeZone + ':00';
+            }else if (timeZone > -10){
+                var start_string = monthName[s_month-1] + ' ' + s_date + ', ' + s_year + ' ' + s_hours +':' + s.getUTCMinutes() + ':00 UTC-0' + Math.abs(timeZone) + ':00';
+                var end_string = monthName[e_month-1] + ' ' + e_date + ', ' + e_year + ' ' + e_hours +':' + e.getUTCMinutes() + ':00 UTC-0' + Math.abs(timeZone) + ':00';
+            }else{
+                var start_string = monthName[s_month-1] + ' ' + s_date + ', ' + s_year + ' ' + s_hours +':' + s.getUTCMinutes() + ':00 UTC' + timeZone + ':00';
+                var end_string = monthName[e_month-1] + ' ' + e_date + ', ' + e_year + ' ' + e_hours +':' + e.getUTCMinutes() + ':00 UTC' + timeZone + ':00';
+            }
+            console.log(start_string)
+            console.log(end_string)
+            var temp_s = new Date(start_string);
+            var temp_e = new Date(end_string);
+            timeslot.start = temp_s.getTime();
+            timeslot.id = temp_s.getTime();
+            timeslot.end = temp_e.getTime();
+            console.log(timeslot);
+            inputInvalidFormat = false;
           }
       }
 
@@ -224,10 +351,15 @@ const editSchedule = props => {
     handleEditPress = () => {
         console.log("Button was pressed");
         console.log(description);
-        timeslot.description = description;
+        if (description==""){
+            timeslot.description = event.description;
+        }else{
+            timeslot.description = description;
+        }
 
         inputValidation(start.date,end.date);
         checkOverlap();
+        /*
         if(inputInvalidFormat||inputOverlap){
                   console.log('Not added.')
         }else{
@@ -243,21 +375,50 @@ const editSchedule = props => {
               id: timeslot.id,
             });
             sendEditEvent();
+        }*/
+        if(inputInvalidFormat||inputOverlap){
+              console.log('Not edited.')
+        }else{
+            subscribeSchedule();
+            console.log('edit');
+            console.log(timeslots);
+            for (var i=0;i<timeslots.length;i++){
+                if(timeslots[i].id == event.id){
+                    timeslots.splice(i,1);
+                    break;
+                }
+            }
+            timeslots.push(timeslot);
+            console.log(timeslots);
+            sendEditEvent();
         }
     }
 
+
     handleRemovePress = () => {
           console.log("Button was pressed");
+          /*
           console.log(description);
           dispatch({
             type: REMOVE_SCHEDULE,
             eventID: event.id,
-          });
+          });*/
+          subscribeSchedule();
+          console.log('remove');
+          console.log(timeslots);
+          for (var i=0;i<timeslots.length;i++){
+              if(timeslots[i].id == event.id){
+                  timeslots.splice(i,1);
+                  break;
+              }
+          }
+          console.log(timeslots);
           sendRemoveEvent();
       }
 
-  const start = useInput(new Date(event.start))
-  const end = useInput(new Date(event.end))
+
+  const start = useInput(new Date(event.start));
+  const end = useInput(new Date(event.end));
 
   var startDate = start.date.toDateString();
   var s_minutes = ("0" + start.date.getMinutes()).slice(-2);

@@ -30,7 +30,7 @@ const scheduleReducer = (state = initialState, action) => {
             console.log("REMOVE_SCHEDULE called");
             return {
                 ...state,
-                scheduledEvents: state.scheduledEvents.filter((event) => event.id!== action.eventID),
+                scheduledEvents: [...state.scheduledEvents.filter((event) => event.id!== action.eventID)],
             }
         }
         default: {

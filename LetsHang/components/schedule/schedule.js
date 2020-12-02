@@ -314,7 +314,7 @@ class Schedule extends Component{
 
               return (
                 <View key={j}>
-                  <TouchableOpacity style={styles.event} onPress={()=>this.props.navigation.navigate('EditSchedule',{'start': event.start,'end':event.end,'description':event.description})}>
+                  <TouchableOpacity style={styles.event} onPress={()=>this.props.navigation.navigate('EditSchedule',{'start': event.start,'end':event.end,'description':event.description,'id':event.id})}>
                     <View style={styles.eventDuration}>
                       <View style={styles.durationContainer}>
                         <View style={styles.durationDot} />
@@ -372,7 +372,7 @@ class Schedule extends Component{
 
               return (
                 <View key={j}>
-                  <TouchableOpacity style={styles.event} onPress={()=>this.props.navigation.navigate('EditSchedule',{'start': event.start,'end':event.end,'description':event.description})}>
+                  <TouchableOpacity style={styles.event} onPress={()=>this.props.navigation.navigate('EditSchedule',{'start': event.start,'end':event.end,'description':event.description,'id':event.id})}>
                     <View style={styles.eventDuration}>
                       <View style={styles.durationContainer}>
                         <View style={styles.durationDot} />
@@ -428,5 +428,5 @@ const mapDispatchToProps = (dispatch) => {
     addScheduleEvent: (schedule) => dispatch(addScheduleEvent(schedule)),
     removeScheduleEvent: (start) => dispatch(removeScheduleEvent(start)),
 }};
-
+//
 export default connect(mapStateToProps, mapDispatchToProps)(Schedule);

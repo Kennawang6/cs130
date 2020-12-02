@@ -10,12 +10,12 @@ const scheduleReducer = (state = initialState, action) => {
             console.log(JSON.stringify(action));
             return {
                 ...state,
-                scheduledEvents: state.scheduledEvents.concat({
+                scheduledEvents: [...state.scheduledEvents.concat({
                     description: action.description,
                     start: action.start,
                     end: action.end,
                     id: action.id,
-                })
+                })]
             };
         }
         case REPLACE_SCHEDULE: {

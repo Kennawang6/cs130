@@ -1,51 +1,107 @@
 import React, {Component} from 'react';
-import { Alert, StyleSheet, Text, View, TouchableOpacity, Button, Dimensions} from 'react-native';
-import WeeklyCalendar from 'react-native-weekly-calendar';
-import moment from 'moment/min/moment-with-locales';
-import styles from './styles';
 import { useState, useEffect } from 'react';
-
+import { Alert, StyleSheet, Text, View, TouchableOpacity, Button, Dimensions} from 'react-native';
+// weekly calendar
+import WeeklyCalendar from 'react-native-weekly-calendar';
+//import moment from 'moment/min/moment-with-locales';
+import styles from './styles';
+// firebase
 import functions from '@react-native-firebase/functions';
+import auth from '@react-native-firebase/auth';
+import firebase from '@react-native-firebase/app';
+import firestore from '@react-native-firebase/firestore';
 
-const windowHeight = Dimensions.get('window').height;
-
-const SECOND_IN_MILLISECONDS = 1000;
-const MINUTE_IN_MILLISECONDS = 60 * SECOND_IN_MILLISECONDS;
-const HOUR_IN_MILLISECONDS = 60 * MINUTE_IN_MILLISECONDS;
-
+// redux
 import { connect } from 'react-redux';
 import { addScheduleEvent, replaceSchedule, removeScheduleEvent} from '../../actions/editSchedule';
 
+import Spinner from 'react-native-loading-spinner-overlay';
 
-/*function weeklyCalendar(){
-  useEffect(() => {
-  fetchSomething();
-}, []);
-}
-*/
+// CONST
+const windowHeight = Dimensions.get('window').height;
 
 class Schedule extends Component{
-
     constructor(props) {
         super(props);
         this.state = {
           timeslots: [],
           displaySchedule: [],
           ifLoading: true,
-          testEvents: [{"description": "test02", "duration": "01:00:00", "end": "2020-11-25 10:24:33", "start": "2020-11-25 09:24:33"}, {"description": "test 04", "duration": "01:18:00", "end": "2020-11-25 11:18:51", "start": "2020-11-25 10:00:51"}, {"description": "test3", "duration": "10:00:00", "end": "2020-11-26 19:39:06", "start": "2020-11-26 09:39:06"}]
+          timeZoneLoading: true,
+          timeZone: null
         };
+        this.subscriber = firestore().collection('schedules').onSnapshot(snapshot => {
+            console.log('snapshot');
+           // console.log(snapshot);
+            var curUser = firebase.auth().currentUser.uid;
+            //console.log('curUser');
+            //console.log(curUser);
+
+            var existInFirebase = false;
+            snapshot.forEach(doc => {
+                var curTimeslots = doc.data();
+                console.log('curTimeslots')
+                console.log(curTimeslots.timeslots);
+                var curID = doc.ref._documentPath._parts[1];
+                //console.log('curID');
+                //console.log(curID);
+                if (curID==curUser){
+                    existInFirebase = true;
+                    this.props.replaceSchedule(curTimeslots.timeslots);
+                    console.log('this.props.scheduledEvents')
+                    console.log(this.props.scheduledEvents)
+
+                    this.setState({
+                      displaySchedule: curTimeslots.timeslots,
+                      ifLoading: false
+                    },() => {
+                    console.log("state.displaySchedule");
+                    console.log(this.state.displaySchedule);
+                    });
+                }
+            });
+
+            if(!existInFirebase){
+                this.getScheduleData();
+            }
+        });
     }
+
+    // access user timezone
     componentDidMount() {
-      this.getScheduleData();
-      
+        this.getUserTimeZone();
     }
-    /*componentDidUpdate(prevProps, prevState) {
+
+    // access user timezone
+    getUserTimeZone = async() => {
+        const data = await functions().httpsCallable('getUserData')({});
+        var timeZone = data.data.data.timeZone;
+        if(timeZone<-12||timeZone>12){
+          timeZone = null;
+        }
+        this.setState({timeZone: timeZone, timeZoneLoading:false});
+     }
+
+     //TODO: Double check this part
+
+    componentDidUpdate(prevProps, prevState) {
       // only update chart if the data has changed
-      if(prevProps.scheduledEvents !== this.props.scheduledEvents){
+      if(prevProps.scheduleEvents !== this.props.scheduleEvents){
         this.setState({ifLoading:true});
         console.log(this.state.ifLoading);
         this.getScheduleData();
       }
+    }
+    /*
+    componentDidUpdate(prevProps) {
+        //console.log('Should I update?');
+        //console.log("new friends length: ", this.props.friends.length);
+        //console.log("old friends length: ", prevProps.friends.length);
+        if (this.props.scheduledEvents != prevProps.scheduledEvents){
+            this.setState({ifLoading: true});
+            console.log('Re-rendering...');
+            this.getScheduleData();
+        }
     }*/
 
     getScheduleData = async() => {
@@ -63,133 +119,80 @@ class Schedule extends Component{
             });
             
             console.log(this.state.displaySchedule);
-            //this.convertToSchedule();
         }else{
             console.log('initialize')
             const data_initialized = await functions().httpsCallable('addSchedule')({timeslots:[]});
         }
-        //this.forceUpdate();
-        // assuming id is stored in firebase
-        //this.props.replaceSchedule(this.state.timeslots);
         this.setState({ifLoading: false});
         this.setState((prevState)=>{
           return{
             displaySchedule: this.state.displaySchedule
           }
         })
-        this.test();
+        //this.test();
     }
 
-    convertToSchedule = () =>{
-        console.log("Convert timeslots to displaySchedule");
-        var new_schedule = [];
-        for (var i=0;i<this.state.timeslots.length;i++) {
-            //console.log(this.state.timeslots[i]);
-            /*
-            var s = new Date(this.state.timeslots[i].start);
-            var s_date = ("0" + s.getDate()).slice(-2);
-            var s_month = ("0" + (s.getMonth() + 1)).slice(-2);
-            var s_year = s.getFullYear();
-            var s_hours = ("0" + s.getHours()).slice(-2);
-            var s_minutes = ("0" + s.getMinutes()).slice(-2);
-            var s_seconds = ("0" + s.getSeconds()).slice(-2);
-            var e = new Date(this.state.timeslots[i].end);
-            var e_date = ("0" + e.getDate()).slice(-2);
-            var e_month = ("0" + (e.getMonth() + 1)).slice(-2);
-            var e_year = e.getFullYear();
-            var e_hours = ("0" + e.getHours()).slice(-2);
-            var e_minutes = ("0" + e.getMinutes()).slice(-2);
-            var e_seconds = ("0" + e.getSeconds()).slice(-2);
-            var event = {'start': s_year + "-" + s_month + "-" + s_date + " " + s_hours + ":" + s_minutes + ":" + s_seconds,
-                         'end': e_year + "-" + e_month + "-" + e_date + " " + e_hours + ":" + e_minutes + ":" + e_seconds,
-                         'description': this.state.timeslots[i].description
-                        };*/
-            var event = {'start':this.state.timeslots[i].start,
-                         'end':this.state.timeslots[i].end,
-                         'description': this.state.timeslots[i].description,
-                         'id':this.state.timeslots[i].start,
-                        }
-            //console.log(event);
-            new_schedule.push(event);
-        }
-        // TODO: HANDLE SPLIT EVENT
-        this.setState({
-            displaySchedule: new_schedule
-        });
-        console.log(this.state.displaySchedule);
-    }
-
-    toDoubleDigit = (num) => {
-        if ((num / 10 >> 0 ) > 0) {
-            return num.toString();
-        } else {
-            return  "0" + num.toString();
-        }
-    }
-
-    calculateDuration = (start, end) => {
-        var total = end - start;
-        return this.toDoubleDigit(total / HOUR_IN_MILLISECONDS >> 0) + ":"
-                + this.toDoubleDigit((total % HOUR_IN_MILLISECONDS) / MINUTE_IN_MILLISECONDS >> 0) + ":"
-                + this.toDoubleDigit(((total % HOUR_IN_MILLISECONDS) % MINUTE_IN_MILLISECONDS) / SECOND_IN_MILLISECONDS >> 0);
-      }
-
+    /*
+    //test redux
     test = () =>{
         console.log("Try redux");
         console.log(this.props.scheduledEvents);
-    }
+    }*/
 
-    
 
-    // TODO: check why not presenting the events
     render() {
-      console.log('in render why');
-      
-      const events = this.props.scheduledEvents;
-      const events1 = this.state.displaySchedule;
-      //console.log(events);
-      //console.log(events);
-      //console.log("state");
-      //console.log(this.state.displaySchedule);
-      //if(this.props.scheduledEvents&&this.props.scheduledEvents.length){
-      
-      if(this.state.ifLoading){
-        return(
-          <View>
-            <Text> Loading </Text>
-          </View>
-        );
+      //console.log('in render');
+      //TODO: Handle Split Events here
+
+      const displayEvents = [];
+      for(var i=0;i++;i<this.props.scheduledEvents.length){
+
+
       }
-      else{
+
+
+      if(this.state.ifLoading||this.state.timeZoneLoading){
+        return(
+            <View style={styles.loading}>
+            <Spinner
+                visible={this.state.ifLoading||this.state.timeZoneLoading}
+                textContent={'Loading...'}
+                textStyle={styles.spinnerTextStyle}
+            />
+            </View>
+        );
+      }else{
       return (
         <View>
           <WeeklyCalendar
             events= {this.props.scheduledEvents}
             renderEvent={(event, j) => {
+              //console.log('in render Event')
               var s = new Date(event.start);
-              var s_date = ("0" + s.getDate()).slice(-2);
-              var s_month = ("0" + (s.getMonth() + 1)).slice(-2);
-              var s_year = s.getFullYear();
-              var s_hours = ("0" + s.getHours()).slice(-2);
+              //console.log('s')
+              //console.log(s.toString())
               var s_minutes = ("0" + s.getMinutes()).slice(-2);
-              var s_seconds = ("0" + s.getSeconds()).slice(-2);
-              var start_string = s_year + "-" + s_month + "-" + s_date + " " + s_hours + ":" + s_minutes + ":" + s_seconds;
               var e = new Date(event.end);
-              var e_date = ("0" + e.getDate()).slice(-2);
-              var e_month = ("0" + (e.getMonth() + 1)).slice(-2);
-              var e_year = e.getFullYear();
-              var e_hours = ("0" + e.getHours()).slice(-2);
+              //console.log('e')
+              //console.log(e.toString())
               var e_minutes = ("0" + e.getMinutes()).slice(-2);
-              var e_seconds = ("0" + e.getSeconds()).slice(-2);
-              var end_string =  e_year + "-" + e_month + "-" + e_date + " " + e_hours + ":" + e_minutes + ":" + e_seconds;
-              let startTime = moment(start_string).format('LT').toString()
-              let endTime = moment(end_string.end).format('LT').toString()
-
-              //let startTime = moment(event.start).format('LT').toString()
-              //let duration = event.duration.split(':')
-              //let seconds = parseInt(duration[0]) * 3600 + parseInt(duration[1]) * 60 + parseInt(duration[2])
-              //let endTime = moment(event.start).add(seconds, 'seconds').format('LT').toString()
-              //let endTime = moment(event.end).format('LT').toString()
+              //console.log(this.state.timeZone);
+              var s_hours = s.getUTCHours() + this.state.timeZone;
+              //console.log(s_hours);
+              if(s.getHours()<12){
+                var startTime = s.getHours() + ":" + s_minutes + ' AM';
+              }else{
+                var startTime = s.getHours()-12 + ":" + s_minutes + ' PM';
+              }
+              if(e.getHours()<12){
+                var endTime = e.getHours() + ":" + e_minutes + ' AM';
+              }else{
+                var endTime = e.getHours()-12 + ":" + e_minutes + ' PM';
+              }
+              //console.log(start_string);
+              //console.log(startTime);
+              //console.log(end_string);
+              //console.log(endTime);
 
               return (
                 <View key={j}>
@@ -215,30 +218,32 @@ class Schedule extends Component{
               )
             }}
             renderLastEvent={(event, j) => {
+              //console.log('in render lastEvent')
               var s = new Date(event.start);
-              var s_date = ("0" + s.getDate()).slice(-2);
-              var s_month = ("0" + (s.getMonth() + 1)).slice(-2);
-              var s_year = s.getFullYear();
-              var s_hours = ("0" + s.getHours()).slice(-2);
+              //console.log('s')
+              //console.log(s.toString())
               var s_minutes = ("0" + s.getMinutes()).slice(-2);
-              var s_seconds = ("0" + s.getSeconds()).slice(-2);
-              var start_string = s_year + "-" + s_month + "-" + s_date + " " + s_hours + ":" + s_minutes + ":" + s_seconds;
               var e = new Date(event.end);
-              var e_date = ("0" + e.getDate()).slice(-2);
-              var e_month = ("0" + (e.getMonth() + 1)).slice(-2);
-              var e_year = e.getFullYear();
-              var e_hours = ("0" + e.getHours()).slice(-2);
+              //console.log('e')
+              //console.log(e.toString())
               var e_minutes = ("0" + e.getMinutes()).slice(-2);
-              var e_seconds = ("0" + e.getSeconds()).slice(-2);
-              var end_string =  e_year + "-" + e_month + "-" + e_date + " " + e_hours + ":" + e_minutes + ":" + e_seconds;
-              let startTime = moment(start_string).format('LT').toString()
-              let endTime = moment(end_string.end).format('LT').toString();
-
-              //let startTime = moment(event.start).format('LT').toString()
-              //let duration = event.duration.split(':')
-              //let seconds = parseInt(duration[0]) * 3600 + parseInt(duration[1]) * 60 + parseInt(duration[2])
-              //let endTime = moment(event.start).add(seconds, 'seconds').format('LT').toString()
-              //let endTime = moment(event.end).format('LT').toString()
+              //console.log(this.state.timeZone);
+              var s_hours = s.getUTCHours() + this.state.timeZone;
+              //console.log(s_hours);
+              if(s.getHours()<12){
+                var startTime = s.getHours() + ":" + s_minutes + ' AM';
+              }else{
+                var startTime = s.getHours()-12 + ":" + s_minutes + ' PM';
+              }
+              if(e.getHours()<12){
+                var endTime = e.getHours() + ":" + e_minutes + ' AM';
+              }else{
+                var endTime = e.getHours()-12 + ":" + e_minutes + ' PM';
+              }
+              //console.log(start_string);
+              //console.log(startTime);
+              //console.log(end_string);
+              //console.log(endTime);
 
               return (
                 <View key={j}>

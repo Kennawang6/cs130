@@ -187,7 +187,13 @@ const styles = StyleSheet.create({
       },
     submitButtonText:{
          color: 'white'
-    }
+    },
+    loading: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#F5FCFF'
+      },
 });
 
 export default styles;

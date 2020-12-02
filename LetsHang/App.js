@@ -213,10 +213,33 @@ function LoginApp() {
   }
   else {
     return (
-      <Tab.Navigator>
+      <Tab.Navigator
+          screenOptions={({ route }) => ({
+            tabBarIcon: () => {
+              let iconName;
+
+              if (route.name === 'Schedule') {
+                iconName = 'date-range';
+              } else if (route.name === 'Events') {
+                iconName = 'meeting-room';
+              } else if (route.name === 'Friends List') {
+                iconName = 'people';
+              } else if (route.name === "Profile") {
+                iconName = 'account-circle';
+              }
+              return <Icon name={iconName} />;
+          },
+        })}
+        tabBarOptions={{
+          labelStyle: {
+            fontSize: 12,
+            margin: 0,
+            padding: 0,
+          },
+        }}>
         <Tab.Screen name="Schedule" component={ScheduleStackScreen} />
-        <Tab.Screen name="Event" component={EventStackScreen} />
-        <Tab.Screen name="Friend's List" component={FriendsListStackScreen} />
+        <Tab.Screen name="Events" component={EventStackScreen} />
+        <Tab.Screen name="Friends List" component={FriendsListStackScreen} /*options={{ tabBarBadge: 2 }}*/ />
         <Tab.Screen name="Profile" component={ProfileStackScreen} />
       </Tab.Navigator>
     );

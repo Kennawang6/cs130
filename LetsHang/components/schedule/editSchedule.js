@@ -123,16 +123,16 @@ const editSchedule = props => {
   }
 
   const updateUserSchedule = async(eventID) => {
-      const eventInfo = await functions().httpsCallable('getEvent')({event_id: eventID});
-      console.log("getEvent function has been called");
-      console.log(eventInfo);
+      //const eventInfo = await functions().httpsCallable('getEvent')({event_id: eventID});
+      //console.log("getEvent function has been called");
+      //console.log(eventInfo);
       const data1 = await functions().httpsCallable('addUserScheduleToEvent')({event_id: eventID});
       console.log("addUserScheduleToEvent function has been called");
       const data2  = await functions().httpsCallable('computeNextEarliestAvailableTime')({event_id: eventID});
       console.log("computeNextEarliestAvailableTime function has been called");
-      const newEventInfo = await functions().httpsCallable('getEvent')({event_id: eventID});
-      console.log("getEvent function has been called");
-      console.log(newEventInfo);
+      //const newEventInfo = await functions().httpsCallable('getEvent')({event_id: eventID});
+      //console.log("getEvent function has been called");
+      //console.log(newEventInfo);
   }
 
   const sendEditEvent = async() => {

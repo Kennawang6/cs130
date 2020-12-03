@@ -192,7 +192,7 @@ describe('Online Tests', () => {
     });
     
     it('should get the same schedule it added', async () => {
-      let result = await addSchedule({timeslots: [{start: 18000, end: 24000, id: 18000, description: "test"}]}, user1Context);
+      let result = await addSchedule({timeslots: [{start: 180000, end: 240000, id: 180000, description: "test"}]}, user1Context);
       assert(result.status == "ok");
       assert(!result.text);
 
@@ -202,9 +202,9 @@ describe('Online Tests', () => {
       assert(result.schedule);
       assert(result.schedule.timeslots);
       assert(result.schedule.timeslots.length == 1);
-      assert(result.schedule.timeslots[0].start == 18000);
-      assert(result.schedule.timeslots[0].end == 24000);
-      assert(result.schedule.timeslots[0].id == 18000);
+      assert(result.schedule.timeslots[0].start == 180000);
+      assert(result.schedule.timeslots[0].end == 240000);
+      assert(result.schedule.timeslots[0].id == 180000);
       assert(result.schedule.timeslots[0].description == 'test');
     });
 
@@ -223,13 +223,13 @@ describe('Online Tests', () => {
 
     it('should add timeslot to schedule in order', async () => {
       let result = await addSchedule({timeslots: [
-        {start: 6000, end: 12000, id: 6000, description: "before"}, 
-        {start: 48000, end: 60000, id: 48000, description: "after"}
+        {start: 60000, end: 120000, id: 60000, description: "before"}, 
+        {start: 480000, end: 600000, id: 480000, description: "after"}
       ]}, user2Context);
       assert(result.status == "ok");
       assert(!result.text);
 
-      result = await addTimeslotToSchedule({timeslot: {start: 30000, end: 36000, id: 30000, description: "new"}}, user2Context);
+      result = await addTimeslotToSchedule({timeslot: {start: 300000, end: 360000, id: 300000, description: "new"}}, user2Context);
       assert(result.text);
       assert(result.text == "Successfully updated schedule with new timeslot");
 
@@ -239,20 +239,20 @@ describe('Online Tests', () => {
       assert(result.schedule);
       assert(result.schedule.timeslots);
       assert(result.schedule.timeslots.length == 3);
-      assert(result.schedule.timeslots[0].start == 6000);
-      assert(result.schedule.timeslots[0].end == 12000);
-      assert(result.schedule.timeslots[0].id == 6000);
+      assert(result.schedule.timeslots[0].start == 60000);
+      assert(result.schedule.timeslots[0].end == 120000);
+      assert(result.schedule.timeslots[0].id == 60000);
       assert(result.schedule.timeslots[0].description == 'before');
-      assert(result.schedule.timeslots[1].start == 30000);
-      assert(result.schedule.timeslots[1].end == 36000);
-      assert(result.schedule.timeslots[1].id == 30000);
+      assert(result.schedule.timeslots[1].start == 300000);
+      assert(result.schedule.timeslots[1].end == 360000);
+      assert(result.schedule.timeslots[1].id == 300000);
       assert(result.schedule.timeslots[1].description == 'new');
-      assert(result.schedule.timeslots[2].start == 48000);
-      assert(result.schedule.timeslots[2].end == 60000);
-      assert(result.schedule.timeslots[2].id == 48000);
+      assert(result.schedule.timeslots[2].start == 480000);
+      assert(result.schedule.timeslots[2].end == 600000);
+      assert(result.schedule.timeslots[2].id == 480000);
       assert(result.schedule.timeslots[2].description == 'after');
       
-      result = await addTimeslotToSchedule({timeslot: {start: 18000, end: 24000, id: 18000, description: "test"}}, user1Context);
+      result = await addTimeslotToSchedule({timeslot: {start: 180000, end: 240000, id: 180000, description: "test"}}, user1Context);
       assert(result.text);
       assert(result.text == "Successfully updated schedule with new timeslot");
 
@@ -262,14 +262,14 @@ describe('Online Tests', () => {
       assert(result.schedule);
       assert(result.schedule.timeslots);
       assert(result.schedule.timeslots.length == 1);
-      assert(result.schedule.timeslots[0].start == 18000);
-      assert(result.schedule.timeslots[0].end == 24000);
-      assert(result.schedule.timeslots[0].id == 18000);
+      assert(result.schedule.timeslots[0].start == 180000);
+      assert(result.schedule.timeslots[0].end == 240000);
+      assert(result.schedule.timeslots[0].id == 180000);
       assert(result.schedule.timeslots[0].description == 'test');
     });
 
     it('should add timeslot to schedule in order and combine overlapping timeslots', async () => {
-      let result = await addTimeslotToScheduleandCombine({timeslot: {start: 54000, end: 66000, id: 54000, description: "combine"}}, user2Context);
+      let result = await addTimeslotToScheduleandCombine({timeslot: {start: 540000, end: 660000, id: 540000, description: "combine"}}, user2Context);
       assert(result.text);
       assert(result.text == "Successfully updated schedule with new timeslot");
 
@@ -279,22 +279,22 @@ describe('Online Tests', () => {
       assert(result.schedule);
       assert(result.schedule.timeslots);
       assert(result.schedule.timeslots.length == 3);
-      assert(result.schedule.timeslots[0].start == 6000);
-      assert(result.schedule.timeslots[0].end == 12000);
-      assert(result.schedule.timeslots[0].id == 6000);
+      assert(result.schedule.timeslots[0].start == 60000);
+      assert(result.schedule.timeslots[0].end == 120000);
+      assert(result.schedule.timeslots[0].id == 60000);
       assert(result.schedule.timeslots[0].description == 'before');
-      assert(result.schedule.timeslots[1].start == 30000);
-      assert(result.schedule.timeslots[1].end == 36000);
-      assert(result.schedule.timeslots[1].id == 30000);
+      assert(result.schedule.timeslots[1].start == 300000);
+      assert(result.schedule.timeslots[1].end == 360000);
+      assert(result.schedule.timeslots[1].id == 300000);
       assert(result.schedule.timeslots[1].description == 'new');
-      assert(result.schedule.timeslots[2].start == 48000);
-      assert(result.schedule.timeslots[2].end == 66000);
-      assert(result.schedule.timeslots[2].id == 48000);
+      assert(result.schedule.timeslots[2].start == 480000);
+      assert(result.schedule.timeslots[2].end == 660000);
+      assert(result.schedule.timeslots[2].id == 480000);
       assert(result.schedule.timeslots[2].description == 'combine, after');
     });
 
     it('should get a modified schedule after adding an event to that schedule', async () => {
-      let result = await addEventToSchedule({uid: uid1, timeslot: {start: 30000, end: 36000, id: 30000, description: "new"}});
+      let result = await addEventToSchedule({uid: uid1, timeslot: {start: 300000, end: 360000, id: 300000, description: "new"}});
       assert(result.status == "ok");
       assert(!result.text);
 
@@ -304,18 +304,18 @@ describe('Online Tests', () => {
       assert(result.schedule);
       assert(result.schedule.timeslots);
       assert(result.schedule.timeslots.length == 2);
-      assert(result.schedule.timeslots[0].start == 18000);
-      assert(result.schedule.timeslots[0].end == 24000);
-      assert(result.schedule.timeslots[0].id == 18000);
+      assert(result.schedule.timeslots[0].start == 180000);
+      assert(result.schedule.timeslots[0].end == 240000);
+      assert(result.schedule.timeslots[0].id == 180000);
       assert(result.schedule.timeslots[0].description == 'test');
-      assert(result.schedule.timeslots[1].start == 30000);
-      assert(result.schedule.timeslots[1].end == 36000);
-      assert(result.schedule.timeslots[1].id == 30000);
+      assert(result.schedule.timeslots[1].start == 300000);
+      assert(result.schedule.timeslots[1].end == 360000);
+      assert(result.schedule.timeslots[1].id == 300000);
       assert(result.schedule.timeslots[1].description == 'new');
     });
     
     it('should merge overlapping timeslots when adding event to schedule', async () => {
-      let result = await addEventToSchedule({uid: uid1, timeslot: {start: 30000, end: 42000, id: 30000, description: "merge"}}, {});
+      let result = await addEventToSchedule({uid: uid1, timeslot: {start: 300000, end: 420000, id: 300000, description: "merge"}}, {});
       assert(result.status == "ok");
       assert(!result.text);
 
@@ -325,13 +325,13 @@ describe('Online Tests', () => {
       assert(result.schedule);
       assert(result.schedule.timeslots);
       assert(result.schedule.timeslots.length == 2);
-      assert(result.schedule.timeslots[0].start == 18000);
-      assert(result.schedule.timeslots[0].end == 24000);
-      assert(result.schedule.timeslots[0].id == 18000);
+      assert(result.schedule.timeslots[0].start == 180000);
+      assert(result.schedule.timeslots[0].end == 240000);
+      assert(result.schedule.timeslots[0].id == 180000);
       assert(result.schedule.timeslots[0].description == 'test');
-      assert(result.schedule.timeslots[1].start == 30000);
-      assert(result.schedule.timeslots[1].end == 42000);
-      assert(result.schedule.timeslots[1].id == 30000);
+      assert(result.schedule.timeslots[1].start == 300000);
+      assert(result.schedule.timeslots[1].end == 420000);
+      assert(result.schedule.timeslots[1].id == 300000);
       assert(result.schedule.timeslots[1].description == 'new, merge');
     });
   });
@@ -365,8 +365,8 @@ describe('Online Tests', () => {
         event_name: "event", 
         description: "description", 
         invitees: [uid2], 
-        start_date: 0, 
-        end_date: 60000,
+        start_date: 60000, 
+        end_date: 600000,
         duration: 1
       }, user1Context);
       assert(result.text);
@@ -386,7 +386,7 @@ describe('Online Tests', () => {
       assert(result.event_data.members.length == 1);
       assert(result.event_data.members[0] == uid1);
       assert(result.event_data.startDate == 0);
-      assert(result.event_data.endDate == 60000);
+      assert(result.event_data.endDate == 600000);
       assert(result.event_data.duration == 1);
       assert(result.event_data.commonSchedule.length == 0);
       assert(result.event_data.computedTime == 0);
@@ -515,7 +515,7 @@ describe('Online Tests', () => {
       assert(result.text);
       assert(result.text == "Get event successful, check event_data object");
       assert(result.event_data);
-      console.log(result.event_data.commonSchedule);
+      assert(result.event_data.commonSchedule.length == 2);
       
       result = await addUserScheduleToEvent({event_id: eventId}, user2Context);
       assert(result.text);
@@ -525,15 +525,39 @@ describe('Online Tests', () => {
       assert(result.text);
       assert(result.text == "Get event successful, check event_data object");
       assert(result.event_data);
-      console.log(result.event_data.commonSchedule);
-      assert(false);
+      assert(result.event_data.commonSchedule.length == 4);
     });
     
     it('should compute available times and correctly choose next available times', async () => {
       let result = await computeNextEarliestAvailableTime({event_id: eventId}, user1Context);
-      console.log(result.text);
-      console.log(result.eventEndTime);
-      assert(false);
+      assert(result.text);
+      assert(result.text == "Earliest time computed, check computedTime field");
+      console.log(result.computedTime);
+      //assert(result.computedTime == 0);
+      
+      result = await computeNextEarliestAvailableTime({event_id: eventId}, user1Context);
+      assert(result.text);
+      assert(result.text == "Earliest time computed, check computedTime field");
+      console.log(result.computedTime);
+      //assert(result.computedTime == 120000);
+      
+      result = await computeNextEarliestAvailableTime({event_id: eventId}, user1Context);
+      assert(result.text);
+      assert(result.text == "Earliest time computed, check computedTime field");
+      console.log(result.computedTime);
+      //assert(result.computedTime == 240000);
+      
+      result = await computeNextEarliestAvailableTime({event_id: eventId}, user1Context);
+      assert(result.text);
+      assert(result.text == "Earliest time computed, check computedTime field");
+      console.log(result.computedTime);
+      //assert(result.computedTime == 480000);
+      
+      result = await computeNextEarliestAvailableTime({event_id: eventId}, user1Context);
+      assert(result.text);
+      //assert(result.text == "No time available, earliest time set to end date, check computedTime field");
+      console.log(result.computedTime);
+      //assert(result.computedTime == 600000);
     });
     
     it('should set the decided time and empty the ready and not ready lists when an event time is proposed', async () => {

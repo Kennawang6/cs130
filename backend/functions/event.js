@@ -743,17 +743,53 @@ exports.computeNextEarliestAvailableTime = functions.https.onCall(async (data, c
             const eventStartTime = eventData.startDate;
             const eventEndTime = eventData.endDate;
             const eventDuration = eventData.duration*60*1000; //convert from minutes to ms
+            const previousTime = eventData.computedTime;
 
             if (eventSchedule.length == 0) {
-              await admin.firestore().collection('events').doc(data.event_id).update({
-                computedTime: eventStartTime
-              });
+              if (previousTime == 0) {
+                if (eventEndTime - eventStartTime > eventDuration) {
+                  await admin.firestore().collection('events').doc(data.event_id).update({
+                    computedTime: eventStartTime
+                  });
 
-              console.log("Time computed");
-              return {
-                  text: "Earliest time computed, check computedTime field",
-                  computedTime: eventStartTime
-              };
+                  console.log("Time computed");
+                  return {
+                      text: "Earliest time computed, check computedTime field",
+                      computedTime: eventStartTime
+                  };
+                } else {
+                  await admin.firestore().collection('events').doc(data.event_id).update({
+                    computedTime: eventEndTime,
+                  });
+                  console.log("End date set as earliest time");
+                  return {
+                      text: "No time available, earliest time set to end date, check computedTime field",
+                      computedTime: eventEndTime,
+                  };
+                }
+              } else {
+                let newTime = previousTime + eventDuration;
+                if (newTime - eventStartTime > eventDuration) {
+                  await admin.firestore().collection('events').doc(data.event_id).update({
+                    computedTime: newTime
+                  });
+
+                  console.log("Time computed");
+                  return {
+                      text: "Earliest time computed, check computedTime field",
+                      computedTime: newTime
+                  };
+                } else {
+                  await admin.firestore().collection('events').doc(data.event_id).update({
+                    computedTime: eventEndTime,
+                  });
+                  console.log("End date set as earliest time");
+                  return {
+                      text: "No time available, earliest time set to end date, check computedTime field",
+                      computedTime: eventEndTime,
+                  };
+                }
+              }
             }
 
             for(var i = 0; i < eventSchedule.length; i++){

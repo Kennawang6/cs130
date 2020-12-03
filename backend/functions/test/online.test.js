@@ -385,7 +385,7 @@ describe('Online Tests', () => {
       assert(result.event_data.invitees[0] == uid2);
       assert(result.event_data.members.length == 1);
       assert(result.event_data.members[0] == uid1);
-      assert(result.event_data.startDate == 0);
+      assert(result.event_data.startDate == 60000);
       assert(result.event_data.endDate == 600000);
       assert(result.event_data.duration == 1);
       assert(result.event_data.commonSchedule.length == 0);
@@ -515,16 +515,6 @@ describe('Online Tests', () => {
       assert(result.text);
       assert(result.text == "Get event successful, check event_data object");
       assert(result.event_data);
-      assert(result.event_data.commonSchedule.length == 2);
-      
-      result = await addUserScheduleToEvent({event_id: eventId}, user2Context);
-      assert(result.text);
-      assert(result.text == "Successfully updated event schedule with user schedules");
-      
-      result = await getEvent({event_id: eventId}, user1Context);
-      assert(result.text);
-      assert(result.text == "Get event successful, check event_data object");
-      assert(result.event_data);
       assert(result.event_data.commonSchedule.length == 4);
     });
     
@@ -532,32 +522,22 @@ describe('Online Tests', () => {
       let result = await computeNextEarliestAvailableTime({event_id: eventId}, user1Context);
       assert(result.text);
       assert(result.text == "Earliest time computed, check computedTime field");
-      console.log(result.computedTime);
-      //assert(result.computedTime == 0);
+      assert(result.computedTime == 120000);
       
       result = await computeNextEarliestAvailableTime({event_id: eventId}, user1Context);
       assert(result.text);
       assert(result.text == "Earliest time computed, check computedTime field");
-      console.log(result.computedTime);
-      //assert(result.computedTime == 120000);
+      assert(result.computedTime == 240000);
       
       result = await computeNextEarliestAvailableTime({event_id: eventId}, user1Context);
       assert(result.text);
       assert(result.text == "Earliest time computed, check computedTime field");
-      console.log(result.computedTime);
-      //assert(result.computedTime == 240000);
+      assert(result.computedTime == 420000);
       
       result = await computeNextEarliestAvailableTime({event_id: eventId}, user1Context);
       assert(result.text);
-      assert(result.text == "Earliest time computed, check computedTime field");
-      console.log(result.computedTime);
-      //assert(result.computedTime == 480000);
-      
-      result = await computeNextEarliestAvailableTime({event_id: eventId}, user1Context);
-      assert(result.text);
-      //assert(result.text == "No time available, earliest time set to end date, check computedTime field");
-      console.log(result.computedTime);
-      //assert(result.computedTime == 600000);
+      assert(result.text == "No time available, earliest time set to end date, check computedTime field");
+      assert(result.computedTime == 600000);
     });
     
     it('should set the decided time and empty the ready and not ready lists when an event time is proposed', async () => {

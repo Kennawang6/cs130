@@ -793,6 +793,10 @@ exports.computeNextEarliestAvailableTime = functions.https.onCall(async (data, c
             }
 
             for(var i = 0; i < eventSchedule.length; i++){
+                if (eventSchedule[i].start < previousTime) {
+                    continue;
+                }
+                
                 if(i == eventSchedule.length - 1){
                     if(eventData.computedTime != eventSchedule[i].end && (eventEndTime - eventSchedule[i].end) >= eventDuration){
                         await admin.firestore().collection('events').doc(data.event_id).update({

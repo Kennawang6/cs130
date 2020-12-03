@@ -432,11 +432,11 @@ class EventList extends Component{
               <ListItem.Content>
                 <ListItem.Title>{i.eventInfo.name}</ListItem.Title>
                 <ListItem.Subtitle>{i.ifUser?"Host":"Member"} @Meeting time: {i.eventInfo.decidedTime===0||this.state.timeZoneString===""?
-                                                      "--": new Date(i.eventInfo.decidedTime+3600000*parseInt(this.state.timeZoneString,10)).getFullYear() + "-" +
-                                                      ("0" + (new Date(i.eventInfo.decidedTime+3600000*parseInt(this.state.timeZoneString,10)).getMonth() + 1)).slice(-2) + "-" +
-                                                      ("0"+new Date(i.eventInfo.decidedTime+3600000*parseInt(this.state.timeZoneString,10)).getDate()).slice(-2) + " " +
-                                                      ("0" + new Date(i.eventInfo.decidedTime+3600000*parseInt(this.state.timeZoneString,10)).getHours()).slice(-2) + ":" + 
-                                                      ("0" + new Date(i.eventInfo.decidedTime+3600000*parseInt(this.state.timeZoneString,10)).getMinutes()).slice(-2)
+                                                      "--": new Date(i.eventInfo.decidedTime).getFullYear() + "-" +
+                                                      ("0" + (new Date(i.eventInfo.decidedTime).getMonth() + 1)).slice(-2) + "-" +
+                                                      ("0"+new Date(i.eventInfo.decidedTime).getDate()).slice(-2) + " " +
+                                                      ("0" + new Date(i.eventInfo.decidedTime).getHours()).slice(-2) + ":" +
+                                                      ("0" + new Date(i.eventInfo.decidedTime).getMinutes()).slice(-2)
                                                       } @Duration: {i.eventInfo.duration} minutes</ListItem.Subtitle>
               </ListItem.Content>
               <ListItem.Chevron size={30} color="#808080"/>

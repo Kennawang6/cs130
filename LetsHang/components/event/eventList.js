@@ -5,12 +5,12 @@ import firebase from '@react-native-firebase/app';
 import functions from '@react-native-firebase/functions';
 import { Input } from 'react-native-elements';
 import { Icon } from 'react-native-elements'
-import { Button, ListItem, Divider } from 'react-native-elements';
+import { Button, ListItem, Divider, Badge } from 'react-native-elements';
 import firestore from '@react-native-firebase/firestore';
 import moment from 'moment/min/moment-with-locales';
 
 import { connect } from 'react-redux';
-import { setEvent, addEvent, removeEvent, editCurEvent} from '../../actions/editEvent';
+import { setEvent, addEvent, removeEvent, editCurEvent, setEventRequest} from '../../actions/editEvent';
 import { addScheduleEvent, replaceSchedule, removeScheduleEvent} from '../../actions/editSchedule';
 
 class EventList extends Component{
@@ -53,6 +53,8 @@ class EventList extends Component{
 
   getUserTimeZone = async() => {
     const data = await functions().httpsCallable('getUserData')({});
+    var notifications = data.data.data.eventNotifications.length;
+    this.props.reduxSetEventRequest(notifications);
     var timeZone = data.data.data.timeZone;
     if(timeZone<-12||timeZone>12){
       timeZone = 0;
@@ -401,10 +403,16 @@ class EventList extends Component{
             <ListItem.Content>
               <ListItem.Title>Event Requests</ListItem.Title>
             </ListItem.Content>
+            {(this.props.eventRequest > 0) &&
+                  <Badge
+                    value={this.props.eventRequest}
+                    badgeStyle={{ backgroundColor: 'red' }}
+                    textStyle={{ color: 'white' }}
+                  />
+                  }
             <ListItem.Chevron size={30} color="#808080"/>
           </ListItem>
          </View>
-
          <View>
 
          <ScrollView>
@@ -501,7 +509,7 @@ class EventList extends Component{
 	}
 }
 
-const mapStateToProps = (state) => {return {curEvent:state.eventReducer.curEvent, eventList: state.eventReducer.eventList, scheduledEvents: state.scheduleReducer.scheduledEvents}};
+const mapStateToProps = (state) => {return {curEvent:state.eventReducer.curEvent, eventList: state.eventReducer.eventList, eventRequest: state.eventReducer.eventRequest, scheduledEvents: state.scheduleReducer.scheduledEvents}};
 
 const mapDispatchToProps = (dispatch) => {
   return{
@@ -510,6 +518,7 @@ const mapDispatchToProps = (dispatch) => {
     reduxAddEvent:(event) => dispatch(addEvent(event)),
     reduxRemoveEvent: (eventID) => dispatch(removeEvent(eventID)),
     reduxEditCurEvent: (event) => dispatch(editCurEvent(event)),
+    reduxSetEventRequest: (eq) => dispatch(setEventRequest(eq)),
 }};
 
 export default connect(mapStateToProps, mapDispatchToProps)(EventList);

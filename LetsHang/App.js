@@ -45,6 +45,8 @@ import EditEventName from './components/event/editEventName';
 import EditEventDescription from './components/event/editEventDescription';
 import EventRequests from './components/event/eventRequests';
 import InviteFriendHost from './components/event/inviteFriendHost';
+import EventsTabBadge from './components/event/eventsTabBadge';
+
 // For signIn
 const Stack = createStackNavigator();
 // For tab
@@ -220,11 +222,11 @@ function LoginApp() {
               let iconName;
               if (route.name === "Friends List")
                 return <FriendsTabBadge />
-
+              
               if (route.name === 'Schedule') {
                 iconName = 'date-range';
               } else if (route.name === 'Events') {
-                iconName = 'meeting-room';
+                return <EventsTabBadge />
               } else if (route.name === "Profile") {
                 iconName = 'account-circle';
               }

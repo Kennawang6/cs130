@@ -618,13 +618,13 @@ exports.addUserScheduleToEvent = functions.https.onCall(async (data, context) =>
 
                         if(scheduleTimeslotStartTime < eventStartTime && scheduleTimeslotEndTime > eventStartTime){
                             userTimeslots.push({
-                                start: eventData.start_date,
+                                start: eventData.startDate,
                                 end: scheduleTimeslot.end,
                             });
                         } else if(scheduleTimeslotEndTime > eventEndTime && scheduleTimeslotStartTime < eventEndTime){
                             userTimeslots.push({
                                 start: scheduleTimeslot.start,
-                                end: eventData.end_date,
+                                end: eventData.endDate,
                             });
                         } else {
                             userTimeslots.push(scheduleTimeslot);

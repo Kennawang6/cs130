@@ -1,7 +1,7 @@
 import React, {useState, Component} from 'react';
 import {View, Text, Button, TouchableOpacity, Alert, ScrollView} from 'react-native';
 import functions from '@react-native-firebase/functions';
-import { Avatar, ListItem, Icon, Divider } from 'react-native-elements';
+import { Avatar, ListItem, Icon, Divider, Badge } from 'react-native-elements';
 import styles from './styles';
 import Spinner from 'react-native-loading-spinner-overlay';
 import firebase from '@react-native-firebase/app';
@@ -90,7 +90,6 @@ class FriendsList extends Component{
           text: "",
           spinner: false
         };
-        this.addOrSeeRequests = this.addOrSeeRequests.bind(this);
 
         this.subscriber = firestore()
             .collection('users')
@@ -109,10 +108,6 @@ class FriendsList extends Component{
               }
         });
     }
-
-     addOrSeeRequests(location){
-        this.props.navigation.navigate(location);
-     }
 
     getFriendData = async() => {
         const data = await functions().httpsCallable('getFriendsList')({});
@@ -142,16 +137,6 @@ class FriendsList extends Component{
     }
 
     render() {
-        const list = [
-          {
-            title: 'Add Friend',
-            icon: 'person-add-alt-1',
-          },
-          {
-            title: 'Friend Requests',
-            icon: 'notifications',
-        }];
-
         return (
         <View>
             {this.state.spinner === true &&
@@ -164,17 +149,29 @@ class FriendsList extends Component{
                   </View>
             }
             <View>
-              {
-                list.map((item, i) => (
-                  <ListItem key={i} bottomDivider onPress={() => this.addOrSeeRequests(item.title)}>
-                    <Icon name={item.icon} />
-                    <ListItem.Content>
-                      <ListItem.Title>{item.title}</ListItem.Title>
-                    </ListItem.Content>
-                    <ListItem.Chevron size={30} color="#808080"/>
-                  </ListItem>
-                ))
-              }
+
+                <ListItem key={'Add Friend'} bottomDivider onPress={() => this.props.navigation.navigate('Add Friend')}>
+                  <Icon name='person-add-alt-1' />
+                  <ListItem.Content>
+                    <ListItem.Title>Add Friend</ListItem.Title>
+                  </ListItem.Content>
+                  <ListItem.Chevron size={30} color="#808080"/>
+                </ListItem>
+                <ListItem key={'Friend Requests'} bottomDivider onPress={() => this.props.navigation.navigate('Friend Requests')}>
+                  <Icon name='notifications' />
+                  <ListItem.Content>
+                    <ListItem.Title>Friend Requests</ListItem.Title>
+                  </ListItem.Content>
+                  {(this.props.friendRequests.length > 0) &&
+                  <Badge
+                    value={this.props.friendRequests.length}
+                    badgeStyle={{ backgroundColor: 'red' }}
+                    textStyle={{ color: 'white' }}
+                  />
+                  }
+                  <ListItem.Chevron size={30} color="#808080"/>
+                </ListItem>
+
             </View>
             {(Array.isArray(this.props.friends) && this.props.friends.length < 1) &&
                 <NoFriends />

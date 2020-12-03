@@ -8,7 +8,7 @@ import { Button } from 'react-native-elements';
 import firestore from '@react-native-firebase/firestore';
 
 import { connect } from 'react-redux';
-import { setEvent, addEvent, removeEvent, editCurEvent} from '../../actions/editEvent';
+import { setEvent, addEvent, removeEvent, editCurEvent, setEventRequest} from '../../actions/editEvent';
 
 
 class EventRequests extends Component{
@@ -19,8 +19,8 @@ class EventRequests extends Component{
             .collection('users')
             .doc(firebase.auth().currentUser.uid)
             .onSnapshot(snapshot => {
-              console.log("hello");
               var noti = snapshot.data().eventNotifications;
+              this.props.reduxSetEventRequest(noti.length);
               var eventNotiPair = [];
               this.getEventNoti(noti);
             });
@@ -31,7 +31,6 @@ class EventRequests extends Component{
   }*/
 
   getEventNoti = async(eventNotiIDs) =>{
-    console.log("hello1");
     var eventNotiPair = [];
     for (var i = eventNotiIDs.length - 1; i >= 0; i--) {
       var eventInfo = await functions().httpsCallable('getEvent')({event_id: eventNotiIDs[i]});
@@ -117,13 +116,14 @@ class EventRequests extends Component{
 
 
 
-const mapStateToProps = (state) => {return {curEvent:state.eventReducer.curEvent, eventList: state.eventReducer.eventList}};
+const mapStateToProps = (state) => {return {curEvent:state.eventReducer.curEvent, eventList: state.eventReducer.eventList, eventRequest: state.eventReducer.eventRequest,}};
 
 const mapDispatchToProps = (dispatch) => {
   return{
     reduxAddEvent:(event) => dispatch(addEvent(event)),
     reduxRemoveEvent: (eventID) => dispatch(removeEvent(eventID)),
     reduxEditCurEvent: (event) => dispatch(editCurEvent(event)),
+    reduxSetEventRequest: (eq) => dispatch(setEventRequest(eq)),
 }};
 
 export default connect(mapStateToProps, mapDispatchToProps)(EventRequests);

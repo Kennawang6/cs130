@@ -5,6 +5,7 @@ import functions from '@react-native-firebase/functions';
 import { Input, Text, ListItem } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Button } from 'react-native-elements';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 import {SET_EVENT, ADD_EVENT, REMOVE_EVENT, CUR_EVENT} from '../../actions/types'
 import { useSelector, useDispatch } from 'react-redux';
@@ -21,6 +22,7 @@ const CreateEvent = props => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [durationS, setDurationS] = useState('');
+  const [spinner, setSpinner] = useState(false);
   function useInput() {
       const [date, setDate] = useState(new Date());
       const [mode, setMode] = useState('date');
@@ -114,6 +116,7 @@ const CreateEvent = props => {
 
 
     if(ifValidCreate){
+      setSpinner(true);
       console.log(name);
       console.log(description);
       console.log(timeZone);
@@ -135,6 +138,7 @@ const CreateEvent = props => {
       const data2 = await functions().httpsCallable('computeNextEarliestAvailableTime')({event_id: data.data.event_id});
       console.log(data2);
       console.log("event is created");
+      setSpinner(false);
       props.navigation.navigate('EventList');
     }
     
@@ -157,6 +161,15 @@ const CreateEvent = props => {
   return (
     <View>
       <ScrollView>
+        {spinner === true &&
+          <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5FCFF'}}>
+          <Spinner
+            visible={spinner}
+            textContent={'Loading...'}
+            textStyle={{color: '#FFF'}}
+          />
+          </View>
+        }
         <View>
           <Text>Event Name</Text>
           <Input

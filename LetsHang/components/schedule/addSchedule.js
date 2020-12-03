@@ -96,7 +96,7 @@ const addSchedule = props => {
       console.log(data);
   }
 
-  handlePress = () => {
+  const handlePress = () => {
       console.log("Button was pressed");
       console.log(description);
       timeslot.description = description;
@@ -120,7 +120,7 @@ const addSchedule = props => {
         sendScheduleEvent();
 
         //Update Event Schedule
-        //UpdateEvents();
+        UpdateEvents();
 
         // Back to Schedule
         props.navigation.navigate('Schedule');
@@ -314,10 +314,14 @@ const addSchedule = props => {
   //        event finalize
   //        event update
   //
-  const UpdateEvents = () =>{
+  const UpdateEvents = async() =>{
     for(var i =0; i < EventList.length ;i++){
         var eventID = EventList[i];
-        UpdateUserSchedule(eventID);
+        //UpdateUserSchedule(eventID);
+        const data1 = await functions().httpsCallable('addUserScheduleToEvent')({event_id: eventID});
+        console.log("addUserScheduleToEvent function has been called");
+        const data2  = await functions().httpsCallable('computeNextEarliestAvailableTime')({event_id: eventID});
+        //console.log("computedNextEarliestAvailableTime function has been called");
         //getEvent(eventID)
         //check time conflict
         //addUserScheduleToEvent(eventID)
@@ -326,16 +330,16 @@ const addSchedule = props => {
   }
 
   const UpdateUserSchedule = async(eventID) => {
-    const eventInfo = await functions().httpsCallable('getEvent')({event_id: eventID});
+    /*const eventInfo = await functions().httpsCallable('getEvent')({event_id: eventID});
     console.log("getEvent function has been called");
-    console.log(eventInfo);
+    console.log(eventInfo);*/
     const data1 = await functions().httpsCallable('addUserScheduleToEvent')({event_id: eventID});
     console.log("addUserScheduleToEvent function has been called");
-    const data2  = await functions().httpsCallable('computeNextEarliestAvailableTime')({event_id: eventID});
-    console.log("computeNextEarliestAvailableTime function has been called");
-    const newEventInfo = await functions().httpsCallable('getEvent')({event_id: eventID});
+    const data2  = await functions().httpsCallable('computedNextEarliestAvailableTime')({event_id: eventID});
+    console.log("computedNextEarliestAvailableTime function has been called");
+    /*const newEventInfo = await functions().httpsCallable('getEvent')({event_id: eventID});
     console.log("getEvent function has been called");
-    console.log(newEventInfo);
+    console.log(newEventInfo);*/
   }
 
 
@@ -413,7 +417,7 @@ const addSchedule = props => {
             </View>
             <Text></Text>
             <View>
-              <Button onPress={handlePress} title="Add Schedule"></Button>
+              <Button onPress={handlePress} title="Add Event"></Button>
             </View>
         </ScrollView>
       </View>

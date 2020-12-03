@@ -35,6 +35,7 @@ import FriendsList from './components/friendsList/friendsList';
 import AddFriend from './components/friendsList/addFriend';
 import FriendRequests from './components/friendsList/friendRequests';
 import FriendInfo from './components/friendsList/friendInfo';
+import FriendsTabBadge from './components/friendsList/friendsTabBadge';
 import EventList from './components/event/eventList';
 import CreateEvent from './components/event/createEvent';
 import EventDetailHost from './components/event/eventDetailHost';
@@ -44,6 +45,8 @@ import EditEventName from './components/event/editEventName';
 import EditEventDescription from './components/event/editEventDescription';
 import EventRequests from './components/event/eventRequests';
 import InviteFriendHost from './components/event/inviteFriendHost';
+import EventsTabBadge from './components/event/eventsTabBadge';
+
 // For signIn
 const Stack = createStackNavigator();
 // For tab
@@ -217,13 +220,13 @@ function LoginApp() {
           screenOptions={({ route }) => ({
             tabBarIcon: () => {
               let iconName;
-
+              if (route.name === "Friends List")
+                return <FriendsTabBadge />
+              
               if (route.name === 'Schedule') {
                 iconName = 'date-range';
               } else if (route.name === 'Events') {
-                iconName = 'meeting-room';
-              } else if (route.name === 'Friends List') {
-                iconName = 'people';
+                return <EventsTabBadge />
               } else if (route.name === "Profile") {
                 iconName = 'account-circle';
               }

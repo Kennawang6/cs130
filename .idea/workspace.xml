@@ -23,12 +23,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a474ca8a-f8e0-4c58-b29b-94b12428339c" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/LetsHang/components/friendsList/friendsTabBadge.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LetsHang/components/friendsList/friendRequests.js" beforeDir="false" afterPath="$PROJECT_DIR$/LetsHang/components/friendsList/friendRequests.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LetsHang/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/LetsHang/App.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/LetsHang/components/friendsList/friendsList.js" beforeDir="false" afterPath="$PROJECT_DIR$/LetsHang/components/friendsList/friendsList.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LetsHang/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/LetsHang/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LetsHang/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/LetsHang/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LetsHang/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/LetsHang/yarn.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -73,10 +71,10 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="536" y="311" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1606096390632">
+    <state x="536" y="311" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1606956122661">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="536" y="311" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1920.1040@0.0.1920.1040" timestamp="1606096390632" />
+    <state x="536" y="311" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1920.1040@0.0.1920.1040" timestamp="1606956122661" />
     <state x="126" y="204" width="1200" height="716" key="AVDManager" timestamp="1606358529893">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>

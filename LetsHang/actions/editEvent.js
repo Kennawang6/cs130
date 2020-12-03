@@ -1,4 +1,4 @@
-import {SET_EVENT, ADD_EVENT, REMOVE_EVENT, CUR_EVENT} from './types'
+import {SET_EVENT, ADD_EVENT, REMOVE_EVENT, CUR_EVENT, EVEN_REQUEST} from './types'
 
 export const setEvent = (eventPair) =>(
 {
@@ -24,5 +24,10 @@ export const editCurEvent = (event) =>(
 {
 	type:"CUR_EVENT",
 	curEvent: event.curEvent,
+});
+
+export const setEventRequest = (eventRequest) =>(
+{	type: "EVEN_REQUEST",
+	eventRequest: eventRequest,
 });
 

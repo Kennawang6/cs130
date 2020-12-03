@@ -19,11 +19,10 @@ class EventRequests extends Component{
             .collection('users')
             .doc(firebase.auth().currentUser.uid)
             .onSnapshot(snapshot => {
-              console.log("hello");
               var noti = snapshot.data().eventNotifications;
+              this.props.reduxSetEventRequest(noti.length);
               var eventNotiPair = [];
               this.getEventNoti(noti);
-              this.props.reduxSetEventRequest(noti.length);
             });
       
   }
@@ -32,7 +31,6 @@ class EventRequests extends Component{
   }*/
 
   getEventNoti = async(eventNotiIDs) =>{
-    console.log("hello1");
     var eventNotiPair = [];
     for (var i = eventNotiIDs.length - 1; i >= 0; i--) {
       var eventInfo = await functions().httpsCallable('getEvent')({event_id: eventNotiIDs[i]});

@@ -102,7 +102,10 @@ const addSchedule = props => {
       timeslot.description = description;
 
       InputValidation(start.date,end.date);
-      CheckOverlap();
+      if(!inputInvalidFormat){
+         CheckOverlap();
+      }
+
       if(inputInvalidFormat||inputOverlap){
           console.log('Not added.')
       }else{

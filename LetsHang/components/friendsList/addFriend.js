@@ -1,5 +1,6 @@
 import React, {useState, Component} from 'react';
-import { View, Text, TouchableOpacity, TextInput, Button, Alert } from 'react-native'
+import { View, TouchableOpacity, Alert } from 'react-native'
+import { Button, Text, Input } from 'react-native-elements';
 import functions from '@react-native-firebase/functions';
 import styles from './styles';
 import Spinner from 'react-native-loading-spinner-overlay';
@@ -75,18 +76,20 @@ class AddFriend extends Component{
                   />
                   </View>
             }
-            <TextInput style = {styles.input}
-                   underlineColorAndroid = "transparent"
-                   placeholder = "Email"
-                   placeholderTextColor = "#1f44f4"
-                   autoCapitalize = "none"
-                   onChangeText={(TextInputValue) => this.setState({friendsEmail: TextInputValue})}
-             />
-                <TouchableOpacity
-                   style = {styles.buttonStyle}
-                   onPress = {this.handlePress}>
-                   <Text style = {styles.submitButtonText}> Send Friend Request </Text>
-                </TouchableOpacity>
+            <View>
+              <Text>Email</Text>
+              <Input
+                placeholder='email address'
+                onChangeText={(TextInputValue) => this.setState({friendsEmail: TextInputValue})}
+              />
+            </View>
+
+            <View>
+              <Button
+                 title=" Send Friend Request"
+                 onPress={this.handlePress}
+              />
+            </View>
           </View>
         );
     }

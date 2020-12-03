@@ -128,8 +128,8 @@ const editSchedule = props => {
       console.log(eventInfo);
       const data1 = await functions().httpsCallable('addUserScheduleToEvent')({event_id: eventID});
       console.log("addUserScheduleToEvent function has been called");
-      const data2  = await functions().httpsCallable('computedNextEarliestAvailableTime')({event_id: eventID});
-      console.log("computedNextEarliestAvailableTime function has been called");
+      const data2  = await functions().httpsCallable('computeNextEarliestAvailableTime')({event_id: eventID});
+      console.log("computeNextEarliestAvailableTime function has been called");
       const newEventInfo = await functions().httpsCallable('getEvent')({event_id: eventID});
       console.log("getEvent function has been called");
       console.log(newEventInfo);
@@ -155,7 +155,7 @@ const editSchedule = props => {
         console.log("addSchedule function has been called");
         console.log(data);
 
-        updateEvents();
+        //updateEvents();
 
         props.navigation.navigate('Schedule');
     }
@@ -171,12 +171,12 @@ const editSchedule = props => {
           console.log("addSchedule function has been called");
           console.log(data);
 
-          updateEvents();
+          //updateEvents();
 
           props.navigation.navigate('Schedule');
       }
 
-    leapYear = (year) =>{
+    const leapYear = (year) =>{
         var result;
         if (year/400){
           result = true
@@ -193,7 +193,7 @@ const editSchedule = props => {
         return result
      }
 
-    inputValidation = (s,e) => {
+    const inputValidation = (s,e) => {
           console.log('Input Validation');
 
           console.log(s.toString());
@@ -330,7 +330,7 @@ const editSchedule = props => {
           }
       }
 
-    checkOverlap = () => {
+    const checkOverlap = () => {
         console.log('checkOverlap')
         const otherSchedule = schedule.filter((event) => event.id!== action.eventID);
         console.log(otherSchedule)
@@ -348,7 +348,7 @@ const editSchedule = props => {
         }
       }
 
-    handleEditPress = () => {
+    const handleEditPress = () => {
         console.log("Button was pressed");
         console.log(description);
         if (description==""){
@@ -395,7 +395,7 @@ const editSchedule = props => {
     }
 
 
-    handleRemovePress = () => {
+    const handleRemovePress = () => {
           console.log("Button was pressed");
           /*
           console.log(description);
@@ -492,11 +492,11 @@ const editSchedule = props => {
         </View>
         <Text></Text>
         <View>
-          <Button onPress={handleEditPress} title="Update Event"></Button>
+          <Button onPress={handleEditPress} title="Update Schedule"></Button>
         </View>
         <Text></Text>
         <View>
-          <Button onPress={handleRemovePress} title="Remove Event"></Button>
+          <Button onPress={handleRemovePress} title="Remove Schedule"></Button>
         </View>
       </ScrollView>
       </View>

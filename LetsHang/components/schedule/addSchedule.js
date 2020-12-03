@@ -120,7 +120,7 @@ const addSchedule = props => {
         sendScheduleEvent();
 
         //Update Event Schedule
-        UpdateEvents();
+        //UpdateEvents();
 
         // Back to Schedule
         props.navigation.navigate('Schedule');
@@ -128,7 +128,7 @@ const addSchedule = props => {
 
   }
 
-    leapYear = (year) =>{
+    const leapYear = (year) =>{
         var result;
         if (year/400){
           result = true
@@ -145,7 +145,7 @@ const addSchedule = props => {
         return result
      }
 
-  InputValidation = (s,e) => {
+  const InputValidation = (s,e) => {
       console.log('Input Validation');
       //Check description not empty
       if(description == ""){
@@ -287,7 +287,7 @@ const addSchedule = props => {
       }
   }
 
-  CheckOverlap = () => {
+  const CheckOverlap = () => {
     console.log('CheckOverlap')
     console.log(schedule.scheduledEvents)
     var size = schedule.scheduledEvents.length;
@@ -314,7 +314,7 @@ const addSchedule = props => {
   //        event finalize
   //        event update
   //
-  UpdateEvents = () =>{
+  const UpdateEvents = () =>{
     for(var i =0; i < EventList.length ;i++){
         var eventID = EventList[i];
         UpdateUserSchedule(eventID);
@@ -331,8 +331,8 @@ const addSchedule = props => {
     console.log(eventInfo);
     const data1 = await functions().httpsCallable('addUserScheduleToEvent')({event_id: eventID});
     console.log("addUserScheduleToEvent function has been called");
-    const data2  = await functions().httpsCallable('computedNextEarliestAvailableTime')({event_id: eventID});
-    console.log("computedNextEarliestAvailableTime function has been called");
+    const data2  = await functions().httpsCallable('computeNextEarliestAvailableTime')({event_id: eventID});
+    console.log("computeNextEarliestAvailableTime function has been called");
     const newEventInfo = await functions().httpsCallable('getEvent')({event_id: eventID});
     console.log("getEvent function has been called");
     console.log(newEventInfo);
@@ -413,7 +413,7 @@ const addSchedule = props => {
             </View>
             <Text></Text>
             <View>
-              <Button onPress={handlePress} title="Add Event"></Button>
+              <Button onPress={handlePress} title="Add Schedule"></Button>
             </View>
         </ScrollView>
       </View>

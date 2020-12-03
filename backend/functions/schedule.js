@@ -37,7 +37,6 @@ class Timeslot {
 
   static merge(timeslot1, timeslot2) {
     // merges 2 timeslots and returns the result
-    console.log("merge " + timeslot1 + " " + timeslot2);
     let start = Math.min(timeslot1.start, timeslot2.start);
     let end = Math.max(timeslot1.end, timeslot2.end);
     let id = Math.min(timeslot1.id, timeslot2.id);
@@ -297,9 +296,9 @@ exports.addTimeslotToScheduleandCombine = functions.https.onCall(async (data, co
             var newTimeslot = {};
             var newTimeslotStarted = false;
             var newTimeslotEnded = false;
+            var newTimeslotId;
             newTimeslot.description = data.timeslot.description;
             newTimeslot.start = data.timeslot.start;
-            newTimeslot.id = data.timeslot.id;
 
             for(const scheduleTimeslot of scheduleData.timeslots){
               const scheduleTimeslotStartTime = scheduleTimeslot.start;
@@ -307,17 +306,20 @@ exports.addTimeslotToScheduleandCombine = functions.https.onCall(async (data, co
 
               if(!newTimeslotStarted){
                 if(startTime <= scheduleTimeslotEndTime){
-                  const newTimeslotStart = "";
+                  let newTimeslotStart = "";
                   if(startTime < scheduleTimeslotStartTime){
                     newTimeslotStart = data.timeslot.start;
+                    newTimeslotId = data.timeslot.id;
                   } else {
                     newTimeslotStart = scheduleTimeslot.start;
+                    newTimeslotId = scheduleTimeslot.id;
                   }
 
                   if(endTime < scheduleTimeslotStartTime){
                       newTimeslot = {
                         start: newTimeslotStart,
                         end: data.timeslot.end,
+                        id: newTimeslotId
                       }
                       newTimeslot.description = newTimeslot.description.concat(", ", scheduleTimeslot.description);
                       finalTimeslots.push(newTimeslot);
@@ -328,6 +330,7 @@ exports.addTimeslotToScheduleandCombine = functions.https.onCall(async (data, co
                       newTimeslot = {
                         start: newTimeslotStart,
                         end: scheduleTimeslot.end,
+                        id: newTimeslotId
                       }
                       newTimeslot.description = newTimeslot.description.concat(", ", scheduleTimeslot.description);
                       finalTimeslots.push(newTimeslot);
@@ -345,12 +348,14 @@ exports.addTimeslotToScheduleandCombine = functions.https.onCall(async (data, co
                 if(endTime < scheduleTimeslotStartTime){
                   newTimeslot.description = newTimeslot.description.concat(", ", scheduleTimeslot.description);
                   newTimeslot.end = data.timeslot.end;
+                  newTimeslot.id = newTimeslotId;
                   finalTimeslots.push(newTimeslot);
                   finalTimeslots.push(scheduleTimeslot);
                   newTimeslotEnded = true;
                 } else if (endTime <= scheduleTimeslotEndTime){
                   newTimeslot.description = newTimeslot.description.concat(", ", scheduleTimeslot.description);
                   newTimeslot.end = scheduleTimeslot.end;
+                  newTimeslot.id = newTimeslotId;
                   finalTimeslots.push(newTimeslot);
                   newTimeslotEnded = true;
                 } else {
@@ -363,6 +368,7 @@ exports.addTimeslotToScheduleandCombine = functions.https.onCall(async (data, co
 
             if(!newTimeslotEnded){
               newTimeslot.end = data.timeslot.end;
+              newTimeslot.id = newTimeslotId;
               finalTimeslots.push(newTimeslot);
               newTimeslotEnded = true;
             }

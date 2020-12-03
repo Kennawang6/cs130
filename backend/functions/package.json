@@ -7,7 +7,7 @@
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
-    "test-online": "npx mocha --ignore test/offline.test.js",
+    "test-online": "npx mocha --exit --ignore test/offline.test.js",
     "test-offline": "npx mocha --ignore test/online.test.js",
     "test-all": "npx mocha --ignore test/online.test.js; npx mocha --ignore test/offline.test.js"
   },
@@ -16,9 +16,9 @@
   },
   "main": "index.js",
   "dependencies": {
-    "firebase": "^8.0.0",
-    "firebase-admin": "^9.2.0",
-    "firebase-functions": "^3.11.0",
+    "firebase": "^8.1.1",
+    "firebase-admin": "^9.4.1",
+    "firebase-functions": "^3.12.0",
     "sinon": "^9.2.1"
   },
   "devDependencies": {

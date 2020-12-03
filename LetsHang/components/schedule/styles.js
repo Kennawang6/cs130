@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
         borderRightWidth: StyleSheet.hairlineWidth,
     },
     monthDateText: {
-        fontSize: 20
+        fontSize: 18
     },
     dayText: {
 

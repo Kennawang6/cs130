@@ -1,5 +1,6 @@
 # UCLA CS 130 Group Project - Let's Hang
 Professor: Miryung Kim
+
 TA: Jason Teoh
 
 Team Members: Aaron Chang, Aseem Sane, Kenna Wang, Nikolas Thuy, Xiaotong Liu, Yu-Hsuan Liu

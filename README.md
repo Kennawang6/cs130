@@ -1,4 +1,4 @@
-# CS 130 Group Project - Let's Hang
+# UCLA CS 130 Group Project - Let's Hang
 Professor: Miryung Kim
 TA: Jason Teoh
 

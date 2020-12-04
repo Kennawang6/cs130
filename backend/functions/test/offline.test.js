@@ -68,8 +68,8 @@ describe('Offline Tests', () => {
       });
 
       afterEach(() => {
-        getStub.resetHistory();
-        setStub.resetHistory();
+        getStub.reset();
+        setStub.reset();
       })
 
       it('should fail if the user is not authenticated', async () => {
@@ -127,8 +127,8 @@ describe('Offline Tests', () => {
       });
 
       afterEach(() => {
-        getStub.resetHistory();
-        dataStub.resetHistory();
+        getStub.reset();
+        dataStub.reset();
       });
 
       it('should fail when the request is not authenticated', async () => {
@@ -178,8 +178,8 @@ describe('Offline Tests', () => {
       });
 
       afterEach(() => {
-        getStub.resetHistory();
-        updateStub.resetHistory();
+        getStub.reset();
+        updateStub.reset();
       });
 
       it('should fail when the request is not authenticated', async () => {
@@ -237,7 +237,7 @@ describe('Offline Tests', () => {
       });
 
       afterEach(() => {
-        getUserStub.resetHistory();
+        getUserStub.reset();
       })
 
       it('should fail if no user id is provided', async () => {
@@ -293,10 +293,10 @@ describe('Offline Tests', () => {
       });
 
       afterEach(() => {
-        getUserByEmailStub.resetHistory();
-        getStub.resetHistory();
-        dataStub.resetHistory();
-        updateStub.resetHistory();
+        getUserByEmailStub.reset();
+        getStub.reset();
+        dataStub.reset();
+        updateStub.reset();
       })
 
       it('should fail when the request is unauthenticated', async () => {
@@ -349,9 +349,9 @@ describe('Offline Tests', () => {
       });
 
       afterEach(() => {
-        getUserByEmailStub.resetHistory();
-        getStub.resetHistory();
-        updateStub.resetHistory();
+        getUserByEmailStub.reset();
+        getStub.reset();
+        updateStub.reset();
       });
 
       it('should fail when the request is not authenticated', async () => {
@@ -404,8 +404,8 @@ describe('Offline Tests', () => {
       });
 
       afterEach(() => {
-        getStub.resetHistory();
-        dataStub.resetHistory();
+        getStub.reset();
+        dataStub.reset();
       });
 
       it('should fail if the request is not authenticated', async () => {
@@ -520,7 +520,7 @@ describe('Offline Tests', () => {
       });
 
       afterEach(() => {
-        getStub.resetHistory();
+        getStub.reset();
       });
 
       it('should fail when the caller is not authenticated', async () => {
@@ -552,7 +552,7 @@ describe('Offline Tests', () => {
       });
 
       it('should return the schedule object when the request is authenticated and the requested schedule is found', async () => {
-        getStub.resolves({exists: true, data: () => [{start: 1, end: 2}]});
+        getStub.resolves({exists: true, data: () => [{start: 1, end: 2, id: 1, description: "timeslot"}]});
         let result = await getSchedule(null, sampleContext);
         assert(getStub.calledOnce);
         assert(result.status == "ok");
@@ -561,6 +561,8 @@ describe('Offline Tests', () => {
         assert(result.schedule.length == 1);
         assert(result.schedule[0].start == 1);
         assert(result.schedule[0].end == 2);
+        assert(result.schedule[0].id == 1);
+        assert(result.schedule[0].description == "timeslot");
       });
     });
 
@@ -572,7 +574,7 @@ describe('Offline Tests', () => {
       });
 
       afterEach(() => {
-        setStub.resetHistory();
+        setStub.reset();
       });
 
       it('should fail when the caller is not authenticated', async () => {
@@ -624,9 +626,9 @@ describe('Offline Tests', () => {
       });
 
       afterEach(() => {
-        getStub.resetHistory();
-        dataStub.resetHistory();
-        updateStub.resetHistory();
+        getStub.reset();
+        dataStub.reset();
+        updateStub.reset();
       });
 
       it('should fail when the caller is not authenticated', async () => {
@@ -721,9 +723,9 @@ describe('Offline Tests', () => {
       });
 
       afterEach(() => {
-        getStub.resetHistory();
-        dataStub.resetHistory();
-        updateStub.resetHistory();
+        getStub.reset();
+        dataStub.reset();
+        updateStub.reset();
       });
 
       it('should fail when the caller is not authenticated', async () => {
@@ -818,7 +820,7 @@ describe('Offline Tests', () => {
       });
 
       afterEach(() => {
-        updateStub.resetHistory();
+        updateStub.reset();
       });
 
       it('should fail when the caller is not authenticated', async () => {
@@ -863,10 +865,10 @@ describe('Offline Tests', () => {
       });
 
       afterEach(() => {
-        getStub.resetHistory();
-        setStub.resetHistory();
-        dataStub.resetHistory();
-        addTimeslotStub.resetHistory();
+        getStub.reset();
+        setStub.reset();
+        dataStub.reset();
+        addTimeslotStub.reset();
       });
 
       it('should fail when uid or timeslot is not provided', async () => {

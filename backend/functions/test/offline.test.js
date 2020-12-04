@@ -4,7 +4,7 @@ const assert = require('assert');
 const sinon = require('sinon');
 
 describe('Offline Tests', () => {
-  let adminInitStub, adminFirestoreStub, adminAuthStub, getterFunction, getterValue, getStub, addStub, setStub, updateStub, dataStub, getUserStub, getUserByEmailStub, test, sampleContext;
+  let adminInitStub, adminFirestoreStub, adminAuthStub, getStub, addStub, setStub, updateStub, dataStub, getUserStub, getUserByEmailStub, test, sampleContext;
 
   before(() => {
     adminInitStub = sinon.stub(admin, 'initializeApp');
@@ -18,7 +18,7 @@ describe('Offline Tests', () => {
     getUserStub = sinon.stub();
     getUserByEmailStub = sinon.stub();
     
-    getterFunction = function() {
+    adminFirestoreStub = sinon.stub(admin, 'firestore').get(function() {
       return function() {
         return {
           collection: sinon.stub().returns({
@@ -35,19 +35,8 @@ describe('Offline Tests', () => {
           })
         }
       }
-    }
+    });
     
-    getterValue = function() {
-      return {
-        FieldValue: {
-          arrayRemove: sinon.stub(),
-          arrayUnion: sinon.stub()
-        }
-      }
-    };
-    
-    adminFirestoreStub = sinon.stub(admin, 'firestore').get(getterFunction);
-// TODO use something like onNthCall to replace the firestores
     adminAuthStub = sinon.stub(admin, 'auth').get(
       function() {
         return function(){
@@ -295,7 +284,7 @@ describe('Offline Tests', () => {
       friendRecordStub = {toJSON: sinon.stub(), uid: "2"};
     });
 
-    describe('addFriend', () => { // TODO incomplete
+    describe('addFriend', () => {
       let addFriend, includesStub;
 
       before(() => {
@@ -350,63 +339,9 @@ describe('Offline Tests', () => {
         assert(result.text);
         assert(result.text == "User document does not exist");
       });
-
-      it('should fail when update() fails', async () => { // TODO
-        getUserByEmailStub.resolves(friendRecordStub);
-        getStub.resolves({exists: true, data: dataStub});
-        dataStub.returns({});
-        updateStub.rejects({message: "error"});
-        let result = await addFriend({friend_email: "email"}, sampleContext);
-        assert(getUserByEmailStub.calledOnce);
-        assert(getStub.calledOnce);
-        assert(updateStub.calledOnce);
-        assert(result.text);
-        assert(result.text == "Firebase error while adding friend");
-      });
-
-      it('should succeed with sending friend request if friend does not have any pending friend requests', async () => {
-        getUserByEmailStub.resolves(friendRecordStub);
-        getStub.resolves({exists: true, data: dataStub});
-        dataStub.returns({});
-        updateStub.resolves();
-        let result = await addFriend({friend_email: "email"}, sampleContext);
-        assert(getUserByEmailStub.calledOnce);
-        assert(getStub.calledOnce);
-        assert(updateStub.calledOnce);
-        assert(result.text);
-        assert(result.text == "Successfully sent friend request");
-      });
-
-      it('should succeed with sending friend request if friend does not have a pending friend request to the user', async () => {
-        getUserByEmailStub.resolves(friendRecordStub);
-        getStub.resolves({exists: true, data: dataStub});
-        dataStub.returns({friendsToAdd: {includes: includesStub}});
-        updateStub.resolves();
-        includesStub.returns(false);
-        let result = await addFriend({friend_email: "email"}, sampleContext);
-        assert(getUserByEmailStub.calledOnce);
-        assert(getStub.calledOnce);
-        assert(updateStub.calledOnce);
-        assert(result.text);
-        assert(result.text == "Successfully sent friend request");
-      });
-
-      it('should succeed with sending friend request if friend does have a pending friend request to the user', async () => {
-        getUserByEmailStub.resolves(friendRecordStub);
-        getStub.resolves({exists: true, data: dataStub});
-        dataStub.returns({friendsToAdd: {includes: includesStub}});
-        updateStub.resolves();
-        includesStub.returns(true);
-        let result = await addFriend({friend_email: "email"}, sampleContext);
-        assert(getUserByEmailStub.calledOnce);
-        assert(getStub.calledOnce);
-        assert(updateStub.calledTwice);
-        assert(result.text);
-        assert(result.text == "Successfully sent friend request");
-      }); // TODO fieldvalue
     });
 
-    describe('removeFriend', () => { // TODO incomplete
+    describe('removeFriend', () => {
       let removeFriend;
 
       before(() => {
@@ -573,7 +508,6 @@ describe('Offline Tests', () => {
         assert(result.friends[0].data == "friend 5")
       });
     });
-    
   });
 
   describe('Schedule Functions', () => {
@@ -950,15 +884,15 @@ describe('Offline Tests', () => {
       });
 
       it('should fail when timeslot is incorrectly formatted', async () => {
-        let result = await addEventToSchedule({uid: 1, timeslot: {start: "text", end: 2}}, null);
+        let result = await addEventToSchedule({uid: 1, timeslot: {start: "text", end: 2, id: 3, description: "add"}}, null);
         assert(result.status == "not ok");
         assert(result.text == "Time format incorrect, check endpoint specification for details");
 
-        result = await addEventToSchedule({uid: 1, timeslot: {start: 1, end: "text"}}, null);
+        result = await addEventToSchedule({uid: 1, timeslot: {start: 1, end: "text", id: 3, description: "add"}}, null);
         assert(result.status == "not ok");
         assert(result.text == "Time format incorrect, check endpoint specification for details");
 
-        result = await addEventToSchedule({uid: 1, timeslot: {start: 2, end: 1}}, null);
+        result = await addEventToSchedule({uid: 1, timeslot: {start: 2, end: 1, id: 3, description: "add"}}, null);
         assert(result.status == "not ok");
         assert(result.text == "Start time later than end time");
 
@@ -968,7 +902,7 @@ describe('Offline Tests', () => {
 
       it('should fail when firestore get() throws an error', async () => {
         getStub.rejects({message: "get test error"});
-        let result = await addEventToSchedule({uid: 1, timeslot: {start: 3, end: 4}}, null);
+        let result = await addEventToSchedule({uid: 1, timeslot: {start: 3, end: 4, id: 3, description: "add"}}, null);
         assert(getStub.calledOnce);
         assert(setStub.notCalled);
         assert(result.status == "not ok");
@@ -977,7 +911,7 @@ describe('Offline Tests', () => {
 
       it('should fail if no schedule is found by get()', async () => {
         getStub.resolves({exists: false});
-        let result = await addEventToSchedule({uid: 1, timeslot: {start: 3, end: 4}}, null);
+        let result = await addEventToSchedule({uid: 1, timeslot: {start: 3, end: 4, id: 3, description: "add"}}, null);
         assert(getStub.calledOnce);
         assert(setStub.notCalled);
         assert(result.status == "not ok");
@@ -986,16 +920,15 @@ describe('Offline Tests', () => {
 
       it('should fail when firestore set() throws an error', async () => {
         getStub.resolves({exists: true, data: dataStub});
-        setStub.rejects({message: "add test error"});
+        setStub.rejects({message: "set test error"});
         dataStub.returns(scheduleStub);
 
-        let result = await addEventToSchedule({uid: 1, timeslot: {start: 3, end: 4}}, null);
-        console.log(result.text);
+        let result = await addEventToSchedule({uid: 1, timeslot: {start: 3, end: 4, id: 3, description: "add"}}, null);
         assert(getStub.calledOnce);
         assert(setStub.calledOnce);
         assert(dataStub.calledOnce);
         assert(result.status == "not ok");
-        assert(result.text == "add test error");
+        assert(result.text == "set test error");
       });
 
       it('should succeed if both get() and set() execute without error', async () => {
@@ -1003,70 +936,12 @@ describe('Offline Tests', () => {
         setStub.resolves();
         dataStub.returns(scheduleStub);
 
-        let result = await addEventToSchedule({uid: 1, timeslot: {start: 3, end: 4}}, null);
-        console.log(result.text);
+        let result = await addEventToSchedule({uid: 1, timeslot: {start: 3, end: 4, id: 3, description: "add"}}, null);
         assert(getStub.calledOnce);
         assert(setStub.calledOnce);
         assert(dataStub.calledOnce);
         assert(result.status == "ok");
         assert(!result.text);
-      });
-    });
-  });
-
-  describe('Event Functions', () => {
-    describe('createEvent', () => {
-      let createEvent, sampleData;
-
-      before(() => {
-        createEvent = test.wrap(functions.createEvent);
-        sampleData = {
-          event_name: "name",
-          description: "description",
-          invitees: [],
-          start_date: 1,
-          end_date: 3,
-          duration: 1
-        };
-      });
-
-      afterEach(() => {
-        addStub.resetHistory();
-        updateStub.resetHistory();
-      });
-
-      it('should fail when the request is not authenticated', async () => {
-        let result = await createEvent({}, {});
-        assert(addStub.notCalled);
-        assert(updateStub.notCalled);
-        assert(result.text);
-        assert(result.text == "Unauthenticated user");
-      });
-
-      it('should fail if add() throws an error', async () => {
-        addStub.reject({message: "error"});
-        let result = await createEvent(sampleData, sampleContext);
-        assert(addStub.calledOnce);
-        assert(updateStub.notCalled);
-        assert(result.text);
-        assert(result.text == "Firebase error");
-      });
-      // TODO fieldstore
-    });
-
-    describe('getEvent', () => {
-      let getEvent;
-
-      before(() => {
-        getEvent = test.wrap(functions.getEvent);
-      });
-
-      afterEach(() => {
-        getStub.resetHistory();
-      });
-
-      it('should fail if the request is not authenticated', () => {
-
       });
     });
   });

@@ -480,7 +480,7 @@ class Schedule extends Component{
               console.log(weekday.format('ddd') + ' is selected! And it is day ' + (i+1) + ' of the week!')
             }}
             themeColor='steelblue'
-            style={{ height: windowHeight*0.81 }}
+            style={{ height: windowHeight*0.883 }}
             titleStyle={{ color: 'black' }}
             dayLabelStyle={{ color: 'black' }}
           />

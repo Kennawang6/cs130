@@ -26,7 +26,7 @@ Team Members: Aaron Chang, Aseem Sane, Kenna Wang, Nikolas Thuy, Xiaotong Liu, Y
       - **online.test.js** online test cases for all classes.
 - **LetsHang** frontend directory
   - **android** directory for the set-up for the android environment, including icons
-  - **ios** directory for the set-up for the ios environment, but this project did not run on ios platform
+  - **ios** directory for the set-up for the ios environment, but this project does not run on ios platform
   - **actions** directory for action files for using react-redux package
     - **types.js** contains the code that defined all the types needed for the application in redux.
     - **saveUserInfo.js** contains the code that defines the actions that will use to update states related to user info in redux.

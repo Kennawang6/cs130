@@ -12,6 +12,21 @@ Team Members: Aaron Chang, Aseem Sane, Kenna Wang, Nikolas Thuy, Xiaotong Liu, Y
 4. Use the command `$npm run android` to run the application on android simulator.
 
 ## Directory Structure
-**backend**
-
-**LetsHang**
+- **backend** backend directory
+  - **functions** directory for our firebase cloud functions
+    - **event.js** contains the code for the event class
+    - **friend.js** contains the code for the friend class
+    - **index.js** initializes the functions
+    - **schedule.js** contains the code for the schedule and timeslot class
+    - **user.js** contains the code for the user class
+    - **test** directory for all backend test cases
+      - **event.test.js** offline test cases for the event class
+      - **offline.test.js** offline test cases for the friend, schedule, and user classes
+      - **online.test.js** online test cases for all classes
+- **LetsHang** frontend directory
+  - actions
+  - android
+  - components
+  - ios
+  - reducers
+  

@@ -10,7 +10,7 @@ Team Members: Aaron Chang, Aseem Sane, Kenna Wang, Nikolas Thuy, Xiaotong Liu, Y
 2. Download or clone this repo.
 3. Open terminal/command prompt, enter the `LetsHang` folder.
 4. Use the command `$npm install` to install all the needed packages for the application.
-5. Use the command `$npm run android` to run the application on android simulator.
+5. Use the command `$npx react-native run-android` to run the application on android simulator.
 
 ## Directory Structure
 - **backend** backend directory
@@ -60,11 +60,11 @@ Team Members: Aaron Chang, Aseem Sane, Kenna Wang, Nikolas Thuy, Xiaotong Liu, Y
       - **friendsTabBadge.js** contains the code for the tab badge notification.
       - **styles.js** contains the code to style all the pages under friendsList directory.
     - **event** directory
-      - **eventList.js** contains the code for event list page. The structure is similar to friendsList.js.
+      - **eventList.js** contains the code for event list page.
       - **createEvent.js** contains the code for create event page. It uses react-native-community/datetimepicker packages to allow users to select time using android device's built-in date picker.
       - **inviteFriend.js** contains the code for invite friend page when the user creates a new event.
       - **eventDetailHost.js** contains the code for event detail page for the host.
-      - **editEventName.js** contains the code for edit event name page for the host.
+      - **editEventName.js** contains the code for editing event name page for the host.
       - **editEventDescription.js** contains the code for edit event description page for the host.
       - **inviteFriendHost.js** contains the code for invite friend page when the host try to invite more friends to the event.
       - **eventDetailMember.js** contains the code for event detail page for the member. The difference between this file and eventDetailHost.js is that the member is not able to update the info of the event, but the user can choose to leave the event.

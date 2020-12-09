@@ -10,7 +10,7 @@ Team Members: Aaron Chang, Aseem Sane, Kenna Wang, Nikolas Thuy, Xiaotong Liu, Y
 2. Download or clone this repo.
 3. Open terminal/command prompt, enter the `LetsHang` folder.
 4. Use the command `$npm install` to install all the needed packages for the application.
-5. Use the command `$npx react-native run-android` to run the application on android simulator.
+5. Use the command `$npx react-native run-android` or `$npm run android` to run the application on android simulator.
 
 ## Directory Structure
 - **backend** backend directory
